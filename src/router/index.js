@@ -35,6 +35,29 @@ const routes = [
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }]
+    },
+    {
+        // 失物招领页面
+        path: '/lose-found',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                path: '/',
+                name: 'Lose-Found',
+                component: () => import('@/views/menus/lose-found/index.vue'),
+                children: [
+                    {
+                        path: 'lose',
+                        name: 'Lose',
+                        component: () => import('@/views/menus/lose-found/pages/lose.vue')
+                    },
+                    {
+                        path: 'found',
+                        name: 'Found',
+                        component: () => import('@/views/menus/lose-found/pages/found.vue')
+                    }
+                ]
+            }]
     }
 ]
 
