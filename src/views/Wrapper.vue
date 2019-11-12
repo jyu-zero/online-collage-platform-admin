@@ -47,6 +47,10 @@ export default {
                 {
                     title: '账号管理',
                     routeName: 'Accounts'
+                },
+                {
+                    title: '新闻管理',
+                    routeName: 'Newsmange'
                 }
             ]
         }
@@ -90,6 +94,7 @@ export default {
             height:100%;
             font-family: 'Source Han Sans CN',sans-serif;
             font-weight: normal;
+            margin: 0;
         }
 
         main{

@@ -35,6 +35,26 @@ const routes = [
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }]
+    },
+    {
+        // 新闻管理页面
+        path: '/newsMange',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Newsmange',
+            component: () => import('@/views/menus/newsMange/index.vue')
+        }]
+    },
+    {
+        // 新闻创建页面
+        path: '/newsMange',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Createnews',
+            component: () => import('@/views/menus/newsMange/createnews.vue')
+        }]
     }
 ]
 
