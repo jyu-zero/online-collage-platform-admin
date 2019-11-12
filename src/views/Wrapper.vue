@@ -47,6 +47,10 @@ export default {
                 {
                     title: '账号管理',
                     routeName: 'Accounts'
+                },
+                {
+                    title: '值班管理',
+                    routeName: 'Duty'
                 }
             ]
         }

@@ -35,6 +35,16 @@ const routes = [
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }]
+    },
+    {
+        // 值班管理页面
+        path: '/duty',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Duty',
+            component: () => import('@/views/menus/duty/index.vue')
+        }]
     }
 ]
 
