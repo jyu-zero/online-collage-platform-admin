@@ -35,6 +35,16 @@ const routes = [
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }]
+    },
+    {
+        // 问答页面
+        path: '/question',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Question',
+            component: () => import('@/views/menus/question-answer/index.vue')
+        }]
     }
 ]
 
