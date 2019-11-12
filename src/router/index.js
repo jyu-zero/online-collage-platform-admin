@@ -57,7 +57,8 @@ const routes = [
                         component: () => import('@/views/menus/lose-found/pages/found.vue')
                     }
                 ]
-            }]
+            }
+        ]
     }
 ]
 
