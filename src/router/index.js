@@ -48,12 +48,12 @@ const routes = [
     },
     {
         // 新闻创建页面
-        path: '/newsMange',
+        path: '/newsCreate',
         component: () => import('@/views/Wrapper.vue'),
         children: [{
             path: '/',
             name: 'Createnews',
-            component: () => import('@/views/menus/newsMange/createnews.vue')
+            component: () => import('@/views/menus/newsCreate/index.vue')
         }]
     }
 ]

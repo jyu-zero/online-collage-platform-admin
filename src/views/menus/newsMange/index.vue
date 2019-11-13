@@ -23,14 +23,18 @@
                 <p class="title">{{newsItem.title}}</p>
                 <p class="top">{{newsItem.top}}</p>
                 <p class="draft">{{newsItem.draft}}</p>
-                <p class="time">{{newsItem.time}} by {{newsItem.title}}</p>
+                <p class="time">{{newsItem.time}}</p>
                 <p class="writer">撰稿人：{{newsItem.writer}}</p>
                 <p class="reviewer">审稿人：{{newsItem.reviewer}}</p>
+                <p class="publish">{{newsItem.publish}}</p>
                 <i class="fa fa-eye" aria-hidden="true"></i>
+                <p class="views">{{newsItem.views}}</p>
                 <div class="editer">
                     <el-button id="button" type="primary">发布</el-button>
-                    <p class="edit">编辑</p>
-                    <p class="delete">删除</p>
+                    <el-link id="edit" icon="el-icon-edit">编辑</el-link>
+                    <template>
+                        <el-button id="delete" type="text" @click="open">删除</el-button>
+                    </template>
                 </div>
             </div>
         </div>
@@ -40,10 +44,12 @@
             layout="prev, pager, next"
             :total="1000">
         </el-pagination> -->
+        <!-- TODO -->
         <div class="page">
             <el-pagination
                 :hide-on-single-page="value"
-                :total="100"
+                :page-count="pageCount"
+                @current-change="getNewsList"
                 layout="prev, pager, next">
             </el-pagination>
         </div>
@@ -51,16 +57,41 @@
 </template>
 
 <script>
+import api from '@/api.js'
+
 export default {
     name: 'Newsmange',
     data(){
         return {
             input: '',
-            checked1: false,
-            checked2: false,
-            checked3: false,
-            checked4: false,
+            checked: false,
             newsList: [
+                {
+                    title: '这是文章的标题',
+                    top: '(置顶)',
+                    draft: '(草稿)',
+                    time: '2019-11-11',
+                    writer: 'xxx',
+                    reviewer: 'xxx',
+                    publish: 0,
+                    views: 1
+                },
+                {
+                    title: '这是文章的标题',
+                    top: '(置顶)',
+                    draft: '(草稿)',
+                    time: '2019-11-11',
+                    writer: 'xxx',
+                    reviewer: 'xxx'
+                },
+                {
+                    title: '这是文章的标题',
+                    top: '(置顶)',
+                    draft: '(草稿)',
+                    time: '2019-11-11',
+                    writer: 'xxx',
+                    reviewer: 'xxx'
+                },
                 {
                     title: '这是文章的标题',
                     top: '(置顶)',
@@ -80,10 +111,40 @@ export default {
             ]
         }
     },
-    // TODO
     methods: {
         createnews(){
-            this.$router.push('Createnews')
+            this.$router.push({ name: 'Createnews' })
+        },
+        // TODO
+        getNewsList(page = 1){
+            this.axios
+                .get('/api' + api.getNewsList, {
+                    params: {
+                        page
+                    }
+                })
+                .then(response => {
+                    if(response.data.code === '0000') { return }
+                    this.newsList = response.data.data.news
+                    this.pageCount = response.data.data.pageCount
+                })
+        },
+        open(){
+            this.$confirm('此操作将永久删除该条新闻，是否继续？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                })
+            })
         }
     }
 }
@@ -111,7 +172,6 @@ export default {
 
     .main{
         flex: 1;
-        // overflow-y: scroll;
     }
 
     .news-item{
@@ -126,7 +186,6 @@ export default {
             margin: 0 0 0 16px;
             font-family: 'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC';
             font-size: 14px;
-            
         }
 
         i{
@@ -142,13 +201,17 @@ export default {
             margin-left: auto;
             text-align: center;
 
-            p{
-                margin-left: 0;
-                font-size: 14px;
-            }
-
             #button{
                 padding: 8px 10px;
+                margin-left: 16px;
+            }
+
+            #edit{
+                margin-left: 16px;
+            }
+
+            #delete{
+                margin-left: 16px;
             }
         }
     }
