@@ -17,8 +17,8 @@
         <div class="content-body" style="display: none;">
             <!-- 基本信息 [开始] -->
             <div class="essential-info">
-                <div class="lose-title">基本信息</div>
-                <div class="lose-info">
+                <div class="lost-title">基本信息</div>
+                <div class="lost-info">
                     <div class="input-div">
                         <input type="text" placeholder="标题">
                         <label>标题</label>
@@ -47,9 +47,9 @@
         </div>
         <div class="content-body">
             <!-- 上传丢失物图片 [开始]] -->
-            <div class="upload-lose-img">
-                <div class="lose-title">上传丢失物图片</div>
-                <div class="lose-upload">
+            <div class="upload-lost-img">
+                <div class="lost-title">上传丢失物图片</div>
+                <div class="lost-upload">
                     <div class="upload-content"></div>
                     <div class="line"></div>
                     <div class="upload-content"></div>
@@ -62,7 +62,7 @@
 
 <script>
 export default {
-    name: 'Lose'
+    name: 'Lost'
 }
 </script>
 
@@ -142,13 +142,13 @@ export default {
             margin: -15px 40px;
             border-radius: 5px;
 
-            .upload-lose-img{
+            .upload-lost-img{
                 height: 365px;
                 width: 500px;
                 text-align: center;
             }
 
-            .lose-upload{
+            .lost-upload{
                 padding: 0 40px;
                 display: flex;
                 justify-content: space-between;
@@ -168,7 +168,7 @@ export default {
             }
 
             // 填写遗失信息
-            .lose-title{
+            .lost-title{
                 text-align: center;
                 font-size: 20px;
                 padding: 5px 0;

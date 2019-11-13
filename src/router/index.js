@@ -36,30 +36,34 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+
+    // 失物招领组界限 ---------
     {
         // 失物招领页面
-        path: '/lose-found',
+        path: '/lost-and-found',
         component: () => import('@/views/Wrapper.vue'),
         children: [
             {
                 path: '/',
-                name: 'Lose-Found',
-                component: () => import('@/views/menus/lose-found/index.vue'),
+                name: 'LostAndFound',
+                component: () => import('@/views/menus/lost-and-found'),
                 children: [
                     {
-                        path: 'lose',
-                        name: 'Lose',
-                        component: () => import('@/views/menus/lose-found/pages/lose.vue')
+                        path: 'lost',
+                        name: 'Lost',
+                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
                     },
                     {
                         path: 'found',
                         name: 'Found',
-                        component: () => import('@/views/menus/lose-found/pages/found.vue')
+                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
                     }
                 ]
             }
         ]
     }
+    // 失物招领组界限 --------- [完]
+
 ]
 
 const router = new VueRouter({

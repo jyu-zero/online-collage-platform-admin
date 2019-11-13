@@ -50,7 +50,7 @@ export default {
                 },
                 {
                     title: '失物招领',
-                    routeName: 'Lose-Found'
+                    routeName: 'LostAndFound'
                 }
             ]
         }

@@ -1,14 +1,14 @@
 <template>
     <div class="all">
         <div class="wrap">
-            <div class="title">失物招领</div>
+            <h2 class="title">失物招领</h2>
             <div class="head-body">
                 <div class="wrap-head">
                     <div class="left-core">
                         <input type="text" class="search-input" placeholder="搜索物品">
                     </div>
                     <div class="right-core">
-                        <button class="btn blue-btn" title="丢失物品" @click="goTo('Lose')">我丢了东西</button>
+                        <button class="btn blue-btn" title="丢失物品" @click="goTo('Lost')">我丢了东西</button>
                         <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">捡到物品</button>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
 <script>
 // import { Button, Message } from 'element-ui'
 export default {
-    name: 'Lose-Found',
+    name: 'LostAndFound',
     data(){
         return {
             imgTotal: 4,
@@ -159,7 +159,7 @@ export default {
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
-            padding: 2px 15px;
+            // padding: 2px 15px;
             color: #000;
             font-size: 30px;
             border-bottom: 1px solid #1e1e1e;
