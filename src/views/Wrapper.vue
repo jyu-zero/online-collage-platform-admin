@@ -47,6 +47,10 @@ export default {
                 {
                     title: '账号管理',
                     routeName: 'Accounts'
+                },
+                {
+                    title: '在线问答',
+                    routeName: 'Questions'
                 }
             ]
         }
