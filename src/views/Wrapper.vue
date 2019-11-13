@@ -55,6 +55,10 @@ export default {
                 {
                     title: '失物招领',
                     routeName: 'LostAndFound'
+                },
+                {
+                    title: '在线问答',
+                    routeName: 'Questions'
                 }
             ]
         }

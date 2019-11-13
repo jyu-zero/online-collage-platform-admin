@@ -36,6 +36,18 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    // 在线问答组界限 ----------
+    {
+        // 在线问答首页
+        path: '/questions',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Questions',
+            component: () => import('@/views/menus/questions/index.vue')
+        }]
+    },
+    // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {
         path: '/news',
