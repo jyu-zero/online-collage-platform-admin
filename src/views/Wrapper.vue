@@ -59,6 +59,10 @@ export default {
                 {
                     title: '在线问答',
                     routeName: 'Questions'
+                },
+                {
+                    title: '值班管理',
+                    routeName: 'DutyScheduling'
                 }
             ]
         }

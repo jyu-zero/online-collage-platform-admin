@@ -93,9 +93,20 @@ const routes = [
                 ]
             }
         ]
-    }
+    },
     // 失物招领组界限 --------- [完]
-
+    // 值班管理组界限 ----------
+    {
+        // 值班管理页面
+        path: '/duty-scheduling',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'DutyScheduling',
+            component: () => import('@/views/menus/duty-scheduling')
+        }]
+    }
+    // 值班管理组界限 ---------- [完]
 ]
 
 const router = new VueRouter({
