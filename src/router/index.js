@@ -36,6 +36,26 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    // 新闻管理组界限 -----------
+    {
+        path: '/news',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                // 新闻管理页面
+                path: '/',
+                name: 'News',
+                component: () => import('@/views/menus/news')
+            },
+            {
+                // 创建新闻页面
+                path: 'create',
+                name: 'CreateNews',
+                component: () => import('@/views/menus/news/CreateNews.vue')
+            }
+        ]
+    },
+    // 新闻管理组界限 ----------- [完]
 
     // 失物招领组界限 ---------
     {
