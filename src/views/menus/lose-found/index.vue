@@ -18,7 +18,7 @@
                     </div>
                     <div class="thing-item" v-for="thingItem of pendingclaimImgMessage" :key="thingItem.id">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img src="./img/2.jpg" alt="">
+                        <img src="" alt="">
                         <div class="position-all flex-center thing-bg">
                             <p class="title">{{thingItem.info}}</p>
                             <!-- 是否学院托管 -->
@@ -27,7 +27,7 @@
                         <div class="info position-all">
                             <div class="bg-blur position-all">
                                 <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img src="./img/2.jpg" alt="">
+                                <img src="" alt="">
                             </div>
                             <div class="info-body">
                                 <div class="body-message">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <router-view></router-view>
+            <router-view :imgSize="imgProportion"></router-view>
         </div>
     </div>
 </template>
@@ -69,6 +69,7 @@ export default {
     data(){
         return {
             imgTotal: 4,
+            imgProportion: {},
             // 待认领信息
             pendingclaimImgMessage: [
                 {
@@ -108,10 +109,15 @@ export default {
         setShowImgAmountn(){
             let divTotalWidth = document.getElementsByClassName('thing')[0].offsetWidth
             let divWidth = document.getElementsByClassName('thing-item')[0].offsetWidth
+            let divHeight = document.getElementsByClassName('thing-item')[0].offsetHeight
             let gapRight = parseInt(getComputedStyle(document.getElementsByClassName('thing-item')[0], null).marginRight)
             let divSize = divWidth + gapRight
             let imgTotal = Math.floor(divTotalWidth / divSize)
             this.imgTotal = imgTotal
+            this.imgSize = {
+                imgWidth: divWidth,
+                imgHeight: divHeight
+            }
             console.log(this.imgTotal)
         },
         // 去往丢东西或者捡到东西

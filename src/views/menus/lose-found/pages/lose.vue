@@ -46,8 +46,15 @@
             </div>
         </div>
         <div class="content-body">
-            <!-- 上传拾取物图片 [开始]] -->
-            <div class="upload-lose-img"></div>
+            <!-- 上传丢失物图片 [开始]] -->
+            <div class="upload-lose-img">
+                <div class="lose-title">上传丢失物图片</div>
+                <div class="lose-upload">
+                    <div class="upload-content"></div>
+                    <div class="line"></div>
+                    <div class="upload-content"></div>
+                </div>
+            </div>
         </div>
     </div>
   </div>
@@ -139,6 +146,25 @@ export default {
                 height: 365px;
                 width: 500px;
                 text-align: center;
+            }
+
+            .lose-upload{
+                padding: 0 40px;
+                display: flex;
+                justify-content: space-between;
+
+                .upload-content{
+                    margin-top: 20px;
+                    height: 120px;
+                    width: 120px;
+                    background-color: #000;
+                }
+
+                .line{
+                    height: 220px;
+                    width: 2px;
+                    background-color: #5e91fa;
+                }
             }
 
             // 填写遗失信息
