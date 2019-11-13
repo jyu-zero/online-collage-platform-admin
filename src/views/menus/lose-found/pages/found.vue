@@ -1,5 +1,7 @@
 <template>
-  <div class="position-all black"></div>
+  <div class="position-all curtain-black">
+    <div></div>
+  </div>
 </template>
 
 <script>
