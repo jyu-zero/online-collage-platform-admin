@@ -49,6 +49,14 @@ export default {
                     routeName: 'Accounts'
                 },
                 {
+                    title: '新闻管理',
+                    routeName: 'News'
+                },
+                {
+                    title: '失物招领',
+                    routeName: 'LostAndFound'
+                },
+                {
                     title: '在线问答',
                     routeName: 'Questions'
                 }
@@ -94,6 +102,7 @@ export default {
             height:100%;
             font-family: 'Source Han Sans CN',sans-serif;
             font-weight: normal;
+            margin: 0;
         }
 
         main{
