@@ -35,7 +35,35 @@ const routes = [
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }]
+    },
+
+    // 失物招领组界限 ---------
+    {
+        // 失物招领页面
+        path: '/lost-and-found',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                path: '/',
+                name: 'LostAndFound',
+                component: () => import('@/views/menus/lost-and-found'),
+                children: [
+                    {
+                        path: 'lost',
+                        name: 'Lost',
+                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
+                    },
+                    {
+                        path: 'found',
+                        name: 'Found',
+                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
+                    }
+                ]
+            }
+        ]
     }
+    // 失物招领组界限 --------- [完]
+
 ]
 
 const router = new VueRouter({

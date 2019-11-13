@@ -47,6 +47,10 @@ export default {
                 {
                     title: '账号管理',
                     routeName: 'Accounts'
+                },
+                {
+                    title: '失物招领',
+                    routeName: 'LostAndFound'
                 }
             ]
         }
