@@ -36,16 +36,18 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    // 值班管理组界限 ----------
     {
         // 值班管理页面
-        path: '/duty',
+        path: '/duty-scheduling',
         component: () => import('@/views/Wrapper.vue'),
         children: [{
             path: '/',
-            name: 'Duty',
-            component: () => import('@/views/menus/duty/index.vue')
+            name: 'DutyScheduling',
+            component: () => import('@/views/menus/duty-scheduling')
         }]
     }
+    // 值班管理组界限 ---------- [完]
 ]
 
 const router = new VueRouter({

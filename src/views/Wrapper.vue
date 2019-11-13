@@ -50,7 +50,7 @@ export default {
                 },
                 {
                     title: '值班管理',
-                    routeName: 'Duty'
+                    routeName: 'DutyScheduling'
                 }
             ]
         }
