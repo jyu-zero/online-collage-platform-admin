@@ -36,26 +36,26 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    // 新闻管理组界限 -----------
     {
-        // 新闻管理页面
-        path: '/newsMange',
+        path: '/news',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Newsmange',
-            component: () => import('@/views/menus/newsMange/index.vue')
-        }]
-    },
-    {
-        // 新闻创建页面
-        path: '/newsCreate',
-        component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Createnews',
-            component: () => import('@/views/menus/newsCreate/index.vue')
-        }]
+        children: [
+            {
+                // 新闻管理页面
+                path: '/',
+                name: 'News',
+                component: () => import('@/views/menus/news')
+            },
+            {
+                // 创建新闻页面
+                path: 'create',
+                name: 'CreateNews',
+                component: () => import('@/views/menus/news/CreateNews.vue')
+            }
+        ]
     }
+    // 新闻管理组界限 ----------- [完]
 ]
 
 const router = new VueRouter({

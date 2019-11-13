@@ -1,8 +1,8 @@
 <template>
-    <div class="news-mange">
+    <div class="news-manage">
         <!-- 新闻页面 -->
         <el-menu class="button">
-            <el-button id="button" type="primary" @click="createnews">创建新闻</el-button>
+            <el-button id="button" type="primary" @click="gotoCreateNews">创建新闻</el-button>
             <el-button id="button" type="primary">删除</el-button>
             <el-button id="button" type="primary">置顶</el-button>
             <div class="search">
@@ -57,10 +57,19 @@
 </template>
 
 <script>
-import api from '@/api.js'
+import { prefix, responseHandler, newsApi } from '@/api'
+import { Button, Menu, Input, Checkbox, Link, Pagination } from 'element-ui'
 
 export default {
-    name: 'Newsmange',
+    name: 'News',
+    components: {
+        [Button.name]: Button,
+        [Menu.name]: Menu,
+        [Input.name]: Input,
+        [Checkbox.name]: Checkbox,
+        [Link.name]: Link,
+        [Pagination.name]: Pagination
+    },
     data(){
         return {
             input: '',
@@ -112,19 +121,21 @@ export default {
         }
     },
     methods: {
-        createnews(){
-            this.$router.push({ name: 'Createnews' })
+        gotoCreateNews(){
+            this.$router.push({ name: 'CreateNews' })
         },
         // TODO
         getNewsList(page = 1){
             this.axios
-                .get('/api' + api.getNewsList, {
+                .get(prefix.api + newsApi.getNewsList, {
                     params: {
                         page
                     }
                 })
                 .then(response => {
-                    if(response.data.code === '0000') { return }
+                    if(!responseHandler(response.data, this)){
+                        // TODO: 在这里处理错误
+                    }
                     this.newsList = response.data.data.news
                     this.pageCount = response.data.data.pageCount
                 })
@@ -151,7 +162,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.news-mange{
+.news-manage{
     height:100%;
     display: flex;
     flex-direction: column;

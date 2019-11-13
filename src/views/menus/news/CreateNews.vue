@@ -50,8 +50,16 @@
 </template>
 
 <script>
+import { Button, Input, Checkbox, Upload } from 'element-ui'
+
 export default {
-    name: 'Createnews',
+    name: 'CreateNews',
+    components: {
+        [Button.name]: Button,
+        [Input.name]: Input,
+        [Checkbox.name]: Checkbox,
+        [Upload.name]: Upload
+    },
     data() {
         return {
             text1: '',

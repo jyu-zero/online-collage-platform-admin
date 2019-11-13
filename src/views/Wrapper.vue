@@ -50,7 +50,7 @@ export default {
                 },
                 {
                     title: '新闻管理',
-                    routeName: 'Newsmange'
+                    routeName: 'News'
                 }
             ]
         }
