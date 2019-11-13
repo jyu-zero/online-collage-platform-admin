@@ -14,17 +14,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in 4" :key="row" v-bind:class="'arrange-table-row_'+row">
-                <td v-for="col in 5" :key="col" v-bind:class="'arrange-table-column_'+col">
-                    <el-select v-model="arrangeModel" multiple placeholder="请安排同学值日" size="small">
-                    <el-option
-                        v-for="item in options"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                    </el-select>
-                </td>
+                <tr v-for="row of arrangeData" :key="row" v-bind:class="'arrange-table-row_'+row.rowId">
+                  <td v-for="col in 5" :key="col" v-bind:class="'arrange-table-column_'+col">
+                      <el-select v-model="row['col_'+col+'Data']" multiple placeholder="请安排同学值日" size="small">
+                      <el-option
+                          v-for="item in options"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                      </el-option>
+                      </el-select>
+                      <span></span>
+                  </td>
                 </tr>
             </tbody>
         </table>
@@ -53,13 +54,17 @@ export default {
     //     [Table.name]: Table,
     //     [TableColumn.name]: TableColumn
     // },
+    props: {
+        row: Number,
+        col: Number
+    },
     data(){
         return {
-            arrangeModel: [
-                {row: 1,col_1Data: 'row_1&col_1',col_2Data: 'row_1&col_2',col_3Data: 'row_1&col_3',col_4Data: 'row_1&col_4',col_5Data: 'row_1&col_5'},
-                {row: 2,col_1Data: 'row_2&col_1',col_2Data: 'row_2&col_2',col_3Data: 'row_2&col_3',col_4Data: 'row_2&col_4',col_5Data: 'row_2&col_5'},
-                {row: 3,col_1Data: 'row_3&col_1',col_2Data: 'row_3&col_2',col_3Data: 'row_3&col_3',col_4Data: 'row_3&col_4',col_5Data: 'row_3&col_5'},
-                {row: 4,col_1Data: 'row_4&col_1',col_2Data: 'row_4&col_2',col_3Data: 'row_4&col_3',col_4Data: 'row_4&col_4',col_5Data: 'row_4&col_5'}
+            arrangeData: [
+                { rowId: 1, col_1Data: 'row_1&col_1', col_2Data: 'row_1&col_2', col_3Data: 'row_1&col_3', col_4Data: 'row_1&col_4', col_5Data: 'row_1&col_5' },
+                { rowId: 2, col_1Data: 'row_2&col_1', col_2Data: 'row_2&col_2', col_3Data: 'row_2&col_3', col_4Data: 'row_2&col_4', col_5Data: 'row_2&col_5' },
+                { rowId: 3, col_1Data: 'row_3&col_1', col_2Data: 'row_3&col_2', col_3Data: 'row_3&col_3', col_4Data: 'row_3&col_4', col_5Data: 'row_3&col_5' },
+                { rowId: 4, col_1Data: 'row_4&col_1', col_2Data: 'row_4&col_2', col_3Data: 'row_4&col_3', col_4Data: 'row_4&col_4', col_5Data: 'row_4&col_5' }
             ],
             options: [{
                 value: '选项1',
@@ -80,8 +85,7 @@ export default {
             }],
             value1: [],
             value2: [],
-            week: false,
-            n: Number
+            week: false
         }
     }
 }
