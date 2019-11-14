@@ -1,33 +1,46 @@
 <template>
     <div class="online-question-and-answer">
         <div id='questions-container'>
+            <!-- 左边的四个按钮和右边的搜索框 -->
             <header>
+                <!-- 四个按钮 -->
                 <div class="left-btn">
                     <el-button type="danger" @click="deleteQuestion">删除</el-button>
-                    <el-button @click="questionToTop">置顶</el-button>
+                    <el-button @click="pinQuestion">置顶</el-button>
                     <el-button @click="lockQuestion">锁定</el-button>
                     <el-button type="primary">问答系统设置</el-button>
                 </div>
+                <!-- 四个按钮 [完]-->
+                <!-- 搜索框 -->
                 <div class="search-bar">
                     <div>
                         <el-input placeholder="请输入内容" v-model="input" class="input-with-select">
+                            <!-- 下拉菜单，用来选择问题的类型 -->
                             <el-select v-model="selectStatus" slot="prepend" placeholder="请选择">
                                 <el-option label="待解决" value="0"></el-option>
                                 <el-option label="已解决" value="1"></el-option>
                             </el-select>
+                            <!-- 下拉菜单，用来选择问题的类型 [完]-->
                             <el-button slot="append" icon="el-icon-search" @click="searchQuestions"></el-button>
                         </el-input>
                     </div>
                 </div>
+                <!-- 搜索框 [完]-->
             </header>
+            <!-- 左边的四个按钮和右边的搜索框 [完]-->
+
+            <!-- 一个用户进行筛选类型名的div和问题的列表 -->
             <main>
+                <!-- 用户筛选 -->
                 <div id="choose">
                     <span>筛选：</span>
                     <button class="choose-btn" @click="focus($event)" ref="btn" v-for="(typeItems,index) in typeName" :key="index">
                         {{typeItems}}
                     </button>
                 </div>
+                <!-- 用户筛选 [完]-->
                 <h1>问题列表</h1>
+                <!-- 问题列表 -->
                 <div class="question-box" v-for="questionItem of questionList" :key="questionItem.questionId">
                     <el-row :gutter="20">
                         <el-col :span="6">
@@ -50,7 +63,11 @@
                         </el-col>
                     </el-row>
                 </div>
+                <!-- 问题列表 [完]-->
             </main>
+            <!-- 一个用户进行筛选类型名的div和问题的列表 [完]-->
+
+            <!-- 分页 -->
             <footer>
                 <el-pagination
                     background
@@ -59,6 +76,7 @@
                     :page-count="pageCount">
                 </el-pagination>
             </footer>
+            <!-- 分页 [完]-->
         </div>
     </div>
 </template>
@@ -81,19 +99,25 @@ export default {
     },
     data(){
         return {
+            // 问题的类型名
             typeName: [],
+            // 用户选择的要进行搜索的类型名，可以是多个类型
             selectName: [],
+            // 用户选择要进行搜索的问题状态（已解决|待解决），默认为-1（即用户没有用问题状态进行搜索）
+            // 0代表待解决，1代表已解决
             selectStatus: '',
+            // 获取的所有问题
             questionList: [],
+            // 获取用户选择要进行操作的问题id，可以是多条
             checkQuestionId: [],
+            // 总页数
             pageCount: 1,
-            input: '',
-            checked1: '',
-            checked2: ''
+            // 用户要进行搜索的内容
+            input: ''
         }
     },
     mounted(){
-        this.getTypeName()
+        this.getQuestionTypes()
         this.getQuestions()
     },
     methods: {
@@ -101,6 +125,7 @@ export default {
             this.getQuestions(val)
             this.page = val
         },
+        // 下面的所有错误请求还未处理
         // 删除问题
         deleteQuestion(){
             this.$axios.post(prefix.api + questionApi.deleteQuestion, {
@@ -114,8 +139,8 @@ export default {
             })
         },
         // 问题置顶
-        questionToTop(){
-            this.$axios.post(prefix.api + questionApi.questionToTop, {
+        pinQuestion(){
+            this.$axios.post(prefix.api + questionApi.getPinnedQuestions, {
                 'questionId': this.checkQuestionId
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
@@ -165,17 +190,15 @@ export default {
             if(!el.classList.contains('select')){
                 el.classList.add('select')
                 this.selectName.push(el.innerHTML)
-                console.log(this.selectName)
                 return
             }
             el.classList.remove('select')
             let index = this.selectName.indexOf(el.innerHTML)
             this.selectName.splice(index, 1)
-            console.log(this.selectName)
         },
-        // 获取类型名
-        getTypeName(){
-            this.$axios.get(prefix.api + questionApi.getTypeName).then((response)=>{
+        // 获取问题类型名
+        getQuestionTypes(){
+            this.$axios.get(prefix.api + questionApi.getQuestionTypes).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     // 在这里处理错误
                     Message.error('请求失败')
