@@ -19,13 +19,14 @@
 
 <script>
 import { prefix, responseHandler, testApi } from '@/api'
-import { Form, FormItem, Button } from 'element-ui'
+import { Form, FormItem, Button, Input } from 'element-ui'
 export default {
     name: 'Login',
     components: {
         [Form.name]: Form,
         [FormItem.name]: FormItem,
-        [Button.name]: Button
+        [Button.name]: Button,
+        [Input.name]: Input
     },
     data(){
         return{

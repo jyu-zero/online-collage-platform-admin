@@ -87,9 +87,17 @@
 
 <script>
 // import responseHandler from '@/utils/responseHandler'
-// import { Button } from 'element-ui'
+import { Button, Table, TableColumn, Select, Option, Pagination } from 'element-ui'
 export default {
     name: 'Accounts',
+    components: {
+        [Button.name]: Button,
+        [Table.name]: Table,
+        [TableColumn.name]: TableColumn,
+        [Select.name]: Select,
+        [Option.name]: Option,
+        [Pagination.name]: Pagination
+    },
     data(){
         return{
             tableData: [{
