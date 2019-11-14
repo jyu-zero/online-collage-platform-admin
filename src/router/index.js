@@ -45,6 +45,18 @@ const routes = [
             name: 'Question',
             component: () => import('@/views/menus/question-answer/index.vue')
         }]
+    },
+    {
+        // TODO: 首页应该设置为后台的首页
+        path: '/qa',
+        name: 'Question-a',
+        component: () => import('@/views/menus/question-answer/specificQuestion.vue')
+    },
+    {
+        // TODO: 首页应该设置为后台的首页
+        path: '/qb',
+        name: 'Question-b',
+        component: () => import('@/views/menus/question-answer/settingQuestion.vue')
     }
 ]
 
