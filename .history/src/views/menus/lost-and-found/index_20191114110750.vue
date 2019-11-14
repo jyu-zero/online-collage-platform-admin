@@ -109,32 +109,13 @@
                         <div class="upload-lost-img">
                             <div class="lost-title">上传丢失物图片</div>
                             <div class="lost-upload">
-                                <div class="upload-content">
-                                    <img :src="uploadImgSrc" alt="">
-                                    <div class="select-size" id="selecting-pre">
-                                        <img :src="uploadImgSrc" class="show-bg" alt="">
-                                    </div>
-                                    <div class="select-size"
-                                         id="selecting-cover"
-                                         @mousedown="beginMoveImg"
-                                         @mousemove="moveSelectImg"
-                                         @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
-                                    ></div>
-                                </div>
+                                <div class="upload-content"></div>
                                 <div class="line"></div>
-                                <!-- <div class="upload-content">
-
-                                </div> -->
+                                <div class="upload-content"></div>
                             </div>
                             <div class="upload-item">
-                                <label for="upload-lost-pic" id="upload-btn">上传图片</label>
-                                <input style="display:none"
-                                        type="file"
-                                        id="upload-lost-pic"
-                                        @change="uploadImg($event)"
-                                        accept="image/gif, image/jpeg, image/jpg, image/png, image/svg"
-                                >
+                                <label for="upload-lose-pic" id="upload-btn">上传图片</label>
+                                <input style="display:none" type="file" name="" id="upload-lose-pic">
                             </div>
                         </div>
                     </div>
@@ -150,20 +131,8 @@ export default {
     name: 'LostAndFound',
     data(){
         return {
-            /**
-             * imgTotal: 页面一行能放多少张图片
-             * uploadImgSrc: 上传图片的地址
-             * isMoveImg: 是否能移动图片
-             * isFirstMoveImg: 是否是第一次移动图片
-             * divPos: 选中的图片框位置
-             * imgSize: 图片的大小,按比例缩小
-             */
             imgTotal: 4,
-            uploadImgSrc: '',
-            isMoveImg: false,
-            isFirstMoveImg: true,
-            divPos: {},
-            imgSize: {},
+            imgProportion: {},
             // 待认领信息
             pendingclaimImgMessage: [
                 {
@@ -209,339 +178,21 @@ export default {
             let imgTotal = Math.floor(divTotalWidth / divSize)
             this.imgTotal = imgTotal
             this.imgSize = {
-                width: divWidth,
-                height: divHeight
+                imgWidth: divWidth,
+                imgHeight: divHeight
             }
+            console.log(this.imgTotal)
         },
         // 去往丢东西或者捡到东西
         showSearchLost(){
             let searchLostEle = document.getElementById('search-lost')
             searchLostEle.style.display = 'block'
-        },
-        // 上传图片
-        uploadImg(e){
-            let file = e.target.files[0]
-            let imgWidth = this.imgSize.width
-            let imgHeight = this.imgSize.height
-            this.setImgSize(file, imgWidth, imgHeight)
-        },
-        // 设置图片大小
-        setImgSize(file, imgWidth, imgHeight){
-            let imgProportion = imgHeight / imgWidth
-            // 显示出来图片的大小
-            let showWidth
-            let showHeight = Math.ceil(imgHeight / imgProportion)
-            // 选中的图片大小
-            let selectWidth = Math.ceil(imgWidth / imgProportion / 2)
-            let selectHeight = Math.ceil(imgHeight / imgProportion / 2)
-            let vue = this
-            let fileReader = new FileReader()
-            fileReader.readAsDataURL(file)
-            fileReader.onload = function() {
-                let img = new Image()
-                img.src = this.result
-                img.onload = function() {
-                    showWidth = Math.ceil((showHeight / img.height) * img.width)
-                    vue.setUploadImgSrc(img.src)
-                    vue.setShowImgDivSize(showWidth, showHeight)
-                    vue.setSelectImgDivSize(selectWidth, selectHeight)
-                }
-            }
-        },
-        setUploadImgSrc(src){
-            this.uploadImgSrc = src
-        },
-        setShowImgDivSize(width, height){
-            let uploadContentEle = document.getElementsByClassName('upload-content')
-            uploadContentEle[0].getElementsByClassName('show-bg')[0].style.width = width + 'px'
-            uploadContentEle[0].getElementsByClassName('show-bg')[0].style.height = height + 'px'
-            uploadContentEle[0].style.width = width + 'px'
-            uploadContentEle[0].style.height = height + 'px'
-        },
-        setSelectImgDivSize(width, height){
-            let selectDivEle = document.getElementsByClassName('select-size')
-            for(let i = 0; i < selectDivEle.length; i++){
-                selectDivEle[i].style.width = width + 'px'
-                selectDivEle[i].style.height = height + 'px'
-            }
-        },
-        moveSelectImg(event){
-            setTimeout(() => {
-                if(this.isMoveImg){
-                    let selectingPreEle = document.getElementById('selecting-pre')
-                    let selectingPreImgEle = selectingPreEle.getElementsByTagName('img')[0]
-                    let selectingCoverEle = document.getElementById('selecting-cover')
-                    let parentEle = selectingCoverEle.parentElement
-                    let pos = this.getPos(parentEle, event)
-                    let x = pos.x - this.pos.x
-                    let y = pos.y - this.pos.y
-                    console.log(parentEle.offsetHeight)
-                    if(y < (parentEle.offsetHeight - selectingCoverEle.offsetHeight) && y >= 0){
-                        selectingPreEle.style.top = y + 'px'
-                        selectingCoverEle.style.top = y + 'px'
-                        selectingPreImgEle.style.top = -y + 'px'
-                    }
-                    if(x < (parentEle.offsetWidth - selectingCoverEle.offsetWidth) && x >= 0){
-                        selectingPreEle.style.left = x + 'px'
-                        selectingCoverEle.style.left = x + 'px'
-                        selectingPreImgEle.style.left = -x + 'px'
-                    }
-                }
-            }, 20)
-        },
-        beginMoveImg(event){
-            this.isMoveImg = true
-            if(this.isFirstMoveImg){
-                this.isFirstMoveImg = false
-                let selectingCoverEle = document.getElementById('selecting-cover')
-                this.pos = this.getPos(selectingCoverEle.parentElement, event)
-            }
-        },
-        endMoveImg(){
-            this.isMoveImg = false
-        },
-        getPos(div, event) {
-            let wrapLeft = document.getElementsByClassName('all')[0].offsetLeft
-            let wrapTop = document.getElementsByClassName('all')[0].offsetTop
-            let mousePos = this.getMousePos(event)
-            let divPos = this.getDivPos(div)
-            let pos = {
-                x: mousePos.x - divPos.x,
-                y: mousePos.y - divPos.y
-            }
-            pos.x -= wrapLeft
-            pos.y -= wrapTop
-            return pos
-        },
-        getMousePos(event) {
-            let x = event.pageX
-            let y = event.pageY
-            return { x: x, y: y }
-        },
-        getDivPos(div) {
-            let x = div.offsetLeft
-            let y = div.offsetTop
-            return { x: x, y: y }
         }
     }
 }
 </script>
 
 <style lang="less" scoped>
-    .curtain-black{
-        z-index: 999;
-        background-color: rgba(0, 0, 0, .7);
-
-        .content{
-            width: 700px;
-            margin: 150px auto;
-            // background-color: #eee;
-
-            .bar{
-                position: relative;
-                display: inline-block;
-                height: 350px;
-                width: 3px;
-                background-color: #fff;
-                font-size: 14px;
-
-                .bar-name{
-                    cursor: pointer;
-                    box-sizing: border-box;
-                    color: #fff;
-                    text-align: center;
-                    line-height: 30px;
-                    position: absolute;
-                    left: 50%;
-                    transform: translateX(-50%) translateY(-50%);
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    border: 2.5px solid #fff;
-                    background-color: #86b7e7;
-
-                    .brief{
-                        font-size: 16px;
-                        visibility: hidden;
-                        opacity: 0;
-                        position: absolute;
-                        white-space: nowrap;
-                        text-align: right;
-                        width: 140px;
-                        top: 50%;
-                        left: -160px;
-                        transform: translateY(-50%);
-                        transition: all .3s;
-
-                        span{
-                            color: #ddd;
-                            display: inline-block;
-                            padding: 3px 12px;
-                            background-color: rgba(0, 0, 0, .7);
-                            border-radius: 5px;
-                        }
-                    }
-                }
-
-                span:hover .brief{
-                    visibility: visible;
-                    opacity: 1;
-                }
-
-                span:nth-child(2){
-                    top: 0%;
-                }
-
-                span:nth-child(3){
-                    top: 50%;
-                }
-                span:nth-child(4){
-                    top: 100%;
-                }
-            }
-
-            .content-body{
-                display: inline-block;
-                vertical-align: top;
-                background-color: #fff;
-                padding: 10px 20px;
-                margin: -15px 40px;
-                border-radius: 5px;
-
-                .upload-lost-img{
-                    width: 500px;
-                    text-align: center;
-                }
-
-                .lost-upload{
-                    padding: 0 40px;
-                    display: flex;
-                    justify-content: space-between;
-
-                    .upload-content{
-                        position: relative;
-                        height: 120px;
-                        width: 120px;
-                        background-color: #000;
-
-                        #selecting-cover{
-                            border: 0;
-                        }
-
-                        .select-size{
-                            position: absolute;
-                            overflow: hidden;
-                            border: 1.2px solid #ddd;
-                            cursor: move;
-                            user-select: none;
-
-                            .show-bg{
-                                filter: brightness(1);
-                            }
-                        }
-
-                        img{
-                            position: absolute;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            filter: brightness(.5);
-                        }
-                    }
-
-                    .line{
-                        height: 220px;
-                        width: 2px;
-                        background-color: #5e91fa;
-                    }
-                }
-
-                .upload-item{
-                    #upload-btn{
-                        background-color: #60cde9;
-                        border-radius: 0.35em;
-                        cursor: pointer;
-                        color: white;
-                        display: inline-block;
-                        padding: 8px 14px;
-                    }
-                }
-
-                // 填写遗失信息
-                .lost-title{
-                    text-align: center;
-                    font-size: 20px;
-                    padding: 5px 0;
-                    background-color: inherit;
-                    font-weight: 500px;
-                    margin-bottom: 15px;
-                }
-
-                .essential-info{
-                    padding: 0 45px;
-                    height: 365px;
-                    width: 250px;
-                    text-align: center;
-
-                    .info-input{
-                        position: relative;
-                    }
-
-                    .gotoNext-btn{
-                        text-align: right;
-
-                        button{
-                            background-color: transparent;
-                            cursor: pointer;
-                            font-size: 15px;
-                            border: none;
-                            font-size: 600;
-                            color: #6c9dff;
-                            outline: none;
-                        }
-
-                        button:hover{
-                            text-decoration: underline;
-                        }
-                    }
-
-                    input{
-                        border: 1px solid rgba(0, 0, 0, .5);
-                        box-shadow: inset 0 1px 1px 0 rgba(0, 0, 0, .5);
-                        border-radius: 3px;
-                        outline: none;
-                        font-size: 14px;
-                        padding: 3px 8px;
-                        margin: 12px 0;
-                        width: 160px;
-                        height: 30px;
-                    }
-
-                    input:focus + label{
-                        opacity: 1;
-                    }
-                    label{
-                        transition: opacity .4s;
-                        opacity: 0;
-                        position: absolute;
-                        color: #5e91fa;
-                        font-size: 13px;
-                        top: -8px;
-                        left: 0;
-                    }
-                    input::placeholder{
-                        transition: transform .3s;
-                        font-size: 13px;
-                    }
-
-                    input:focus::placeholder{
-                        transform: translateY(-20px) translateX(-10px);
-                    }
-                }
-            }
-        }
-    }
     input{
         outline: none;
     }
@@ -841,6 +492,186 @@ export default {
         height: 100%;
         top: 0;
         left: 0;
+    }
+
+    .curtain-black{
+        z-index: 999;
+        background-color: rgba(0, 0, 0, .7);
+
+        .content{
+            width: 700px;
+            margin: 150px auto;
+            // background-color: #eee;
+
+            .bar{
+                position: relative;
+                display: inline-block;
+                height: 350px;
+                width: 3px;
+                background-color: #fff;
+                font-size: 14px;
+
+                .bar-name{
+                    cursor: pointer;
+                    box-sizing: border-box;
+                    color: #fff;
+                    text-align: center;
+                    line-height: 30px;
+                    position: absolute;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(-50%);
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: 2.5px solid #fff;
+                    background-color: #86b7e7;
+
+                    .brief{
+                        font-size: 16px;
+                        visibility: hidden;
+                        opacity: 0;
+                        position: absolute;
+                        white-space: nowrap;
+                        text-align: right;
+                        width: 140px;
+                        top: 50%;
+                        left: -160px;
+                        transform: translateY(-50%);
+                        transition: all .3s;
+
+                        span{
+                            color: #ddd;
+                            display: inline-block;
+                            padding: 3px 12px;
+                            background-color: rgba(0, 0, 0, .7);
+                            border-radius: 5px;
+                        }
+                    }
+                }
+
+                span:hover .brief{
+                    visibility: visible;
+                    opacity: 1;
+                }
+
+                span:nth-child(2){
+                    top: 0%;
+                }
+
+                span:nth-child(3){
+                    top: 50%;
+                }
+                span:nth-child(4){
+                    top: 100%;
+                }
+            }
+
+            .content-body{
+                display: inline-block;
+                vertical-align: top;
+                background-color: #fff;
+                padding: 10px 20px;
+                margin: -15px 40px;
+                border-radius: 5px;
+
+                .upload-lost-img{
+                    height: 365px;
+                    width: 500px;
+                    text-align: center;
+                }
+
+                .lost-upload{
+                    padding: 0 40px;
+                    display: flex;
+                    justify-content: space-between;
+
+                    .upload-content{
+                        margin-top: 20px;
+                        height: 120px;
+                        width: 120px;
+                        background-color: #000;
+                    }
+
+                    .line{
+                        height: 220px;
+                        width: 2px;
+                        background-color: #5e91fa;
+                    }
+                }
+
+                // 填写遗失信息
+                .lost-title{
+                    text-align: center;
+                    font-size: 20px;
+                    padding: 5px 0;
+                    background-color: inherit;
+                    font-weight: 500px;
+                    margin-bottom: 15px;
+                }
+
+                .essential-info{
+                    padding: 0 45px;
+                    height: 365px;
+                    width: 250px;
+                    text-align: center;
+
+                    .info-input{
+                        position: relative;
+                    }
+
+                    .gotoNext-btn{
+                        text-align: right;
+
+                        button{
+                            background-color: transparent;
+                            cursor: pointer;
+                            font-size: 15px;
+                            border: none;
+                            font-size: 600;
+                            color: #6c9dff;
+                            outline: none;
+                        }
+
+                        button:hover{
+                            text-decoration: underline;
+                        }
+                    }
+
+                    input{
+                        border: 1px solid rgba(0, 0, 0, .5);
+                        box-shadow: inset 0 1px 1px 0 rgba(0, 0, 0, .5);
+                        border-radius: 3px;
+                        outline: none;
+                        font-size: 14px;
+                        padding: 3px 8px;
+                        margin: 12px 0;
+                        width: 160px;
+                        height: 30px;
+                    }
+
+                    input:focus + label{
+                        opacity: 1;
+                    }
+                    label{
+                        transition: opacity .4s;
+                        opacity: 0;
+                        position: absolute;
+                        color: #5e91fa;
+                        font-size: 13px;
+                        top: -8px;
+                        left: 0;
+                    }
+                    input::placeholder{
+                        transition: transform .3s;
+                        font-size: 13px;
+                    }
+
+                    input:focus::placeholder{
+                        transform: translateY(-20px) translateX(-10px);
+                    }
+                }
+            }
+        }
     }
 
     .flex-center{

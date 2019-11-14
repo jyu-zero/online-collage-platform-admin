@@ -119,13 +119,12 @@
                                          @mousedown="beginMoveImg"
                                          @mousemove="moveSelectImg"
                                          @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
                                     ></div>
                                 </div>
                                 <div class="line"></div>
-                                <!-- <div class="upload-content">
+                                <div class="upload-content">
 
-                                </div> -->
+                                </div>
                             </div>
                             <div class="upload-item">
                                 <label for="upload-lost-pic" id="upload-btn">上传图片</label>
@@ -279,12 +278,6 @@ export default {
                     if(y < (parentEle.offsetHeight - selectingCoverEle.offsetHeight) && y >= 0){
                         selectingPreEle.style.top = y + 'px'
                         selectingCoverEle.style.top = y + 'px'
-                        selectingPreImgEle.style.top = -y + 'px'
-                    }
-                    if(x < (parentEle.offsetWidth - selectingCoverEle.offsetWidth) && x >= 0){
-                        selectingPreEle.style.left = x + 'px'
-                        selectingCoverEle.style.left = x + 'px'
-                        selectingPreImgEle.style.left = -x + 'px'
                     }
                 }
             }, 20)

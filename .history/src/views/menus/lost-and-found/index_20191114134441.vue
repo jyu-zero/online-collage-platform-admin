@@ -109,7 +109,7 @@
                         <div class="upload-lost-img">
                             <div class="lost-title">上传丢失物图片</div>
                             <div class="lost-upload">
-                                <div class="upload-content">
+                                <div class="upload-content" @mousemove="endMoveImg">
                                     <img :src="uploadImgSrc" alt="">
                                     <div class="select-size" id="selecting-pre">
                                         <img :src="uploadImgSrc" class="show-bg" alt="">
@@ -119,7 +119,6 @@
                                          @mousedown="beginMoveImg"
                                          @mousemove="moveSelectImg"
                                          @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
                                     ></div>
                                 </div>
                                 <div class="line"></div>

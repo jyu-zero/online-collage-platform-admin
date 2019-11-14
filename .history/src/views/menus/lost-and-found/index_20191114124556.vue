@@ -111,21 +111,19 @@
                             <div class="lost-upload">
                                 <div class="upload-content">
                                     <img :src="uploadImgSrc" alt="">
-                                    <div class="select-size" id="selecting-pre">
+                                    <div class="select-size">
                                         <img :src="uploadImgSrc" class="show-bg" alt="">
                                     </div>
                                     <div class="select-size"
-                                         id="selecting-cover"
+                                         id="selecting"
                                          @mousedown="beginMoveImg"
                                          @mousemove="moveSelectImg"
-                                         @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
                                     ></div>
                                 </div>
                                 <div class="line"></div>
-                                <!-- <div class="upload-content">
+                                <div class="upload-content">
 
-                                </div> -->
+                                </div>
                             </div>
                             <div class="upload-item">
                                 <label for="upload-lost-pic" id="upload-btn">上传图片</label>
@@ -150,19 +148,10 @@ export default {
     name: 'LostAndFound',
     data(){
         return {
-            /**
-             * imgTotal: 页面一行能放多少张图片
-             * uploadImgSrc: 上传图片的地址
-             * isMoveImg: 是否能移动图片
-             * isFirstMoveImg: 是否是第一次移动图片
-             * divPos: 选中的图片框位置
-             * imgSize: 图片的大小,按比例缩小
-             */
             imgTotal: 4,
             uploadImgSrc: '',
             isMoveImg: false,
             isFirstMoveImg: true,
-            divPos: {},
             imgSize: {},
             // 待认领信息
             pendingclaimImgMessage: [
@@ -268,49 +257,20 @@ export default {
         moveSelectImg(event){
             setTimeout(() => {
                 if(this.isMoveImg){
-                    let selectingPreEle = document.getElementById('selecting-pre')
-                    let selectingPreImgEle = selectingPreEle.getElementsByTagName('img')[0]
-                    let selectingCoverEle = document.getElementById('selecting-cover')
-                    let parentEle = selectingCoverEle.parentElement
-                    let pos = this.getPos(parentEle, event)
-                    let x = pos.x - this.pos.x
-                    let y = pos.y - this.pos.y
-                    console.log(parentEle.offsetHeight)
-                    if(y < (parentEle.offsetHeight - selectingCoverEle.offsetHeight) && y >= 0){
-                        selectingPreEle.style.top = y + 'px'
-                        selectingCoverEle.style.top = y + 'px'
-                        selectingPreImgEle.style.top = -y + 'px'
-                    }
-                    if(x < (parentEle.offsetWidth - selectingCoverEle.offsetWidth) && x >= 0){
-                        selectingPreEle.style.left = x + 'px'
-                        selectingCoverEle.style.left = x + 'px'
-                        selectingPreImgEle.style.left = -x + 'px'
-                    }
+                    console.log('11')
                 }
             }, 20)
         },
         beginMoveImg(event){
-            this.isMoveImg = true
-            if(this.isFirstMoveImg){
-                this.isFirstMoveImg = false
-                let selectingCoverEle = document.getElementById('selecting-cover')
-                this.pos = this.getPos(selectingCoverEle.parentElement, event)
-            }
-        },
-        endMoveImg(){
-            this.isMoveImg = false
+            
         },
         getPos(div, event) {
-            let wrapLeft = document.getElementsByClassName('all')[0].offsetLeft
-            let wrapTop = document.getElementsByClassName('all')[0].offsetTop
             let mousePos = this.getMousePos(event)
             let divPos = this.getDivPos(div)
             let pos = {
                 x: mousePos.x - divPos.x,
                 y: mousePos.y - divPos.y
             }
-            pos.x -= wrapLeft
-            pos.y -= wrapTop
             return pos
         },
         getMousePos(event) {
@@ -423,10 +383,6 @@ export default {
                         height: 120px;
                         width: 120px;
                         background-color: #000;
-
-                        #selecting-cover{
-                            border: 0;
-                        }
 
                         .select-size{
                             position: absolute;

@@ -119,7 +119,6 @@
                                          @mousedown="beginMoveImg"
                                          @mousemove="moveSelectImg"
                                          @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
                                     ></div>
                                 </div>
                                 <div class="line"></div>

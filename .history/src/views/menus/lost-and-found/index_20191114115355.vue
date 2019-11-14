@@ -110,22 +110,14 @@
                             <div class="lost-title">上传丢失物图片</div>
                             <div class="lost-upload">
                                 <div class="upload-content">
-                                    <img :src="uploadImgSrc" alt="">
-                                    <div class="select-size" id="selecting-pre">
-                                        <img :src="uploadImgSrc" class="show-bg" alt="">
+                                    <img src="./img/ddloo70.jpg" alt="">
+                                    <div class="select-size">
+                                        <img src="" alt="">
                                     </div>
-                                    <div class="select-size"
-                                         id="selecting-cover"
-                                         @mousedown="beginMoveImg"
-                                         @mousemove="moveSelectImg"
-                                         @mouseup="endMoveImg"
-                                         @mouseleave="endMoveImg"
-                                    ></div>
+                                    <div class="select-size"></div>
                                 </div>
                                 <div class="line"></div>
-                                <!-- <div class="upload-content">
-
-                                </div> -->
+                                <div class="upload-content"></div>
                             </div>
                             <div class="upload-item">
                                 <label for="upload-lost-pic" id="upload-btn">上传图片</label>
@@ -150,19 +142,10 @@ export default {
     name: 'LostAndFound',
     data(){
         return {
-            /**
-             * imgTotal: 页面一行能放多少张图片
-             * uploadImgSrc: 上传图片的地址
-             * isMoveImg: 是否能移动图片
-             * isFirstMoveImg: 是否是第一次移动图片
-             * divPos: 选中的图片框位置
-             * imgSize: 图片的大小,按比例缩小
-             */
             imgTotal: 4,
             uploadImgSrc: '',
             isMoveImg: false,
             isFirstMoveImg: true,
-            divPos: {},
             imgSize: {},
             // 待认领信息
             pendingclaimImgMessage: [
@@ -212,6 +195,7 @@ export default {
                 width: divWidth,
                 height: divHeight
             }
+            console.log(this.imgTotal)
         },
         // 去往丢东西或者捡到东西
         showSearchLost(){
@@ -228,100 +212,23 @@ export default {
         // 设置图片大小
         setImgSize(file, imgWidth, imgHeight){
             let imgProportion = imgHeight / imgWidth
-            // 显示出来图片的大小
-            let showWidth
-            let showHeight = Math.ceil(imgHeight / imgProportion)
-            // 选中的图片大小
-            let selectWidth = Math.ceil(imgWidth / imgProportion / 2)
-            let selectHeight = Math.ceil(imgHeight / imgProportion / 2)
+            let width = Math.ceil(imgWidth / imgProportion)
             let vue = this
+            let height
             let fileReader = new FileReader()
             fileReader.readAsDataURL(file)
-            fileReader.onload = function() {
+            fileReader.onload = function(vue) {
                 let img = new Image()
                 img.src = this.result
-                img.onload = function() {
-                    showWidth = Math.ceil((showHeight / img.height) * img.width)
+                img.onload = function(vue) {
+                    height = Math.ceil((width / img.width) * img.height)
                     vue.setUploadImgSrc(img.src)
-                    vue.setShowImgDivSize(showWidth, showHeight)
-                    vue.setSelectImgDivSize(selectWidth, selectHeight)
+                    // vue.set
                 }
             }
         },
         setUploadImgSrc(src){
-            this.uploadImgSrc = src
-        },
-        setShowImgDivSize(width, height){
-            let uploadContentEle = document.getElementsByClassName('upload-content')
-            uploadContentEle[0].getElementsByClassName('show-bg')[0].style.width = width + 'px'
-            uploadContentEle[0].getElementsByClassName('show-bg')[0].style.height = height + 'px'
-            uploadContentEle[0].style.width = width + 'px'
-            uploadContentEle[0].style.height = height + 'px'
-        },
-        setSelectImgDivSize(width, height){
-            let selectDivEle = document.getElementsByClassName('select-size')
-            for(let i = 0; i < selectDivEle.length; i++){
-                selectDivEle[i].style.width = width + 'px'
-                selectDivEle[i].style.height = height + 'px'
-            }
-        },
-        moveSelectImg(event){
-            setTimeout(() => {
-                if(this.isMoveImg){
-                    let selectingPreEle = document.getElementById('selecting-pre')
-                    let selectingPreImgEle = selectingPreEle.getElementsByTagName('img')[0]
-                    let selectingCoverEle = document.getElementById('selecting-cover')
-                    let parentEle = selectingCoverEle.parentElement
-                    let pos = this.getPos(parentEle, event)
-                    let x = pos.x - this.pos.x
-                    let y = pos.y - this.pos.y
-                    console.log(parentEle.offsetHeight)
-                    if(y < (parentEle.offsetHeight - selectingCoverEle.offsetHeight) && y >= 0){
-                        selectingPreEle.style.top = y + 'px'
-                        selectingCoverEle.style.top = y + 'px'
-                        selectingPreImgEle.style.top = -y + 'px'
-                    }
-                    if(x < (parentEle.offsetWidth - selectingCoverEle.offsetWidth) && x >= 0){
-                        selectingPreEle.style.left = x + 'px'
-                        selectingCoverEle.style.left = x + 'px'
-                        selectingPreImgEle.style.left = -x + 'px'
-                    }
-                }
-            }, 20)
-        },
-        beginMoveImg(event){
-            this.isMoveImg = true
-            if(this.isFirstMoveImg){
-                this.isFirstMoveImg = false
-                let selectingCoverEle = document.getElementById('selecting-cover')
-                this.pos = this.getPos(selectingCoverEle.parentElement, event)
-            }
-        },
-        endMoveImg(){
-            this.isMoveImg = false
-        },
-        getPos(div, event) {
-            let wrapLeft = document.getElementsByClassName('all')[0].offsetLeft
-            let wrapTop = document.getElementsByClassName('all')[0].offsetTop
-            let mousePos = this.getMousePos(event)
-            let divPos = this.getDivPos(div)
-            let pos = {
-                x: mousePos.x - divPos.x,
-                y: mousePos.y - divPos.y
-            }
-            pos.x -= wrapLeft
-            pos.y -= wrapTop
-            return pos
-        },
-        getMousePos(event) {
-            let x = event.pageX
-            let y = event.pageY
-            return { x: x, y: y }
-        },
-        getDivPos(div) {
-            let x = div.offsetLeft
-            let y = div.offsetTop
-            return { x: x, y: y }
+            this.imgSelect = src
         }
     }
 }
@@ -409,6 +316,7 @@ export default {
                 border-radius: 5px;
 
                 .upload-lost-img{
+                    height: 365px;
                     width: 500px;
                     text-align: center;
                 }
@@ -420,25 +328,10 @@ export default {
 
                     .upload-content{
                         position: relative;
+                        margin-top: 20px;
                         height: 120px;
                         width: 120px;
                         background-color: #000;
-
-                        #selecting-cover{
-                            border: 0;
-                        }
-
-                        .select-size{
-                            position: absolute;
-                            overflow: hidden;
-                            border: 1.2px solid #ddd;
-                            cursor: move;
-                            user-select: none;
-
-                            .show-bg{
-                                filter: brightness(1);
-                            }
-                        }
 
                         img{
                             position: absolute;
@@ -446,7 +339,6 @@ export default {
                             left: 0;
                             width: 100%;
                             height: 100%;
-                            filter: brightness(.5);
                         }
                     }
 
