@@ -124,7 +124,7 @@
             </div>
         </el-col>
         <el-col :span="6">
-            <div class="grid-content bg-purple-light">-
+            <div class="grid-content bg-purple-light">
             </div>
         </el-col>
         <el-col :span="6">
@@ -135,9 +135,19 @@
 </template>
 
 <script>
-// import { Button, DateTimePicker, Input, Checkbox, Card } from 'element-ui'
+import { prefix, responseHandler, questionApi } from '@/api'
+import { Button, Input, DatePicker, Checkbox, Card, Col, Row } from 'element-ui'
 export default {
-    name: 'Question-b',
+    name: 'QuestionSetting',
+    components: {
+        [Button.name]: Button,
+        [Input.name]: Input,
+        [DatePicker.name]: DatePicker,
+        [Checkbox.name]: Checkbox,
+        [Card.name]: Card,
+        [Col.name]: Col,
+        [Row.name]: Row
+    },
     data () {
         return {
             checked: 'true',
@@ -156,7 +166,7 @@ export default {
             window.console.log(new Date(this.begintime).getTime())
         },
         getQuestionType(){
-            axios.get('/api' + api.getQuestionType, {
+            this.$axios.get(prefix.api + questionApi.getTypeName, {
             }).then(response=>{
                 if (response.data.code === '0000') {
                     response.data.data.forEach((item) => {

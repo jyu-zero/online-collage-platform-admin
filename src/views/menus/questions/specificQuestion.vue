@@ -1,19 +1,9 @@
 <template>
     <div id = "app">
         <el-container style = "height: 100%; border: 1px solid #eee">
-        <el-asid></el-asid>
-        <el-header style = "text-align: left; font-size: 12px;padding-top:20px;">
-            <el-row>
-                <el-col :span = "6"><div class = "grid-content bg-purple-dark"><h1>线上学院后台管理系统</h1></div></el-col>
-                <el-col :span = "12"><div class = "grid-content bg-purple-dark"></div></el-col>
-                <el-col :span = "6"><div class = "grid-content bg-purple-dark"></div>
-                    <div class = "grid-content bg-purple-dark"></div>
-                </el-col>
-            </el-row>
-        </el-header>
         <el-main>
             <el-breadcrumb separator = "/">
-                <el-row>
+                <!-- <el-row>
                     <el-col :span = "24">
                         <div class = "grid-content bg-purple-dark">
                             <el-breadcrumb-item :to = "{ path: '/' }">首页</el-breadcrumb-item>
@@ -21,7 +11,7 @@
                             <el-breadcrumb-item>问题页</el-breadcrumb-item>
                         </div>
                     </el-col>
-                </el-row>
+                </el-row> -->
                 <el-row class = "question-description" :gutter = "10">
                     <el-col :span = "20">
                         <div class = "grid-content bg-purple-dark">
@@ -110,16 +100,19 @@
 <script>
 import E from 'wangeditor'
 import Editor from '@/components/question-answer/Editor.vue'
-import axios from 'axios'
-import { Button, Message, Pagination, Avatar, Badge } from 'element-ui'
+import { prefix, responseHandler, questionApi } from '@/api'
+import { Button, Message, MessageBox, Pagination, Avatar, Badge, Col, Row } from 'element-ui'
 export default {
-    name: 'Question-a',
+    name: 'QuestionSpecific',
     components: {
         [Button.name]: Button,
         [Message.name]: Message,
+        [MessageBox.name]: MessageBox,
         [Pagination.name]: Pagination,
         [Avatar.name]: Avatar,
         [Badge.name]: Badge,
+        [Col.name]: Col,
+        [Row.name]: Row,
         Editor
     },
     data(){
@@ -142,7 +135,7 @@ export default {
     },
     methods: {
         dislike(solutionId){
-            axios.post('/api' + api.dislikes, {
+            this.$axios.post(prefix.api + questionApi.dislikes, {
                 solutionId }).then(response =>{
                 if (response.data.code === '0000') {
                     alert(response.data.msg)
@@ -150,7 +143,7 @@ export default {
             })
         },
         like(solutionId){
-            axios.post('/api' + api.like, {
+            this.$axios.post(prefix.api + questionApi.likes, {
                 solutionId }).then(response => {
                 if (response.data.code === '0000') {
                     alert(response.data.msg)
@@ -158,7 +151,7 @@ export default {
             })
         },
         adoptAsBest(solutionId){
-            axios.post('/api' + api.adoptAsBest, {
+            this.$axios.post(prefix.api + questionApi.adoptAsBest, {
                 solutionId }).then(response => {
                 if (response.data.code === '0000') {
                     alert(response.data.msg)
@@ -166,7 +159,7 @@ export default {
             })
         },
         delectQuestion(id){
-            this.$axios.post('/api' + api.delectQuestion, {
+            this.$axios.post(prefix.api + questionApi.deleteQuestion, {
                 questionId: id }).then(response => {
                 if (response.data.code === '0000') {
                     alert(response.data.msg)
@@ -178,7 +171,7 @@ export default {
             alert(value)
         },
         getquestion(questionId = 1){
-            this.$axios.get('/api' + api.getCheckQuestions, {
+            this.$axios.get(prefix.api + questionApi.getCheckQuestion, {
                 questionId }).then(response => {
                 if (response.data.code === '0000') {
                     this.questionId = response.data.data.questionId
@@ -192,7 +185,7 @@ export default {
             })
         },
         getanswer(page = 1, questionsId = 1){
-            axios.get('/api' + api.getSolutions, {
+            this.$axios.get(prefix.api + questionApi.getSolutions, {
                 page, questionsId }).then(response => {
                 if (response.data.code === '0000') {
                     response.data.data.information.forEach((item) => {

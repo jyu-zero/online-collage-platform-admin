@@ -49,10 +49,8 @@ export default {
                     routeName: 'Accounts'
                 },
                 {
-<<<<<<< HEAD
                     title: '问答页面',
-                    routeName: 'Question'
-=======
+                    routeName: 'Question',
                     title: '新闻管理',
                     routeName: 'News'
                 },
@@ -67,7 +65,6 @@ export default {
                 {
                     title: '值班管理',
                     routeName: 'DutyScheduling'
->>>>>>> f2a144cf02025174b07d4a49cc3dae8f3edf53e7
                 }
             ]
         }

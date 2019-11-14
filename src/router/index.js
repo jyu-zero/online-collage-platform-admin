@@ -36,7 +36,6 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
-<<<<<<< HEAD
     {
         // 问答页面
         path: '/question',
@@ -47,29 +46,30 @@ const routes = [
             component: () => import('@/views/menus/question-answer/index.vue')
         }]
     },
-    {
-        // TODO: 首页应该设置为后台的首页
-        path: '/qa',
-        name: 'Question-a',
-        component: () => import('@/views/menus/question-answer/specificQuestion.vue')
-    },
-    {
-        // TODO: 首页应该设置为后台的首页
-        path: '/qb',
-        name: 'Question-b',
-        component: () => import('@/views/menus/question-answer/settingQuestion.vue')
-=======
     // 在线问答组界限 ----------
     {
         // 在线问答首页
         path: '/questions',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Questions',
-            component: () => import('@/views/menus/questions/index.vue')
-        }]
+        children: [
+            {
+                path: '/',
+                name: 'Questions',
+                component: () => import('@/views/menus/questions/index.vue')
+            },
+            {
+                path: 'questions-specific',
+                name: 'QuestionSpecific',
+                component: () => import('@/views/menus/questions/specificQuestion.vue')
+            },
+            {
+                path: 'questions-setting',
+                name: 'QuestionSetting',
+                component: () => import('@/views/menus/questions/settingQuestion.vue')
+            }
+        ]
     },
+    
     // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {
@@ -128,7 +128,6 @@ const routes = [
             name: 'DutyScheduling',
             component: () => import('@/views/menus/duty-scheduling')
         }]
->>>>>>> f2a144cf02025174b07d4a49cc3dae8f3edf53e7
     }
     // 值班管理组界限 ---------- [完]
 ]
