@@ -45,7 +45,7 @@ export default {
                     routeName: 'Overview'
                 },
                 {
-                    title: '账号管理',
+                    title: '后台账号管理',
                     routeName: 'Accounts'
                 },
                 {
@@ -72,7 +72,11 @@ export default {
     methods: {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
+        },
+        gotoMainPage(){
+            this.$router.push({ name: 'overview' })
         }
+
     }
 }
 </script>
