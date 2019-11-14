@@ -36,17 +36,40 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    {
+        // 问答页面
+        path: '/question',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Question',
+            component: () => import('@/views/menus/question-answer/index.vue')
+        }]
+    },
     // 在线问答组界限 ----------
     {
         // 在线问答首页
         path: '/questions',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Questions',
-            component: () => import('@/views/menus/questions/index.vue')
-        }]
+        children: [
+            {
+                path: '/',
+                name: 'Questions',
+                component: () => import('@/views/menus/questions/index.vue')
+            },
+            {
+                path: 'questions-specific',
+                name: 'QuestionSpecific',
+                component: () => import('@/views/menus/questions/specificQuestion.vue')
+            },
+            {
+                path: 'questions-setting',
+                name: 'QuestionSetting',
+                component: () => import('@/views/menus/questions/settingQuestion.vue')
+            }
+        ]
     },
+    
     // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {

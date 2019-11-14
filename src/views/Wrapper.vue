@@ -49,6 +49,8 @@ export default {
                     routeName: 'Accounts'
                 },
                 {
+                    title: '问答页面',
+                    routeName: 'Question',
                     title: '新闻管理',
                     routeName: 'News'
                 },
