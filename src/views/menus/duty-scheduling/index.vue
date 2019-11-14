@@ -1,6 +1,10 @@
 <template>
     <div class="duty">
-        <div class="arrange-page-screen">
+        <div class="button-group">
+            <el-button type="primary" class="arrange-button" @click="beginToArrange()">安排值班人员</el-button>
+            <el-button type="primary" class="reset-arrange-button" @click="resetArrange()">重置所有安排</el-button>
+        </div>
+        <div class="arrange-page-screen"  :class="{active:isActive}">
             <div class="arrange-page">
                 <h2>安排人员</h2>
                 <table class="arrange-table">
@@ -47,7 +51,7 @@
                         <el-switch v-model="week" active-text="双周值日安排" inactive-text="单周值日安排"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
-                        <el-button>取消</el-button>
+                        <el-button @click="cancel()">取消</el-button>
                         <el-button type="primary">确认</el-button>
                     </div>
                 </div>
@@ -58,7 +62,7 @@
 
 <script>
 import { Button, Select, Option, Switch } from 'element-ui'
-
+import api from '@/api/duty-scheduling'
 export default {
     name: 'DutyScheduling',
     components: {
@@ -70,6 +74,21 @@ export default {
     props: {
         row: Number,
         col: Number
+    },
+    methods: {
+        beginToArrange(){
+            this.isActive = true
+            this.axios
+                .get('/api' + api.getFreeStaffList)
+                .then(
+                    response => {
+                        console.log(response)
+                    }
+                )
+        },
+        cancel() {
+            this.isActive = false
+        }
     },
     data() {
         return {
@@ -132,7 +151,8 @@ export default {
             ],
             value1: [],
             value2: [],
-            week: false
+            week: false,
+            isActive: false
         }
     }
 }
@@ -140,23 +160,44 @@ export default {
 
 <style lang="less" scoped>
 .duty {
+    position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
+.button-group{
+    width: 100%;
+    margin-top: 2%;
+    padding-left: 2%;
+    & button{
+        width:120px;
+        display: inline-block;
+        margin-left: 30px;
+    }
+}
 .arrange-page-screen {
     width: 100%;
     min-height: 100%;
-    background: rgba(0, 0, 0, 0.4);
+    background:rgba(96, 98, 102,.3);
     display: flex;
     align-items: center;
+    position: absolute;
+    z-index: 1;
+    display: none;
+    transition: .5s;
+    -moz-transition: .5s;
+    -webkit-transition: .5s;
 }
 .arrange-page {
     width: 90%;
     padding: 10px 15px;
     background: #fff;
     margin: auto;
+    z-index: 99;
     border-radius: 2px;
+}
+.active{
+    display: flex;
 }
 h2 {
     color: #595b5f;
