@@ -78,7 +78,19 @@ const routes = [
             {
                 path: '/',
                 name: 'LostAndFound',
-                component: () => import('@/views/menus/lost-and-found')
+                component: () => import('@/views/menus/lost-and-found'),
+                children: [
+                    {
+                        path: 'lost',
+                        name: 'Lost',
+                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
+                    },
+                    {
+                        path: 'found',
+                        name: 'Found',
+                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
+                    }
+                ]
             }
         ]
     },

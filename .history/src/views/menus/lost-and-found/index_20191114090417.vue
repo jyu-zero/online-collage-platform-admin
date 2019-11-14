@@ -8,8 +8,8 @@
                         <input type="text" class="search-input" placeholder="搜索物品">
                     </div>
                     <div class="right-core">
-                        <button class="btn blue-btn" title="丢失物品" @click="showSearchLost()">添加寻物启事</button>
-                        <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">新建拾取物</button>
+                        <button class="btn blue-btn" title="丢失物品" @click="goTo('Lost')">我丢了东西</button>
+                        <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">捡到物品</button>
                     </div>
                 </div>
                 <div class="pending-claim thing">
@@ -22,7 +22,7 @@
                         <div class="position-all flex-center thing-bg">
                             <p class="title">{{thingItem.info}}</p>
                             <!-- 是否学院托管 -->
-                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
+                            <span v-if="thingItem.isCollegeCustody">学院托管</span>
                         </div>
                         <div class="info position-all">
                             <div class="bg-blur position-all">
@@ -35,19 +35,19 @@
                                         <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact">
+                                            <input type="text" :value="thingItem.contactInformation">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhere">
+                                            <input type="text" :value="thingItem.foundItAddress">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundBy">
+                                            <input type="text" :value="thingItem.whoFoundIt">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhen">
+                                            <input type="text" :value="thingItem.foundItTime">
                                         </div>
                                     </div>
                                     <button class="blue-btn btn claim-btn">确认认领</button>
@@ -57,8 +57,7 @@
                     </div>
                 </div>
             </div>
-            <!-- 新建寻物启事 [开始] -->
-            <div class="position-all curtain-black" id="search-lost" style="display: none">
+            <div class="position-all curtain-black">
                 <div class="content">
                     <div class="bar">
                         <div class="bar-color"></div>
@@ -113,10 +112,6 @@
                                 <div class="line"></div>
                                 <div class="upload-content"></div>
                             </div>
-                            <div class="upload-btn">
-                                <label for="upload-lose-pic">上传图片</label>
-                                <input style="display:none" type="file" name="" id="upload-lose-pic">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,23 +134,23 @@ export default {
                     id: 1,
                     imgSrc: './img/2.jpg',
                     info: '蓝色U盘',
-                    isManagedByCollage: true,
+                    isCollegeCustody: true,
                     title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
+                    contactInformation: '12345678910',
+                    foundItAddress: '美国',
+                    whoFoundIt: 'ddloo',
+                    foundItTime: '1111-11-11'
                 },
                 {
                     id: 2,
-                    imgSrc: './img/2.jpg',
+                    imgSrc: '/admin/img/2.d6183f0b.jpg',
                     info: '蓝色U盘',
-                    isManagedByCollage: false,
+                    isCollegeCustody: false,
                     title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
+                    contactInformation: '12345678910',
+                    foundItAddress: '美国',
+                    whoFoundIt: 'ddloo',
+                    foundItTime: '1111-11-11'
                 }
             ]
         }
@@ -184,10 +179,9 @@ export default {
             console.log(this.imgTotal)
         },
         // 去往丢东西或者捡到东西
-        showSearchLost(){
-            let searchLostEle = document.getElementById('search-lost')
-            searchLostEle.style.display = 'block'
-        }
+        // goTo(name){
+        //     this.$router.push({ name }).catch(err => { console.log(err) })
+        // }
     }
 }
 </script>
@@ -209,7 +203,7 @@ export default {
     }
 
     .wrap{
-        padding: 15px 0;
+        padding: 30px 0;
         font-family: Arial, Helvetica, sans-serif;
         width: 95%;
         margin: 0 auto;
@@ -223,9 +217,9 @@ export default {
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
-            padding: 4px 0;
+            // padding: 2px 15px;
             color: #000;
-            font-size: 28px;
+            font-size: 30px;
             border-bottom: 1px solid #1e1e1e;
         }
 
@@ -324,7 +318,6 @@ export default {
                     text-shadow: 0 0 0 rgba(0, 0, 0, 0);
                     padding: 0 10px;
                     background-color: white;
-                    margin-left: 15px;
                 }
             }
             .category::after{
@@ -497,186 +490,185 @@ export default {
     .curtain-black{
         z-index: 999;
         background-color: rgba(0, 0, 0, .7);
-
-        .content{
-            width: 700px;
-            margin: 150px auto;
-            // background-color: #eee;
-
-            .bar{
-                position: relative;
-                display: inline-block;
-                height: 350px;
-                width: 3px;
-                background-color: #fff;
-                font-size: 14px;
-
-                .bar-name{
-                    cursor: pointer;
-                    box-sizing: border-box;
-                    color: #fff;
-                    text-align: center;
-                    line-height: 30px;
-                    position: absolute;
-                    left: 50%;
-                    transform: translateX(-50%) translateY(-50%);
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    border: 2.5px solid #fff;
-                    background-color: #86b7e7;
-
-                    .brief{
-                        font-size: 16px;
-                        visibility: hidden;
-                        opacity: 0;
-                        position: absolute;
-                        white-space: nowrap;
-                        text-align: right;
-                        width: 140px;
-                        top: 50%;
-                        left: -160px;
-                        transform: translateY(-50%);
-                        transition: all .3s;
-
-                        span{
-                            color: #ddd;
-                            display: inline-block;
-                            padding: 3px 12px;
-                            background-color: rgba(0, 0, 0, .7);
-                            border-radius: 5px;
-                        }
-                    }
-                }
-
-                span:hover .brief{
-                    visibility: visible;
-                    opacity: 1;
-                }
-
-                span:nth-child(2){
-                    top: 0%;
-                }
-
-                span:nth-child(3){
-                    top: 50%;
-                }
-                span:nth-child(4){
-                    top: 100%;
-                }
-            }
-
-            .content-body{
-                display: inline-block;
-                vertical-align: top;
-                background-color: #fff;
-                padding: 10px 20px;
-                margin: -15px 40px;
-                border-radius: 5px;
-
-                .upload-lost-img{
-                    height: 365px;
-                    width: 500px;
-                    text-align: center;
-                }
-
-                .lost-upload{
-                    padding: 0 40px;
-                    display: flex;
-                    justify-content: space-between;
-
-                    .upload-content{
-                        margin-top: 20px;
-                        height: 120px;
-                        width: 120px;
-                        background-color: #000;
-                    }
-
-                    .line{
-                        height: 220px;
-                        width: 2px;
-                        background-color: #5e91fa;
-                    }
-                }
-
-                // 填写遗失信息
-                .lost-title{
-                    text-align: center;
-                    font-size: 20px;
-                    padding: 5px 0;
-                    background-color: inherit;
-                    font-weight: 500px;
-                    margin-bottom: 15px;
-                }
-
-                .essential-info{
-                    padding: 0 45px;
-                    height: 365px;
-                    width: 250px;
-                    text-align: center;
-
-                    .info-input{
-                        position: relative;
-                    }
-
-                    .gotoNext-btn{
-                        text-align: right;
-
-                        button{
-                            background-color: transparent;
-                            cursor: pointer;
-                            font-size: 15px;
-                            border: none;
-                            font-size: 600;
-                            color: #6c9dff;
-                            outline: none;
-                        }
-
-                        button:hover{
-                            text-decoration: underline;
-                        }
-                    }
-
-                    input{
-                        border: 1px solid rgba(0, 0, 0, .5);
-                        box-shadow: inset 0 1px 1px 0 rgba(0, 0, 0, .5);
-                        border-radius: 3px;
-                        outline: none;
-                        font-size: 14px;
-                        padding: 3px 8px;
-                        margin: 12px 0;
-                        width: 160px;
-                        height: 30px;
-                    }
-
-                    input:focus + label{
-                        opacity: 1;
-                    }
-                    label{
-                        transition: opacity .4s;
-                        opacity: 0;
-                        position: absolute;
-                        color: #5e91fa;
-                        font-size: 13px;
-                        top: -8px;
-                        left: 0;
-                    }
-                    input::placeholder{
-                        transition: transform .3s;
-                        font-size: 13px;
-                    }
-
-                    input:focus::placeholder{
-                        transform: translateY(-20px) translateX(-10px);
-                    }
-                }
-            }
-        }
     }
 
     .flex-center{
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .content{
+        width: 700px;
+        margin: 150px auto;
+        // background-color: #eee;
+
+        .bar{
+            position: relative;
+            display: inline-block;
+            height: 350px;
+            width: 3px;
+            background-color: #fff;
+            font-size: 14px;
+
+            .bar-name{
+                cursor: pointer;
+                box-sizing: border-box;
+                color: #fff;
+                text-align: center;
+                line-height: 30px;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                border: 2.5px solid #fff;
+                background-color: #86b7e7;
+
+                .brief{
+                    font-size: 16px;
+                    visibility: hidden;
+                    opacity: 0;
+                    position: absolute;
+                    white-space: nowrap;
+                    text-align: right;
+                    width: 140px;
+                    top: 50%;
+                    left: -160px;
+                    transform: translateY(-50%);
+                    transition: all .3s;
+
+                    span{
+                        color: #ddd;
+                        display: inline-block;
+                        padding: 3px 12px;
+                        background-color: rgba(0, 0, 0, .7);
+                        border-radius: 5px;
+                    }
+                }
+            }
+
+            span:hover .brief{
+                visibility: visible;
+                opacity: 1;
+            }
+
+            span:nth-child(2){
+                top: 0%;
+            }
+
+            span:nth-child(3){
+                top: 50%;
+            }
+            span:nth-child(4){
+                top: 100%;
+            }
+        }
+        .content-body{
+            display: inline-block;
+            vertical-align: top;
+            background-color: #fff;
+            padding: 10px 20px;
+            margin: -15px 40px;
+            border-radius: 5px;
+
+            .upload-lost-img{
+                height: 365px;
+                width: 500px;
+                text-align: center;
+            }
+
+            .lost-upload{
+                padding: 0 40px;
+                display: flex;
+                justify-content: space-between;
+
+                .upload-content{
+                    margin-top: 20px;
+                    height: 120px;
+                    width: 120px;
+                    background-color: #000;
+                }
+
+                .line{
+                    height: 220px;
+                    width: 2px;
+                    background-color: #5e91fa;
+                }
+            }
+
+            // 填写遗失信息
+            .lost-title{
+                text-align: center;
+                font-size: 20px;
+                padding: 5px 0;
+                background-color: inherit;
+                font-weight: 500px;
+                margin-bottom: 15px;
+            }
+
+            .essential-info{
+                padding: 0 45px;
+                height: 365px;
+                width: 250px;
+                text-align: center;
+
+                .info-input{
+                    position: relative;
+                }
+
+                .gotoNext-btn{
+                    text-align: right;
+
+                    button{
+                        background-color: transparent;
+                        cursor: pointer;
+                        font-size: 15px;
+                        border: none;
+                        font-size: 600;
+                        color: #6c9dff;
+                        outline: none;
+                    }
+
+                    button:hover{
+                        text-decoration: underline;
+                    }
+                }
+
+                input{
+                    border: 1px solid rgba(0, 0, 0, .5);
+                    box-shadow: inset 0 1px 1px 0 rgba(0, 0, 0, .5);
+                    border-radius: 3px;
+                    outline: none;
+                    font-size: 14px;
+                    padding: 3px 8px;
+                    margin: 12px 0;
+                    width: 160px;
+                    height: 30px;
+                }
+
+                input:focus + label{
+                    opacity: 1;
+                }
+                label{
+                    transition: opacity .4s;
+                    opacity: 0;
+                    position: absolute;
+                    color: #5e91fa;
+                    font-size: 13px;
+                    top: -8px;
+                    left: 0;
+                }
+                input::placeholder{
+                    transition: transform .3s;
+                    font-size: 13px;
+                }
+
+                input:focus::placeholder{
+                    transform: translateY(-20px) translateX(-10px);
+                }
+            }
+        }
     }
 </style>

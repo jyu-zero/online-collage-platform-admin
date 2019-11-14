@@ -8,7 +8,7 @@
                         <input type="text" class="search-input" placeholder="搜索物品">
                     </div>
                     <div class="right-core">
-                        <button class="btn blue-btn" title="丢失物品" @click="showSearchLost()">添加寻物启事</button>
+                        <button class="btn blue-btn" title="丢失物品" @click="goTo('Lost')">添加寻物启事</button>
                         <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">新建拾取物</button>
                     </div>
                 </div>
@@ -22,7 +22,7 @@
                         <div class="position-all flex-center thing-bg">
                             <p class="title">{{thingItem.info}}</p>
                             <!-- 是否学院托管 -->
-                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
+                            <span v-if="thingItem.isCollegeCustody">学院托管</span>
                         </div>
                         <div class="info position-all">
                             <div class="bg-blur position-all">
@@ -35,19 +35,19 @@
                                         <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact">
+                                            <input type="text" :value="thingItem.contactInformation">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhere">
+                                            <input type="text" :value="thingItem.foundItAddress">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundBy">
+                                            <input type="text" :value="thingItem.whoFoundIt">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhen">
+                                            <input type="text" :value="thingItem.foundItTime">
                                         </div>
                                     </div>
                                     <button class="blue-btn btn claim-btn">确认认领</button>
@@ -57,8 +57,7 @@
                     </div>
                 </div>
             </div>
-            <!-- 新建寻物启事 [开始] -->
-            <div class="position-all curtain-black" id="search-lost" style="display: none">
+            <div class="position-all curtain-black"  style="display: none">
                 <div class="content">
                     <div class="bar">
                         <div class="bar-color"></div>
@@ -113,10 +112,6 @@
                                 <div class="line"></div>
                                 <div class="upload-content"></div>
                             </div>
-                            <div class="upload-btn">
-                                <label for="upload-lose-pic">上传图片</label>
-                                <input style="display:none" type="file" name="" id="upload-lose-pic">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -139,23 +134,23 @@ export default {
                     id: 1,
                     imgSrc: './img/2.jpg',
                     info: '蓝色U盘',
-                    isManagedByCollage: true,
+                    isCollegeCustody: true,
                     title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
+                    contactInformation: '12345678910',
+                    foundItAddress: '美国',
+                    whoFoundIt: 'ddloo',
+                    foundItTime: '1111-11-11'
                 },
                 {
                     id: 2,
-                    imgSrc: './img/2.jpg',
+                    imgSrc: '/admin/img/2.d6183f0b.jpg',
                     info: '蓝色U盘',
-                    isManagedByCollage: false,
+                    isCollegeCustody: false,
                     title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
+                    contactInformation: '12345678910',
+                    foundItAddress: '美国',
+                    whoFoundIt: 'ddloo',
+                    foundItTime: '1111-11-11'
                 }
             ]
         }
@@ -182,12 +177,11 @@ export default {
                 imgHeight: divHeight
             }
             console.log(this.imgTotal)
-        },
-        // 去往丢东西或者捡到东西
-        showSearchLost(){
-            let searchLostEle = document.getElementById('search-lost')
-            searchLostEle.style.display = 'block'
         }
+        // 去往丢东西或者捡到东西
+        // goTo(name){
+        //     this.$router.push({ name }).catch(err => { console.log(err) })
+        // }
     }
 }
 </script>
@@ -209,7 +203,7 @@ export default {
     }
 
     .wrap{
-        padding: 15px 0;
+        padding: 30px 0;
         font-family: Arial, Helvetica, sans-serif;
         width: 95%;
         margin: 0 auto;
@@ -223,9 +217,9 @@ export default {
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
-            padding: 4px 0;
+            // padding: 2px 15px;
             color: #000;
-            font-size: 28px;
+            font-size: 30px;
             border-bottom: 1px solid #1e1e1e;
         }
 

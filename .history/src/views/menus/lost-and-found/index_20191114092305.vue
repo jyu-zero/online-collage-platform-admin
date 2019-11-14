@@ -8,7 +8,7 @@
                         <input type="text" class="search-input" placeholder="搜索物品">
                     </div>
                     <div class="right-core">
-                        <button class="btn blue-btn" title="丢失物品" @click="showSearchLost()">添加寻物启事</button>
+                        <button class="btn blue-btn" title="丢失物品" @click="goTo('Lost')">添加寻物启事</button>
                         <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">新建拾取物</button>
                     </div>
                 </div>
@@ -57,8 +57,7 @@
                     </div>
                 </div>
             </div>
-            <!-- 新建寻物启事 [开始] -->
-            <div class="position-all curtain-black" id="search-lost" style="display: none">
+            <div class="position-all curtain-black"  style="display: none">
                 <div class="content">
                     <div class="bar">
                         <div class="bar-color"></div>
@@ -112,10 +111,6 @@
                                 <div class="upload-content"></div>
                                 <div class="line"></div>
                                 <div class="upload-content"></div>
-                            </div>
-                            <div class="upload-btn">
-                                <label for="upload-lose-pic">上传图片</label>
-                                <input style="display:none" type="file" name="" id="upload-lose-pic">
                             </div>
                         </div>
                     </div>
@@ -182,12 +177,11 @@ export default {
                 imgHeight: divHeight
             }
             console.log(this.imgTotal)
-        },
-        // 去往丢东西或者捡到东西
-        showSearchLost(){
-            let searchLostEle = document.getElementById('search-lost')
-            searchLostEle.style.display = 'block'
         }
+        // 去往丢东西或者捡到东西
+        // goTo(name){
+        //     this.$router.push({ name }).catch(err => { console.log(err) })
+        // }
     }
 }
 </script>
@@ -223,9 +217,9 @@ export default {
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
-            padding: 4px 0;
+            // padding: 2px 15px;
             color: #000;
-            font-size: 28px;
+            font-size: 30px;
             border-bottom: 1px solid #1e1e1e;
         }
 

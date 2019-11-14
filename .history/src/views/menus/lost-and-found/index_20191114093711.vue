@@ -115,7 +115,7 @@
                             </div>
                             <div class="upload-btn">
                                 <label for="upload-lose-pic">上传图片</label>
-                                <input style="display:none" type="file" name="" id="upload-lose-pic">
+                                <input style="dispaly:none" type="file" name="" id="upload-lose-pic">
                             </div>
                         </div>
                     </div>

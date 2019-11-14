@@ -113,10 +113,6 @@
                                 <div class="line"></div>
                                 <div class="upload-content"></div>
                             </div>
-                            <div class="upload-btn">
-                                <label for="upload-lose-pic">上传图片</label>
-                                <input style="display:none" type="file" name="" id="upload-lose-pic">
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -186,7 +182,7 @@ export default {
         // 去往丢东西或者捡到东西
         showSearchLost(){
             let searchLostEle = document.getElementById('search-lost')
-            searchLostEle.style.display = 'block'
+            searchLostEle.style.display = 'none'
         }
     }
 }
