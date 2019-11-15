@@ -45,10 +45,12 @@ export default {
                     routeName: 'Overview'
                 },
                 {
-                    title: '账号管理',
+                    title: '后台账号管理',
                     routeName: 'Accounts'
                 },
                 {
+                    title: '问答页面',
+                    routeName: 'Question',
                     title: '新闻管理',
                     routeName: 'News'
                 },
@@ -70,7 +72,11 @@ export default {
     methods: {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
+        },
+        gotoMainPage(){
+            this.$router.push({ name: 'overview' })
         }
+
     }
 }
 </script>
