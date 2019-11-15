@@ -23,5 +23,11 @@ export default {
     // 给回答点赞
     'likes': '/admin/likes',
     // 给回答点踩
-    'dislikes': '/admin/dislikes'
+    'dislikes': '/admin/dislikes',
+    // 发布回答
+    'publishAnswer': '/admin/publish-answers',
+    // 添加类型
+    'addType': '/admin/add-type',
+    // 问答系统设置
+    'setQuestionAndAnswer': '/admin/set-question-and-answer'
 }

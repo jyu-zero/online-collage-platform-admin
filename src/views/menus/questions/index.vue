@@ -6,7 +6,7 @@
                     <el-button type="danger" @click="deleteQuestion">删除</el-button>
                     <el-button @click="questionToTop">置顶</el-button>
                     <el-button @click="lockQuestion">锁定</el-button>
-                    <el-button type="primary">问答系统设置</el-button>
+                    <el-button type="primary" @click="gotosettingquestion">问答系统设置</el-button>
                 </div>
                 <div class="search-bar">
                     <div>
@@ -97,6 +97,9 @@ export default {
         this.getQuestions()
     },
     methods: {
+        skip(questionId){
+            this.$router.push({ path: `/questions/questions-specific/${questionId}` })
+        },
         handleCurrentChange(val){
             this.getQuestions(val)
             this.page = val
@@ -215,6 +218,10 @@ export default {
                 return
             }
             this.checkQuestionId.push(id)
+        },
+        // 前往问答系统设置页面
+        gotosettingquestion(){
+            this.$router.push({ path: 'questions-setting' })
         }
     }
 }
