@@ -5,7 +5,7 @@
             <header>
                 <!-- 四个按钮 -->
                 <div class="left-btn">
-                    <el-button type="danger" @click="deleteQuestion">删除</el-button>
+                    <el-button type="danger" @click="isConfirmToDelete">删除</el-button>
                     <el-button @click="pinQuestion">置顶</el-button>
                     <el-button @click="lockQuestion">锁定</el-button>
                     <el-button type="primary">问答系统设置</el-button>
@@ -83,7 +83,7 @@
 
 <script>
 import { prefix, responseHandler, questionApi } from '@/api'
-import { Button, Message, Checkbox, Input, Select, Option, Row, Col, Pagination } from 'element-ui'
+import { Button, Message, Checkbox, Input, Select, Option, Row, Col, Pagination, MessageBox } from 'element-ui'
 export default {
     name: 'Questions',
     components: {
@@ -95,7 +95,8 @@ export default {
         [Option.name]: Option,
         [Row.name]: Row,
         [Col.name]: Col,
-        [Pagination.name]: Pagination
+        [Pagination.name]: Pagination,
+        [MessageBox.name]: MessageBox
     },
     data(){
         return {
@@ -124,6 +125,27 @@ export default {
         handleCurrentChange(val){
             this.getQuestions(val)
             this.page = val
+        },
+        // 点击删除按钮时弹出是否确认框
+        isConfirmToDelete(){
+            MessageBox.confirm('此操作将永久删除该问题, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                Message({
+                    type: 'success',
+                    message: '已成功删除',
+                    duration: 1000
+                })
+                this.deleteQuestion()
+            }).catch(() => {
+                Message({
+                    type: 'info',
+                    message: '已取消删除',
+                    duration: 1000
+                })
+            })
         },
         // 下面的所有错误请求还未处理
         // 删除问题
