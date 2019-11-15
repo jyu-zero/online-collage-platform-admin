@@ -8,9 +8,10 @@
                     <el-button type="danger" @click="isConfirmToDelete">删除</el-button>
                     <el-button @click="pinQuestion">置顶</el-button>
                     <el-button @click="lockQuestion">锁定</el-button>
-                    <el-button type="primary">问答系统设置</el-button>
+                    <el-button type="primary" @click="goToSetQuestionAndAnswer">问答系统设置</el-button>
                 </div>
                 <!-- 四个按钮 [完]-->
+                
                 <!-- 搜索框 -->
                 <div class="search-bar">
                     <div>
@@ -39,6 +40,7 @@
                     </button>
                 </div>
                 <!-- 用户筛选 [完]-->
+
                 <h1>问题列表</h1>
                 <!-- 问题列表 -->
                 <div class="question-box" v-for="questionItem of questionList" :key="questionItem.questionId">
@@ -58,12 +60,13 @@
                                 <i class="el-icon-s-promotion">{{questionItem.typeName}}</i>
                                 <i class="el-icon-view">{{questionItem.views}}</i>
                                 <i class="el-icon-chat-dot-round">{{questionItem.solutionsNum}}</i>
-                                <el-button @click.native="skip(questionItem.questionId)">查看</el-button>
+                                <el-button @click.native="goToDetailedQuestion(questionItem.questionId)">查看</el-button>
                             </div>
                         </el-col>
                     </el-row>
                 </div>
                 <!-- 问题列表 [完]-->
+
             </main>
             <!-- 一个用户进行筛选类型名的div和问题的列表 [完]-->
 
@@ -108,7 +111,20 @@ export default {
             // 0代表待解决，1代表已解决
             selectStatus: '',
             // 获取的所有问题
-            questionList: [],
+            questionList: [
+                // 这是测试用的数据
+                {
+                    'questionId': 50,
+                    'name': 'zhangs',
+                    'title': '这是问题的标题',
+                    'description': '描述',
+                    'status': '已解决',
+                    'time': '2019-11-15',
+                    'typeName': '类型名',
+                    'views': 20,
+                    'solutionsNum': 11
+                }
+            ],
             // 获取用户选择要进行操作的问题id，可以是多条
             checkQuestionId: [],
             // 总页数
@@ -148,6 +164,7 @@ export default {
             })
         },
         // 下面的所有错误请求还未处理
+        // TODO:
         // 删除问题
         deleteQuestion(){
             this.$axios.post(prefix.api + questionApi.deleteQuestion, {
@@ -184,6 +201,10 @@ export default {
                 this.getQuestions()
             })
         },
+        // 跳转至问答系统设置
+        goToSetQuestionAndAnswer(){
+            this.$router.push({ name: 'QuestionSetting' })
+        },
         // 搜索问题
         searchQuestions(){
             this.$axios.post(prefix.api + questionApi.searchQuestions, {
@@ -192,7 +213,7 @@ export default {
                 'content': this.input
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
@@ -222,7 +243,7 @@ export default {
         getQuestionTypes(){
             this.$axios.get(prefix.api + questionApi.getQuestionTypes).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
@@ -237,7 +258,7 @@ export default {
                 }
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
@@ -260,6 +281,11 @@ export default {
                 return
             }
             this.checkQuestionId.push(id)
+        },
+        // 查看问题详情页
+        goToDetailedQuestion(questionId){
+            // 跳转至问题详情页并且将要查看的问题id传过去
+            this.$router.push({ name: 'QuestionSpecific', params: { questionId } })
         }
     }
 }
