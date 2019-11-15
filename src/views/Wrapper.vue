@@ -50,7 +50,9 @@ export default {
                 },
                 {
                     title: '问答页面',
-                    routeName: 'Question',
+                    routeName: 'Question'
+                },
+                {
                     title: '新闻管理',
                     routeName: 'News'
                 },
