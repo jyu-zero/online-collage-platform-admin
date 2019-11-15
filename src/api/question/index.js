@@ -11,5 +11,17 @@ export default {
     // 删除问题
     'deleteQuestion': '/admin/delete-question',
     // 锁定问题
-    'lockQuestion': '/admin/lock-question'
+    'lockQuestion': '/admin/lock-question',
+    // 获取查看的问题信息
+    'getCheckQuestions': '/admin/get-check-questions',
+    // 获取回答问题的列表
+    'getSolutions': '/admin/get-solutions',
+    // 删除回答
+    'deleteSolution': '/admin/delete-solution',
+    // 采纳为最佳
+    'adoptAsBest': '/admin/adopt-as-best',
+    // 给回答点赞
+    'likes': '/admin/likes',
+    // 给回答点踩
+    'dislikes': '/admin/dislikes'
 }

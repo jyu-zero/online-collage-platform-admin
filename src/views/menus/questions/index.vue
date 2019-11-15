@@ -154,7 +154,7 @@ export default {
                 'questionId': this.checkQuestionId
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 this.getQuestions()
@@ -166,7 +166,7 @@ export default {
                 'questionId': this.checkQuestionId
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 this.getQuestions()
@@ -178,7 +178,7 @@ export default {
                 'questionId': this.checkQuestionId
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
+                    // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
                 this.getQuestions()
