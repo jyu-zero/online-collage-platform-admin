@@ -138,9 +138,6 @@ export default {
         this.getQuestions()
     },
     methods: {
-        skip(questionId){
-            this.$router.push({ path: `/questions/questions-specific/${questionId}` })
-        },
         handleCurrentChange(val){
             this.getQuestions(val)
             this.page = val
