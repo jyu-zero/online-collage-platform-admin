@@ -20,19 +20,19 @@
 export default {
   data(){
     return{
-      command:"单周无课"
+      command: "单周无课"
     }
   },
   props: {
     title: {
-       type:String,
+       type: String,
       default: " 登记"
     },
   },
   methods: {
     handleCommand(command) {
         this.command=command;
-       this.$emit('add-to-arr',command);
+       this.$emit('addArr',command);
     }
   }
 };
@@ -40,10 +40,8 @@ export default {
 
 <style>
 .el-dropdown{
-  width: 100px;
+  width: 110px;
   box-sizing: border-box;
   padding-left: 20px; 
-  font-size: 12px;
 }
-
 </style>

@@ -45,8 +45,26 @@ export default {
                     routeName: 'Overview'
                 },
                 {
-                    title: '账号管理',
+                    title: '后台账号管理',
                     routeName: 'Accounts'
+                },
+                {
+                    title: '问答页面',
+                    routeName: 'Question',
+                    title: '新闻管理',
+                    routeName: 'News'
+                },
+                {
+                    title: '失物招领',
+                    routeName: 'LostAndFound'
+                },
+                {
+                    title: '在线问答',
+                    routeName: 'Questions'
+                },
+                {
+                    title: '值班管理',
+                    routeName: 'DutyScheduling'
                 }
             ]
         }
@@ -54,7 +72,11 @@ export default {
     methods: {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
+        },
+        gotoMainPage(){
+            this.$router.push({ name: 'overview' })
         }
+
     }
 }
 </script>
@@ -90,6 +112,7 @@ export default {
             height:100%;
             font-family: 'Source Han Sans CN',sans-serif;
             font-weight: normal;
+            margin: 0;
         }
 
         main{

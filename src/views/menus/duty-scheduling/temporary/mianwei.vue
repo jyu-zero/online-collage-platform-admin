@@ -9,21 +9,14 @@
     </div>
     <div class="course-container" v-if="visibility">
       <h3>登记无课表</h3>
-      
       <div class="record-course">
         <table border="1" cellspacing="0" cellpadding="0">
           <tr>
-            <th class="day" v-for="(item, index) in weekday" :key="index">
-              {{ item }}
-            </th>
+            <th class="day" v-for="(item,index) in weekday" :key="index">{{item}}</th>
           </tr>
-          <tr v-for="(itemss, index) in idArr" :key="index">
-            <td
-              v-for="(items, index) in itemss"
-              :key="index"
-              @click="saveId(items)"
-            >
-              <course @add-to-arr="addId"></course>
+          <tr v-for="(itemss,index) in idArr" :key="index">
+            <td v-for="(items,index) in itemss" :key="index" @click="saveId(items)">
+              <course @addArr="addId"></course>
             </td>
           </tr>
         </table>
@@ -31,32 +24,28 @@
 
       <div class="btn-container">
         <el-button class="button" @click="cancel">取消</el-button>
-        <el-button type="primary" class="button" @click="submit"
-          >确定</el-button
-        >
+        <el-button type="primary" class="button" @click="submit">确定</el-button>
       </div>
     </div>
   </div>
 </template>
-<script>
-import { prefix, responseHandler, dutySchedulingApi } from '@/api'
-import course from "@/views/duty-sheduling/component/Course.vue";
 
+<script>
+import axios from "axios";
+import api from "@/api";
+import course from "@/views/Course.vue";
+import responseHandler from "@/utils/responseHandler";
 export default {
   name: "home",
   data() {
     return {
-      visibility: false,
+      visibility: true,
       weekday: ["星期一", "星期二", "星期三", "星期四", "星期五"],
       idArr: [
         ["1", "2", "3", "4", "5"],
         ["6", "7", "8", "9", "10"],
         ["11", "12", "13", "14", "15"],
-        ["16", "17", "18", "19", "20"],
-        ["21", "22", "23", "24", "25"],
-        ["26", "27", "28", "29", "30"],
-        ["31", "32", "33", "34", "35"],
-        ["36", "37", "38", "39", "40"]
+        ["16", "17", "18", "19", "20"]
       ],
       saveIdArr: [],
       id: 0
@@ -65,7 +54,7 @@ export default {
   components: {
     course
   },
-  methods:{
+  methods: {
     cancel() {
       this.visibility = !this.visibility;
     },
@@ -109,9 +98,9 @@ export default {
       }
       console.log(this.saveIdArr);
     },
-    submit() {
-      this.axios
-        .post(prefix.api + dutySchedulingApi.submitFreeInformation, {
+     submit() {
+      axios
+        .post("/api" + api.submitFreeInformation, {
           freeCourseList: this.saveIdArr
         })
         .then(response => {
@@ -120,12 +109,12 @@ export default {
           }
           console.log("success");
         });
-    }
+    },
   }
 };
 </script>
-<style lang="less">
-@width: 100px;
+<style lang="less" >
+@width: 110px;
 .duty-container {
   width: 100%;
   height: 100%;
@@ -148,7 +137,7 @@ h3 {
   padding: 20px;
   display: fixed;
   margin: 0 auto;
-  margin-top: 50px;
+  margin-top: 100px;
   border: 1px solid black;
 }
 .record-course {
@@ -161,8 +150,8 @@ table {
   table-layout: fixed;
 }
 td {
-  width: @width;
-  height: 32px;
+  width: 110px;
+  height: 40px;
 }
 .day {
   line-height: 40px;
