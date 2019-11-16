@@ -134,11 +134,11 @@ export default {
         }
     },
     mounted(){
-        this.getQuestion(this.questionId)
-        this.getAnswer()
-        // this.answers.sort();
+        this.getQuestion(this.questionId)// 进入页面时预设我们页面的问题资料
+        this.getAnswer()// 进入页面时预设我们问题相关回答的资料
     },
     methods: {
+        // 处理点踩的逻辑
         dislike(solutionId, index){
             this.answers[index].pointTimes--
             this.$axios.post(prefix.api + questionApi.dislikes, {
@@ -148,6 +148,7 @@ export default {
                 }
             })
         },
+        // 处理点赞的逻辑
         like(solutionId, index){
             this.answers[index].pointTimes++
             this.$axios.post(prefix.api + questionApi.likes, {
@@ -157,6 +158,7 @@ export default {
                 }
             })
         },
+        // 处理采纳为最佳的逻辑
         adoptAsBest(solutionId){
             this.$axios.post(prefix.api + questionApi.adoptAsBest, {
                 solutionId }).then(response => {
@@ -165,6 +167,7 @@ export default {
                 }
             })
         },
+        //  处理删除问题的逻辑
         delectQuestion(id){
             this.$axios.post(prefix.api + questionApi.deleteQuestion, {
                 questionId: id }).then(response => {
@@ -177,6 +180,7 @@ export default {
             this.submitanswer = value//  在这里接受子组件传过来的参数，赋值给data里的参数
             alert(value)
         },
+        // 点击分页按钮的逻辑
         handleCurrentChange(val){
             this.currentpage = val
             this.$message({
@@ -186,6 +190,7 @@ export default {
             this.answers = [] // 清空页面的回答数据
             this.getAnswer(this.currentpage, this.questionId)
         },
+        // 获取问题的逻辑
         getQuestion(questionId = 1){
             this.$axios.get(prefix.api + questionApi.getCheckQuestions, {
                 questionId: this.$route.params.id }).then(response => {
@@ -200,6 +205,7 @@ export default {
                 }
             })
         },
+        // 获取回答的逻辑
         getAnswer(page = 1, questionsId = 1){
             this.$axios.get(prefix.api + questionApi.getSolutions, {
                 page, questionsId }).then(response => {
@@ -217,6 +223,7 @@ export default {
                 }
             })
         },
+        // 获取回答框里的内容
         getEditor(html){
             this.submitanswer = html
         },
@@ -346,12 +353,16 @@ export default {
     margin: 10px 0;
     padding: 10px;
 }
-    .el-message-box{
-    width: 50%;
+
+
+</style>
+
+<style lang="less">
+.el-message-box  {
+    width: 50% !important;
     height: 67%;
     .w-e-text-container{
         height: 359px;
     }
 }
-
 </style>
