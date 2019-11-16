@@ -354,7 +354,6 @@ export default {
     padding: 10px;
 }
 
-
 </style>
 
 <style lang="less">
