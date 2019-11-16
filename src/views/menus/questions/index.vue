@@ -284,7 +284,7 @@ export default {
         },
         // 前往问答系统设置页面
         goToSettingQuestion(){
-            this.$router.push({ path: 'questions-setting' })
+            this.$router.push({ path: '/questions/questions-setting' })
         },
         // 查看问题详情页
         goToDetailedQuestion(questionId){

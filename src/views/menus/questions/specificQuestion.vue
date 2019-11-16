@@ -74,6 +74,7 @@
                         background
                         layout = " prev, pager, next"
                         :current-page = "currentpage"
+                        :total = "100"
                         :page-size = 3>
                         </el-pagination>
                     </div>
@@ -118,12 +119,12 @@ export default {
     },
     data(){
         return {
-            allpage: '100', // 总页数
+            allPage: '100', // 总页数
             currentpage: 1, // 当前页数
             submitanswer: '',
             anonymous: true,
             questionId: this.$route.params.id,
-            questionTitle: '如何进行XXXXXXXXXXXXX？',
+            questionTitle: '如何进行？',
             questionOwer: 'XXXX',
             questionTime: '2019-09-23 12:01:22',
             browseTimes: 12,
@@ -133,8 +134,8 @@ export default {
         }
     },
     mounted(){
-        this.getquestion(this.questionId)
-        this.getanswer()
+        this.getQuestion(this.questionId)
+        this.getAnswer()
         // this.answers.sort();
     },
     methods: {
@@ -183,10 +184,10 @@ export default {
                 message: '请求成功!'
             })
             this.answers = [] // 清空页面的回答数据
-            this.getanswer(this.currentpage, this.questionId)
+            this.getAnswer(this.currentpage, this.questionId)
         },
-        getquestion(questionId = 1){
-            this.$axios.get(prefix.api + questionApi.getCheckQuestion, {
+        getQuestion(questionId = 1){
+            this.$axios.get(prefix.api + questionApi.getCheckQuestions, {
                 questionId: this.$route.params.id }).then(response => {
                 if (response.data.code === '0000') {
                     this.questionId = response.data.data.questionId
@@ -199,7 +200,7 @@ export default {
                 }
             })
         },
-        getanswer(page = 1, questionsId = 1){
+        getAnswer(page = 1, questionsId = 1){
             this.$axios.get(prefix.api + questionApi.getSolutions, {
                 page, questionsId }).then(response => {
                 if (response.data.code === '0000') {
@@ -211,16 +212,12 @@ export default {
                         obj.phone = item.userContact
                         obj.answer = item.userName
                         this.answers.push(obj)
-                        // this.answers[index].content = item.contentPath
-                        // this.answers[index].pointTimes = item.likeNum
-                        // this.answers[index].phone = item.userContact
-                        // this.answers[index].answer = item.userName
                     })
                     this.allpage = response.data.data.pageCount
                 }
             })
         },
-        geteditor(html){
+        getEditor(html){
             this.submitanswer = html
         },
         open(){
@@ -287,6 +284,7 @@ export default {
     #app{
     height: 100%;
     position: relative;
+    background: #f0f0f0;
         .setanswer{
             position: fixed;
             top: 65%;
@@ -296,6 +294,13 @@ export default {
     main{
         padding: 20px 110px;
         background: #f0f0f0;
+        &>div{
+            padding: 20px 110px;
+            background: #f0f0f0;
+        }
+    }
+    .el-message-box{
+        width: 55%;
     }
     .el-main{
     padding-left:20%;
@@ -328,9 +333,6 @@ export default {
   .answer{
     background: white;
     margin: 10px 0px;
-    div{
-      // margin: 10px 0px;
-    }
 }
   .question-title{
     margin: 10px 0px;
@@ -351,4 +353,5 @@ export default {
         height: 359px;
     }
 }
+
 </style>

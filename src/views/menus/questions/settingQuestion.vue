@@ -1,17 +1,17 @@
 <template>
 <div id="main">
     <el-row type="flex" class="row-bg header-btn" justify="center">
-            <el-col :span="1">
+            <el-col :span="3">
                 <div class="grid-content bg-purple">
-                    <el-button type="primary" @click='gotoquestion'>返回问题列表</el-button>
+                    <el-button type="primary" @click.native='goToQuestion'>返回问题列表</el-button>
                 </div>
             </el-col>
-            <el-col :span="16">
+            <el-col :span="14">
                 <div class="grid-content bg-purple-light"></div>
             </el-col>
             <el-col :span="1">
                 <div class="grid-content bg-purple">
-                    <el-button type="primary" @click='setquestion'>保存</el-button>
+                    <el-button type="primary" @click='setQuestion'>保存</el-button>
                 </div>
             </el-col>
     </el-row>
@@ -45,13 +45,6 @@
     <el-row type="flex" class="row-bg " justify="center">
         <el-col :span="10">
             <div class="block">
-                <!-- <el-date-picker
-                v-model="begintime"
-                type="datetimerange"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="['12:00:00']">
-                </el-date-picker> -->
                 <el-time-select
                 v-model="begintime"
                 :picker-options="{
@@ -127,7 +120,7 @@
                         {{item }}
                     </el-checkbox>
                     <el-button type="danger" @click='delect' >删除类型</el-button>
-                    <el-button type="primary" @click="addtype">添加类型</el-button>
+                    <el-button type="primary" @click="addType">添加类型</el-button>
                 </el-card>
             </div>
         </el-col>
@@ -182,12 +175,11 @@ export default {
     },
     methods: {
         // 前往问答系统
-        gotoquestion(){
+        goToQuestion(){
             this.$router.push({ path: '/questions' })
         },
         // 设置问题系统
-        setquestion(){
-            // window.console.log(this.illegalKeyword + '//' + this.isAnonymous + '//' + this.isUnionReply + '//' + this.endtime + '//')
+        setQuestion(){
             let illegalKeyword = this.illegalKeyword
             let startTime = this.begintime
             let endTime = this.endtime
@@ -203,21 +195,21 @@ export default {
             })
         },
         // 获取答案
-        getanswer(){
+        getAnswer(){
             window.console.log(this.begintime)
             window.console.log(new Date(this.begintime).getTime())
         },
         getQuestionType(){
-            this.$axios.get(prefix.api + questionApi.getTypeName, {
+            this.$axios.get(prefix.api + questionApi.getQuestionTypes, {
             }).then(response=>{
                 if (response.data.code === '0000') {
                     response.data.data.forEach((item) => {
                         this.questiontype.push(item)
-                    })// this.questiontype.push(response.data.data)
+                    })
                 }
             })
         },
-        addtype(){
+        addType(){
             this.$prompt('请输入想添加的类型名', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
