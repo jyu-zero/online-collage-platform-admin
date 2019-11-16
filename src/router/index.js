@@ -48,8 +48,9 @@ const routes = [
                 component: () => import('@/views/menus/questions/index.vue')
             },
             {
-                path: 'questions-specific',
+                path: 'questions-specific/:id',
                 name: 'QuestionSpecific',
+                props: true,
                 component: () => import('@/views/menus/questions/specificQuestion.vue')
             },
             {
