@@ -58,9 +58,9 @@
                 <el-time-select
                 v-model="endtime"
                 :picker-options="{
-                    start: '08:30',
-                    step: '00:15',
-                    end: '18:30'
+                    start: '00:00',
+                    step: '01:00',
+                    end: '24:00'
                 }"
                 placeholder="结束时间">
                 </el-time-select>
@@ -160,7 +160,7 @@ export default {
     },
     data () {
         return {
-            illegalKeyword: '', // 非法关键字
+            illegalKeyword: [], // 非法关键字
             isAnonymous: false, // 是否匿名
             isUnionReply: false, // 是否运行学生会在后台
             endtime: '', // 提交限制时间
@@ -180,9 +180,14 @@ export default {
         },
         // 设置问题系统
         setQuestion(){
-            let illegalKeyword = this.illegalKeyword
-            let startTime = this.begintime
-            let endTime = this.endtime
+            let illegalKeyword = this.illegalKeyword.split(' ')
+            var arr = illegalKeyword.filter(function (el) {
+                return el !== ''
+            })
+            illegalKeyword = arr
+            window.console.log(illegalKeyword)
+            let startTime = this.begintime.split(':')[0] // 获取开始的是第几个小时
+            let endTime = this.endtime.split(':')[0] // 获取结束的是第几个小时
             let maxSubmit = this.maxsumbit
             let isAnonymous = this.isAnonymous
             let isUnionReply = this.isUnionReply
