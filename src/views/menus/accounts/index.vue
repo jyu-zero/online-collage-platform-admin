@@ -4,76 +4,80 @@
         <!-- 添加两个按钮 -->
         <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
         <el-button type="primary"  value="insert" @click="insertAccount">导入账号</el-button>
+
+        <!-- <div class="table">
+            <div class="title" id="id">学号</div>
+            <div class="title" id="type">账号类型</div>
+            <div class="title" id="name">姓名</div>
+            <div class="title" id="sex">性别</div>
+            <div class="title" id="phone">联系方式</div>
+            <div class="title" id="deadline">账号到期时间</div>
+            <div class="title">操作</div>
+        </div> -->
+
         <el-table
-            :data="tableData"
-            border
-            style="width:80%">
-            <el-table-column
+        :data="tableData"
+        border
+        style="width: 80%">
+        <el-table-column
             fixed
-            prop="id"
+            prop="account"
             label="学号"
-            align="center"
-            width="150">
-            </el-table-column>
-            <el-table-column
-            prop="type"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="accountType"
             label="账号类型"
-            align="center"
-            width="150">
-            </el-table-column>
-            <el-table-column
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
             prop="name"
             label="姓名"
-            align="center"
-            width="120">
-            </el-table-column>
-            <el-table-column
+            width="120"
+            align="center">
+        </el-table-column>
+        <el-table-column
             prop="sex"
             label="性别"
-            align="center"
-            width="100">
-            </el-table-column>
-            <el-table-column
-            prop="phone"
+            width="120"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="contact"
             label="联系方式"
-            align="center"
-            width="200">
-            </el-table-column>
-            <el-table-column
-            prop="deadline"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="time"
             label="账号到期时间"
-            align="center"
-            width="200">
-            </el-table-column>
-            <el-table-column
-            fixed="right"
-            align="center"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
             label="操作"
-            width="120">
-            <!-- <div class="block">
-            <span class="demonstration"></span>
-            <el-cascader
-                v-model="value"
-                :options="options"
-                @change="handleChange"></el-cascader>
-            </div> -->
-                <el-dropdown height="100%">
+            width="100"
+            align="center">
+
+            <template>
+                <el-dropdown>
                 <span class="el-dropdown-link">
-                    ···<i class="el-icon--right"></i>
+                    下拉菜单<i class="el-icon-arrow-down"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>重置密码</el-dropdown-item>
-                    <el-dropdown-item>修改信息</el-dropdown-item>
-                    <el-dropdown-item>降级为学生账号</el-dropdown-item>
-                    <el-dropdown-item>删除账号</el-dropdown-item>
+                    <el-dropdown-item>黄金糕</el-dropdown-item>
+                    <el-dropdown-item>狮子头</el-dropdown-item>
+                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
+                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
                 </el-dropdown-menu>
-            </el-dropdown>
-            <!-- <template slot-scope="scope">
-                <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-            </template> -->
-            </el-table-column>
+                </el-dropdown>
+            </template>
+
+        </el-table-column>
         </el-table>
-            
+
         <!-- 添加分页功能 -->
         <el-pagination
             background
@@ -81,68 +85,66 @@
             @current-change="getAccountList"
             :page-count="pageCount">
         </el-pagination>
+
     </div>
 </template>
 
 <script>
 // import responseHandler from '@/utils/responseHandler'
-import { Table, Button } from 'element-ui'
+import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem } from 'element-ui'
+
 export default {
     name: 'Accounts',
+    components: {
+        [Button.name]: Button,
+        [Table.name]: Table,
+        [TableColumn.name]: TableColumn,
+        [Select.name]: Select,
+        [Option.name]: Option,
+        [Pagination.name]: Pagination,
+        [Dropdown.name]: Dropdown,
+        [DropdownMenu.name]: DropdownMenu,
+        [DropdownItem.name]: DropdownItem
+    },
     data(){
         return{
-            // value: [],
-            // options: [{
-            //     value: 'ziyuan',
-            //     label: '资源',
-            //     children: [{
-            //         value: 'axure',
-            //         label: 'Axure Components'
-            //     }, {
-            //         value: 'sketch',
-            //         label: 'Sketch Templates'
-            //     }, {
-            //         value: 'jiaohu',
-            //         label: '组件交互文档'
-            //     }]
-            // }],
             tableData: [{
-                id: '171100247',
-                type: '学生管理员',
-                name: '蔡小小',
+                account: '123456789',
+                accountType: '学生管理员',
+                name: 'XXX',
                 sex: '女',
-                phone: '742777',
-                deadline: '2019.11.12',
+                contact: '0663-1008611',
+                time: '2019.11.12',
                 // pageCount: 1,
                 accountList: [
                 
                 ] }, {
-                id: '171100247',
-                type: '学生管理员',
-                name: '蔡小小',
-                sex: '女',
-                phone: '742777',
-                deadline: '2019.11.12',
+                account: '123456789',
+                accountType: '学生',
+                name: 'XXX',
+                sex: '男',
+                contact: '0663-1008611',
+                time: '2019.11.12',
                 // pageCount: 1,
                 accountList: [
                 
                 ] }, {
-                id: '171100247',
-                type: '学生管理员',
-                name: '蔡小小',
-                sex: '女',
-                phone: '742777',
-                deadline: '2019.11.12',
+                account: '123456789',
+                accountType: '老师',
+                name: 'XXX',
+                sex: '男',
+                contact: '0663-1008611',
+                time: '2019.11.12',
                 // pageCount: 1,
                 accountList: [
                 
                 ] }, {
-                id: '171100247',
-                type: '学生管理员',
-                name: '蔡小小',
+                account: '123456789',
+                accountType: '学生',
+                name: 'XXX',
                 sex: '女',
-                phone: '742777',
-                deadline: '2019.11.12',
+                contact: '0663-1008611',
+                time: '2019.11.12',
                 // pageCount: 1,
                 accountList: [
                 
@@ -179,9 +181,22 @@ export default {
         margin: 30px 0 30px 36px;
     }
     .el-table{
-        margin-left: 36px;
-        margin-bottom: 30px;
+        margin: 0 auto;
     }
+    // .table{
+    //     margin: 0 auto;
+    //     display: flex;
+    //     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    //     font-size: 18px;
+    //     .title{
+    //         padding: 10px 10px;
+    //         border: 1px solid black;
+    //         text-align: center;
+    //     }
+    //     div:nth-child(n+2){
+    //         border-left: none;
+    //     }
+    // }
     .el-dropdown-link {
         color: #409EFF;
         &:hover {
@@ -195,4 +210,5 @@ export default {
         margin:0 auto;
     }
 }
+
 </style>
