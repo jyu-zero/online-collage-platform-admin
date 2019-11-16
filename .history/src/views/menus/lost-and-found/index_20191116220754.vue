@@ -104,7 +104,7 @@
                                 </div>
                             </div>
                             <div class="gotoStep-btn">
-                                <button class="gotoNextStep" @click="showStep('second')">下一步>></button>
+                                <button class="gotoNextStep">下一步>></button>
                             </div>
                         </div>
                     </div>
@@ -160,8 +160,8 @@
                                 >
                             </div>
                             <div class="gotoStep-btn">
-                                <button class="gotoBackStep" @click="showStep('first')">上一步</button>
-                                <button class="gotoNextStep" @click="showStep('last')">下一步>></button>
+                                <button class="gotoBackStep">上一步</button>
+                                <button class="gotoNextStep">下一步>></button>
                             </div>
                         </div>
                     </div>
@@ -205,7 +205,7 @@
                                     <button id="submit-btn" class="green-btn btn">提交</button>
                                 </div>
                                 <div class="gotoStep-btn">
-                                    <button class="gotoBackStep" @click="showStep('second')">上一步</button>
+                                    <button class="gotoBackStep">上一步</button>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +252,7 @@ export default {
             showNewLostWrap: false,
             showFirstStep: false,
             showSecondStep: false,
-            showLastStep: false,
+            showLasttep: false,
             // 新建物品的信息
             submitTitle: '',
             submitGoods: '',
@@ -314,22 +314,6 @@ export default {
         showSearchLost(){
             this.showNewLostWrap = true
             this.showFirstStep = true
-        },
-        showStep(step){
-            this.showFirstStep = false
-            this.showSecondStep = false
-            this.showLastStep = false
-            switch(step){
-                case 'first':
-                    this.showFirstStep = true
-                    break
-                case 'second':
-                    this.showSecondStep = true
-                    break
-                case 'last':
-                    this.showLastStep = true
-                    break
-            }
         },
         // 上传图片
         uploadImg(e){

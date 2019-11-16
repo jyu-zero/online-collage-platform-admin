@@ -58,7 +58,7 @@
                 </div>
             </div>
             <!-- 新建寻物启事 [开始] -->
-            <div class="position-all curtain-black" id="search-lost" v-if="showNewLostWrap">
+            <div class="position-all curtain-black" id="search-lost" style="display: none">
                 <div class="content">
                     <div class="bar">
                         <div class="bar-color"></div>
@@ -73,7 +73,7 @@
                             <div class="brief"><span>完成</span></div>
                         </span>
                     </div>
-                    <div class="content-body" v-if="showFirstStep">
+                    <div class="content-body" style="display: none;">
                         <!-- 基本信息 [开始] -->
                         <div class="essential-info">
                             <div class="lost-title">基本信息</div>
@@ -104,11 +104,11 @@
                                 </div>
                             </div>
                             <div class="gotoStep-btn">
-                                <button class="gotoNextStep" @click="showStep('second')">下一步>></button>
+                                <button class="gotoStepStep">下一步>></button>
                             </div>
                         </div>
                     </div>
-                    <div class="content-body" @mousemove="setDivSize" v-if="showSecondStep">
+                    <div class="content-body" @mousemove="setDivSize">
                         <!-- 上传丢失物图片 [开始]] -->
                         <div class="upload-lost-img">
                             <div class="lost-title">上传丢失物图片</div>
@@ -160,12 +160,12 @@
                                 >
                             </div>
                             <div class="gotoStep-btn">
-                                <button class="gotoBackStep" @click="showStep('first')">上一步</button>
-                                <button class="gotoNextStep" @click="showStep('last')">下一步>></button>
+                                <button class="gotoBackStep">上一步</button>
+                                <button class="gotoStepStep">下一步>></button>
                             </div>
                         </div>
                     </div>
-                    <div class="content-body" v-if="showLastStep">
+                    <div class="content-body" style="display: none;">
                         <div class="submit-info">
                             <div class="lost-title">提交</div>
                             <div class="lost-all-info">
@@ -205,7 +205,7 @@
                                     <button id="submit-btn" class="green-btn btn">提交</button>
                                 </div>
                                 <div class="gotoStep-btn">
-                                    <button class="gotoBackStep" @click="showStep('second')">上一步</button>
+                                    <button class="gotoBackStep">上一步</button>
                                 </div>
                             </div>
                         </div>
@@ -248,11 +248,6 @@ export default {
             divSize: {},
             showImgSize: {},
             isUploadImg: false,
-            // 新建物品的步骤
-            showNewLostWrap: false,
-            showFirstStep: false,
-            showSecondStep: false,
-            showLastStep: false,
             // 新建物品的信息
             submitTitle: '',
             submitGoods: '',
@@ -312,24 +307,8 @@ export default {
         },
         // 去往丢东西或者捡到东西
         showSearchLost(){
-            this.showNewLostWrap = true
-            this.showFirstStep = true
-        },
-        showStep(step){
-            this.showFirstStep = false
-            this.showSecondStep = false
-            this.showLastStep = false
-            switch(step){
-                case 'first':
-                    this.showFirstStep = true
-                    break
-                case 'second':
-                    this.showSecondStep = true
-                    break
-                case 'last':
-                    this.showLastStep = true
-                    break
-            }
+            let searchLostEle = document.getElementById('search-lost')
+            searchLostEle.style.display = 'block'
         },
         // 上传图片
         uploadImg(e){
@@ -751,7 +730,7 @@ export default {
                             left: 0;
                             width: 100%;
                             height: 100%;
-                            filter: brightness(.4);
+                            filter: brightness(.5);
                         }
                     }
 
@@ -837,7 +816,7 @@ export default {
                         cursor: pointer;
                         font-size: 15px;
                         border: none;
-                        font-weight: 500;
+                        font-size: 600;
                         color: #6c9dff;
                         outline: none;
                     }

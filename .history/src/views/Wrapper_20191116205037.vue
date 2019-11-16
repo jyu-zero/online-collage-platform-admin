@@ -49,12 +49,15 @@ export default {
                     routeName: 'Accounts'
                 },
                 {
+<<<<<<< HEAD
                     title: '问答页面',
                     routeName: 'Question'
                     // title: '新闻管理',
                     // routeName: 'News'
-                    // title: '新闻管理',
-                    // routeName: 'News'
+=======
+                    title: '新闻管理',
+                    routeName: 'News'
+>>>>>>> 753225ad406e605509477bedbfaff1778b536ca3
                 },
                 {
                     title: '失物招领',

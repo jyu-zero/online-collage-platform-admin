@@ -58,7 +58,7 @@
                 </div>
             </div>
             <!-- 新建寻物启事 [开始] -->
-            <div class="position-all curtain-black" id="search-lost" v-if="showNewLostWrap">
+            <div class="position-all curtain-black" id="search-lost" style="display: none">
                 <div class="content">
                     <div class="bar">
                         <div class="bar-color"></div>
@@ -73,42 +73,38 @@
                             <div class="brief"><span>完成</span></div>
                         </span>
                     </div>
-                    <div class="content-body" v-if="showFirstStep">
+                    <div class="content-body" style="display: none;">
                         <!-- 基本信息 [开始] -->
                         <div class="essential-info">
                             <div class="lost-title">基本信息</div>
                             <div class="lost-info">
                                 <div class="info-input">
-                                    <input type="text" placeholder="标题" v-model="submitTitle">
+                                    <input type="text" placeholder="标题">
                                     <label>标题</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="丢了什么物品" v-model="submitGoods">
+                                    <input type="text" placeholder="丢了什么物品">
                                     <label>丢了什么物品</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="在哪丢的呀" v-model="submitWhere">
+                                    <input type="text" placeholder="在哪丢的呀">
                                     <label>在哪丢的呀</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="遗失时间" v-model="submitTime">
-                                    <label>遗失时间</label>
-                                </div>
-                                <div class="info-input">
-                                    <input type="text" placeholder="遗失者姓名" v-model="submitName">
+                                    <input type="text" placeholder="遗失者姓名">
                                     <label>遗失者姓名</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="联系方式(常用手机号码)" v-model="submitContact">
+                                    <input type="text" placeholder="联系方式(常用手机号码)">
                                     <label>联系方式(常用手机号码)</label>
                                 </div>
                             </div>
-                            <div class="gotoStep-btn">
-                                <button class="gotoNextStep" @click="showStep('second')">下一步>></button>
+                            <div class="gotoNext-btn">
+                                <button id="gotoSecondStep">下一步>></button>
                             </div>
                         </div>
                     </div>
-                    <div class="content-body" @mousemove="setDivSize" v-if="showSecondStep">
+                    <div class="content-body" @mousemove="setDivSize" style="display: none">
                         <!-- 上传丢失物图片 [开始]] -->
                         <div class="upload-lost-img">
                             <div class="lost-title">上传丢失物图片</div>
@@ -159,55 +155,22 @@
                                         accept="image/gif, image/jpeg, image/jpg, image/png, image/svg"
                                 >
                             </div>
-                            <div class="gotoStep-btn">
-                                <button class="gotoBackStep" @click="showStep('first')">上一步</button>
-                                <button class="gotoNextStep" @click="showStep('last')">下一步>></button>
+                            <div class="gotoNext-btn">
+                                <button id="gotoLastStep">下一步>></button>
                             </div>
                         </div>
                     </div>
-                    <div class="content-body" v-if="showLastStep">
-                        <div class="submit-info">
-                            <div class="lost-title">提交</div>
-                            <div class="lost-all-info">
-                                <nav class="nav-info">
-                                    <ul class="submit-ul">
-                                        <li>
-                                            <p>标题&nbsp;:</p>
-                                            <span>{{submitTitle}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失物品&nbsp;:</p>
-                                            <span>{{submitGoods}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失地点&nbsp;:</p>
-                                            <span>{{submitWhere}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失时间&nbsp;:</p>
-                                            <span>{{submitTime}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失物品者名字&nbsp;:</p>
-                                            <span>{{submitName}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失者联系方式&nbsp;:</p>
-                                            <span>{{submitContact}}</span>
-                                        </li>
-                                        <li>
-                                            <p>遗失品的图片&nbsp;:</p>
-                                            <img :src="submitGoodsImg" alt="">
-                                        </li>
-                                    </ul>
-                                </nav>
-                                <div class="submit-div">
-                                    <button id="submit-btn" class="green-btn btn">提交</button>
-                                </div>
-                                <div class="gotoStep-btn">
-                                    <button class="gotoBackStep" @click="showStep('second')">上一步</button>
-                                </div>
-                            </div>
+                    <div class="content-body">
+                        <div class="lost-title">提交</div>
+                        <div class="lost-all-info">
+                            <nav class="nav-info">
+                                <ul>
+                                    <li>1</li>
+                                    <li>1</li>
+                                    <li>1</li>
+                                    <li>1</li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -248,19 +211,6 @@ export default {
             divSize: {},
             showImgSize: {},
             isUploadImg: false,
-            // 新建物品的步骤
-            showNewLostWrap: false,
-            showFirstStep: false,
-            showSecondStep: false,
-            showLastStep: false,
-            // 新建物品的信息
-            submitTitle: '',
-            submitGoods: '',
-            submitWhere: '',
-            submitTime: '',
-            submitName: '',
-            submitContact: '',
-            submitGoodsImg: '',
             // 待认领信息
             pendingclaimImgMessage: [
                 {
@@ -312,24 +262,8 @@ export default {
         },
         // 去往丢东西或者捡到东西
         showSearchLost(){
-            this.showNewLostWrap = true
-            this.showFirstStep = true
-        },
-        showStep(step){
-            this.showFirstStep = false
-            this.showSecondStep = false
-            this.showLastStep = false
-            switch(step){
-                case 'first':
-                    this.showFirstStep = true
-                    break
-                case 'second':
-                    this.showSecondStep = true
-                    break
-                case 'last':
-                    this.showLastStep = true
-                    break
-            }
+            let searchLostEle = document.getElementById('search-lost')
+            searchLostEle.style.display = 'block'
         },
         // 上传图片
         uploadImg(e){
@@ -544,42 +478,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
-    ul{
-        list-style-type: none;
-    }
-
-    .content-body{
-        .nav-info{
-            text-align: left;
-
-            .submit-ul{
-                padding: 0;
-
-                li{
-                    margin-bottom: 8px;
-
-                    p{
-                        margin: 0;
-                        font-size: 14px;
-                        display: inline-block;
-                    }
-                }
-            }
-
-        }
-        .submit-div{
-            margin: 5px 0 20px;
-        }
-    }
-
     .curtain-black{
         z-index: 999;
         background-color: rgba(0, 0, 0, .7);
 
         .content{
             display: flex;
-            width: 800px;
+            width: 900px;
             margin: 150px auto;
 
             .bar{
@@ -701,7 +606,10 @@ export default {
                                 width: 10px;
                                 border: 1.2px solid #fff;
                             }
-
+                            // <span id="top-left-btn"></span>
+                            //             <span id="top-right-btn"></span>
+                            //             <span id="bottom-left-btn"></span>
+                            //             <span id="bottom-right-btn"></span>
                             #top-left-btn{
                                 top: 0;
                                 left: 0;
@@ -751,7 +659,7 @@ export default {
                             left: 0;
                             width: 100%;
                             height: 100%;
-                            filter: brightness(.4);
+                            filter: brightness(.5);
                         }
                     }
 
@@ -780,7 +688,7 @@ export default {
                 // 填写遗失信息
                 .lost-title{
                     text-align: center;
-                    font-size: 24px;
+                    font-size: 20px;
                     padding: 5px 0;
                     background-color: inherit;
                     font-weight: 500px;
@@ -831,27 +739,21 @@ export default {
                     }
                 }
 
-                .gotoStep-btn{
+                .gotoNext-btn{
+                    text-align: right;
+
                     button{
                         background-color: transparent;
                         cursor: pointer;
                         font-size: 15px;
                         border: none;
-                        font-weight: 500;
+                        font-size: 600;
                         color: #6c9dff;
                         outline: none;
                     }
 
                     button:hover{
                         text-decoration: underline;
-                    }
-                    
-                    .gotoBackStep{
-                        float: left;
-                    }
-
-                    .gotoNextStep{
-                        float: right;
                     }
                 }
             }
@@ -958,6 +860,7 @@ export default {
                                 left bottom,
                                 left top,
                                 color-stop(0, #e04848),
+                                // color-stop(0, #f08a15),
                                 color-stop(1, #ff6161)
             );
             box-shadow: inset 0px 1px 0px #f77575, 0px 4px 0px #cc2727;
@@ -971,28 +874,6 @@ export default {
                                 left top,
                                 color-stop(0, #ff6161),
                                 color-stop(1, #e04848)
-            );
-        }
-
-        .green-btn{
-            background-image: -webkit-gradient(
-                                linear,
-                                left bottom,
-                                left top,
-                                color-stop(0, #44b30c),
-                                color-stop(1, #67c23a)
-            );
-            box-shadow: inset 0px 1px 0px #44b30c, 0px 4px 0px #498a29;
-        }
-
-        .green-btn:active{
-            box-shadow: inset 0 0 6px 0 rgba(0, 0, 0, .6);
-            background-image: -webkit-gradient(
-                                linear,
-                                left bottom,
-                                left top,
-                                color-stop(0, #67c23a),
-                                color-stop(1, #44b30c)
             );
         }
 
@@ -1162,6 +1043,13 @@ export default {
             transform: translateZ(0);
             opacity: 1;
         }
+
+        // .thing-item:hover .title{
+        //     font-size: 18px;
+        //     z-index: 10;
+        //     color: #fff;
+        //     top: 10px;
+        // }
     }
 
     .position-all{
