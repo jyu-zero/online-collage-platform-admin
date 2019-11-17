@@ -36,16 +36,6 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
-    {
-        // 问答页面
-        path: '/question',
-        component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Question',
-            component: () => import('@/views/menus/question-answer/index.vue')
-        }]
-    },
     // 在线问答组界限 ----------
     {
         // 在线问答首页
@@ -58,8 +48,9 @@ const routes = [
                 component: () => import('@/views/menus/questions/index.vue')
             },
             {
-                path: 'questions-specific',
+                path: 'questions-specific/:id',
                 name: 'QuestionSpecific',
+                props: true,
                 component: () => import('@/views/menus/questions/specificQuestion.vue')
             },
             {
@@ -101,19 +92,7 @@ const routes = [
             {
                 path: '/',
                 name: 'LostAndFound',
-                component: () => import('@/views/menus/lost-and-found'),
-                children: [
-                    {
-                        path: 'lost',
-                        name: 'Lost',
-                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
-                    },
-                    {
-                        path: 'found',
-                        name: 'Found',
-                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
-                    }
-                ]
+                component: () => import('@/views/menus/lost-and-found')
             }
         ]
     },
