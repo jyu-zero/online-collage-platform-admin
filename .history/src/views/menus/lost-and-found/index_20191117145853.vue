@@ -33,7 +33,7 @@
                             <div class="info-body">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
                                             <input type="text" :value="thingItem.foundAtWhere">
@@ -63,7 +63,7 @@
                     <div class="title category">
                         <span>待找回</span>
                     </div>
-                    <div class="thing-item" v-for="thingItem of pendingRetrieveMessage" :key="thingItem.id">
+                    <div class="thing-item" v-for="thingItem of pendingclaimMessage" :key="thingItem.id">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img src="" alt="">
                         <div class="position-all flex-center thing-bg">
@@ -79,18 +79,18 @@
                             <div class="info-body">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;遗失地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhere">
+                                            <input type="text" :value="thingItem.foundAtWhere">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;遗失时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhen">
+                                            <input type="text" :value="thingItem.foundAtWhen">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveBy">
+                                            <input type="text" :value="thingItem.foundBy">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
@@ -537,28 +537,28 @@ export default {
                 }
             ],
             // 待找回信息
-            pendingRetrieveMessage: [
+            pendingclaimMessage: [
                 {
                     id: 1,
                     imgSrc: './img/2.jpg',
                     info: '蓝色U盘',
                     isManagedByCollage: true,
-                    title: '在美国不小心丢了原子弹',
+                    title: '在美国捡到了原子弹',
                     contact: '12345678910',
-                    retrieveAtWhere: '美国',
-                    retrieveBy: 'ddloo',
-                    retrieveAtWhen: '1111-11-11'
+                    foundAtWhere: '美国',
+                    foundBy: 'ddloo',
+                    foundAtWhen: '1111-11-11'
                 },
                 {
                     id: 2,
                     imgSrc: './img/2.jpg',
                     info: '蓝色U盘',
-                    isManagedByCollage: true,
-                    title: '在美国不小心丢了原子弹',
+                    isManagedByCollage: false,
+                    title: '在美国捡到了原子弹',
                     contact: '12345678910',
-                    retrieveAtWhere: '美国',
-                    retrieveBy: 'ddloo',
-                    retrieveAtWhen: '1111-11-11'
+                    foundAtWhere: '美国',
+                    foundBy: 'ddloo',
+                    foundAtWhen: '1111-11-11'
                 }
             ]
         }

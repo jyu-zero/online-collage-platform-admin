@@ -33,7 +33,7 @@
                             <div class="info-body">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
                                             <input type="text" :value="thingItem.foundAtWhere">
@@ -79,7 +79,7 @@
                             <div class="info-body">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <p class="thing-title" title="thingItem.retrieveAtWhere">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;遗失地址:&nbsp;</p>
                                             <input type="text" :value="thingItem.retrieveAtWhere">

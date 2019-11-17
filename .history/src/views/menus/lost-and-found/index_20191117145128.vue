@@ -17,7 +17,7 @@
                     <div class="title category">
                         <span>待认领</span>
                     </div>
-                    <div class="thing-item" v-for="thingItem of pendingclaimMessage" :key="thingItem.id">
+                    <div class="thing-item" v-for="thingItem of pendingclaimImgMessage" :key="thingItem.id">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img src="" alt="">
                         <div class="position-all flex-center thing-bg">
@@ -33,7 +33,7 @@
                             <div class="info-body">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <p class="thing-title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
                                             <input type="text" :value="thingItem.foundAtWhere">
@@ -58,52 +58,6 @@
                     </div>
                 </div>
                 <!-- 待认领 [结束] -->
-                <!-- 待找回 [开始] -->
-                <div class="pending-retrieve thing">
-                    <div class="title category">
-                        <span>待找回</span>
-                    </div>
-                    <div class="thing-item" v-for="thingItem of pendingRetrieveMessage" :key="thingItem.id">
-                        <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img src="" alt="">
-                        <div class="position-all flex-center thing-bg">
-                            <p class="title">{{thingItem.info}}</p>
-                            <!-- 是否学院托管 -->
-                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
-                        </div>
-                        <div class="info position-all">
-                            <div class="bg-blur position-all">
-                                <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img src="" alt="">
-                            </div>
-                            <div class="info-body">
-                                <div class="body-message">
-                                    <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhere">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhen">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveBy">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact">
-                                        </div>
-                                    </div>
-                                    <button class="blue-btn btn claim-btn">确认找回</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- 待找回 [结束] -->
             </div>
             <!-- 新建寻物启事 [开始] -->
             <div class="position-all curtain-black" id="search-lost" v-if="showNewLostWrap">
@@ -512,7 +466,7 @@ export default {
                 goodsImg: ''
             },
             // 待认领信息
-            pendingclaimMessage: [
+            pendingclaimImgMessage: [
                 {
                     id: 1,
                     imgSrc: './img/2.jpg',
@@ -534,31 +488,6 @@ export default {
                     foundAtWhere: '美国',
                     foundBy: 'ddloo',
                     foundAtWhen: '1111-11-11'
-                }
-            ],
-            // 待找回信息
-            pendingRetrieveMessage: [
-                {
-                    id: 1,
-                    imgSrc: './img/2.jpg',
-                    info: '蓝色U盘',
-                    isManagedByCollage: true,
-                    title: '在美国不小心丢了原子弹',
-                    contact: '12345678910',
-                    retrieveAtWhere: '美国',
-                    retrieveBy: 'ddloo',
-                    retrieveAtWhen: '1111-11-11'
-                },
-                {
-                    id: 2,
-                    imgSrc: './img/2.jpg',
-                    info: '蓝色U盘',
-                    isManagedByCollage: true,
-                    title: '在美国不小心丢了原子弹',
-                    contact: '12345678910',
-                    retrieveAtWhere: '美国',
-                    retrieveBy: 'ddloo',
-                    retrieveAtWhen: '1111-11-11'
                 }
             ]
         }
