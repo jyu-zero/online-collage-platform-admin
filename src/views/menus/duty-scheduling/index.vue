@@ -29,10 +29,12 @@
                                 v-bind:class="'arrange-table-column_'+col"
                             >
                                 <el-select
-                                    v-model="row['col_'+col+'Data']"
+                                    :model="row['col_'+col+'Data']"
+                                    class="selecter"
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
+                                    @change="checkSelectedOptions()"
                                 >
                                     <el-option
                                         v-for="item in options"
@@ -79,22 +81,41 @@ export default {
     methods: {
         beginToArrange() {
             this.isActive = true
-            // TODO freeStaffList获取待完成
+            // console.log(evevt)
+            this.options = []
             this.$axios
                 .get(prefix.api + dutySchedulingApi.getFreeStaffList, {
                     params: {
-                        
+                        courseId: 1
                     }
                 })
                 .then(
                     response => {
-                        console.log(response)
+                        if(response.data.code === '0000'){
+                            console.log(response)
+                            for(var freeStaff of response.data.data[0].people){
+                                var freeStaffObj = {
+                                    // courseId: ,
+                                    value: freeStaff,
+                                    label: freeStaff
+                                }
+                                this.options.push(freeStaffObj)
+                            }
+                        }
                     }
                 )
+        },
+        checkSelectedOptions(selections){
+            console.log(selections)
+        },
+        // TODO
+        clearFreeStaffList(){
+
         },
         cancel() {
             this.isActive = false
         },
+        // TODO
         resetArrange(){
             
         }
@@ -104,64 +125,96 @@ export default {
             arrangeData: [
                 {
                     rowId: 1,
-                    col_1Data: 'row_1&col_1',
-                    col_2Data: 'row_1&col_2',
-                    col_3Data: 'row_1&col_3',
-                    col_4Data: 'row_1&col_4',
-                    col_5Data: 'row_1&col_5'
+                    col_1Data: '1',
+                    col_2Data: '9',
+                    col_3Data: '17',
+                    col_4Data: '25',
+                    col_5Data: '33'
                 },
                 {
                     rowId: 2,
-                    col_1Data: 'row_2&col_1',
-                    col_2Data: 'row_2&col_2',
-                    col_3Data: 'row_2&col_3',
-                    col_4Data: 'row_2&col_4',
-                    col_5Data: 'row_2&col_5'
+                    col_1Data: '2',
+                    col_2Data: '10',
+                    col_3Data: '18',
+                    col_4Data: '26',
+                    col_5Data: '34'
                 },
                 {
                     rowId: 3,
-                    col_1Data: 'row_3&col_1',
-                    col_2Data: 'row_3&col_2',
-                    col_3Data: 'row_3&col_3',
-                    col_4Data: 'row_3&col_4',
-                    col_5Data: 'row_3&col_5'
+                    col_1Data: '3',
+                    col_2Data: '11',
+                    col_3Data: '19',
+                    col_4Data: '27',
+                    col_5Data: '35'
                 },
                 {
                     rowId: 4,
-                    col_1Data: 'row_4&col_1',
-                    col_2Data: 'row_4&col_2',
-                    col_3Data: 'row_4&col_3',
-                    col_4Data: 'row_4&col_4',
-                    col_5Data: 'row_4&col_5'
+                    col_1Data: '4',
+                    col_2Data: '12',
+                    col_3Data: '20',
+                    col_4Data: '28',
+                    col_5Data: '36'
+                },
+                {
+                    rowId: 5,
+                    col_1Data: '5',
+                    col_2Data: '13',
+                    col_3Data: '21',
+                    col_4Data: '29',
+                    col_5Data: '37'
+                },
+                {
+                    rowId: 6,
+                    col_1Data: '6',
+                    col_2Data: '14',
+                    col_3Data: '22',
+                    col_4Data: '30',
+                    col_5Data: '38'
+                },
+                {
+                    rowId: 7,
+                    col_1Data: '7',
+                    col_2Data: '15',
+                    col_3Data: '23',
+                    col_4Data: '31',
+                    col_5Data: '39'
+                },
+                {
+                    rowId: 8,
+                    col_1Data: '8',
+                    col_2Data: '16',
+                    col_3Data: '24',
+                    col_4Data: '32',
+                    col_5Data: '40'
                 }
             ],
             options: [
-                {
-                    value: '选项1',
-                    label: '黄金糕fweg'
-                },
-                {
-                    value: '选项2',
-                    label: '双皮奶vds',
-                    disabled: true
-                },
-                {
-                    value: '选项3',
-                    label: '蚵仔煎vds'
-                },
-                {
-                    value: '选项4',
-                    label: '龙须面vds'
-                },
-                {
-                    value: '选项5',
-                    label: '北京烤鸭vds'
-                }
+                // {
+                //     value: '选项1',
+                //     label: '黄金糕fweg'
+                // },
+                // {
+                //     value: '选项2',
+                //     label: '双皮奶vds',
+                //     disabled: true
+                // },
+                // {
+                //     value: '选项3',
+                //     label: '蚵仔煎vds'
+                // },
+                // {
+                //     value: '选项4',
+                //     label: '龙须面vds'
+                // },
+                // {
+                //     value: '选项5',
+                //     label: '北京烤鸭vds'
+                // }
             ],
-            value1: [],
-            value2: [],
+            arrange: [],
             week: false,
-            isActive: false
+            isActive: false,
+            arrangeVm: this
         }
     }
 }
