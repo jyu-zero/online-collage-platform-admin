@@ -48,8 +48,9 @@ const routes = [
                 component: () => import('@/views/menus/questions/index.vue')
             },
             {
-                path: 'questions-specific',
+                path: 'questions-specific/:id',
                 name: 'QuestionSpecific',
+                props: true,
                 component: () => import('@/views/menus/questions/specificQuestion.vue')
             },
             {
@@ -91,19 +92,7 @@ const routes = [
             {
                 path: '/',
                 name: 'LostAndFound',
-                component: () => import('@/views/menus/lost-and-found'),
-                children: [
-                    {
-                        path: 'lost',
-                        name: 'Lost',
-                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
-                    },
-                    {
-                        path: 'found',
-                        name: 'Found',
-                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
-                    }
-                ]
+                component: () => import('@/views/menus/lost-and-found')
             }
         ]
     },
