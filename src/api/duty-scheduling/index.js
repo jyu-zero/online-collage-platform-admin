@@ -1,6 +1,6 @@
 export default{
     // 获取可值班人员列表
-    'getFreeStaffList': 'http://10.168.1.21/eolinker4.0/server/index.php?g=Web&c=Mock&o=simple&projectID=28&uri=/admin/get-people',
+    'getFreeStaffList': '/admin/get-people',
     // 提交无课人员信息
     'submitFreeinFormation': '/admin/submit-free-information',
     // 提交值班安排

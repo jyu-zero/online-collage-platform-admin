@@ -37,9 +37,9 @@
                                     @change="checkSelectedOptions()"
                                 >
                                     <el-option
-                                        v-for="item in options"
+                                        v-for="item in options[model]"
                                         :key="item.value"
-                                        :label="item.label"
+                                        :label="item.name"
                                         :value="item.value"
                                     ></el-option>
                                 </el-select>
@@ -76,7 +76,8 @@ export default {
     },
     props: {
         row: Number,
-        col: Number
+        col: Number,
+        model: String
     },
     methods: {
         beginToArrange() {
@@ -84,20 +85,16 @@ export default {
             // console.log(evevt)
             this.options = []
             this.$axios
-                .get(prefix.api + dutySchedulingApi.getFreeStaffList, {
-                    params: {
-                        courseId: 1
-                    }
-                })
+                .get(prefix.api + dutySchedulingApi.getFreeStaffList)
                 .then(
                     response => {
                         if(response.data.code === '0000'){
-                            console.log(response)
+                            // console.log(response)
                             for(var freeStaff of response.data.data[0].people){
                                 var freeStaffObj = {
                                     // courseId: ,
                                     value: freeStaff,
-                                    label: freeStaff
+                                    name: freeStaff
                                 }
                                 this.options.push(freeStaffObj)
                             }
