@@ -60,7 +60,7 @@ const routes = [
             }
         ]
     },
-    
+
     // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {
@@ -102,13 +102,40 @@ const routes = [
         // 值班管理页面
         path: '/duty-scheduling',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'DutyScheduling',
-            component: () => import('@/views/menus/duty-scheduling')
-        }]
-    }
+        children: [
+            {
+                path: '/',
+                name: 'DutyScheduling',
+                component: () => import('@/views/menus/duty-scheduling')
+            },
+            {
+                path: 'freeCourse',
+                name: 'freeCourse',
+                component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
+            }
+            
+        ]
+    },
     // 值班管理组界限 ---------- [完]
+    // 文件分享组界限 ----------
+    {
+        // 文件分享页面
+        path: '/file-share',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                path: '/',
+                name: 'FileShare',
+                component: () => import('@/views/menus/file-share/index.vue')
+            },
+            {
+                path: 'setting-share',
+                name: 'SettingShare',
+                component: () => import('@/views/menus/file-share/settingShare.vue')
+            }
+        ]
+    }
+    // 文件分享组界限 ---------- [完]
 ]
 
 const router = new VueRouter({
