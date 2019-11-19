@@ -102,11 +102,19 @@ const routes = [
         // 值班管理页面
         path: '/duty-scheduling',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'DutyScheduling',
-            component: () => import('@/views/menus/duty-scheduling')
-        }]
+        children: [
+            {
+                path: '/',
+                name: 'DutyScheduling',
+                component: () => import('@/views/menus/duty-scheduling')
+            },
+            {
+                path: 'freeCourse',
+                name: 'freeCourse',
+                component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
+            }
+            
+        ]
     }
     // 值班管理组界限 ---------- [完]
 ]
