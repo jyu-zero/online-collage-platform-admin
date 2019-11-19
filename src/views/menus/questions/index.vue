@@ -8,7 +8,7 @@
                     <el-button type="danger" @click="isConfirmToDelete">删除</el-button>
                     <el-button @click="pinQuestion">置顶</el-button>
                     <el-button @click="lockQuestion">锁定</el-button>
-                    <el-button type="primary" @click="goToSetQuestionAndAnswer">问答系统设置</el-button>
+                    <el-button type="primary" @click="goToSettingQuestion">问答系统设置</el-button>
                 </div>
                 <!-- 四个按钮 [完]-->
                 
@@ -282,16 +282,19 @@ export default {
             }
             this.checkQuestionId.push(id)
         },
+        // 前往问答系统设置页面
+        goToSettingQuestion(){
+            this.$router.push({ path: '/questions/questions-setting' })
+        },
         // 查看问题详情页
         goToDetailedQuestion(questionId){
             // 跳转至问题详情页并且将要查看的问题id传过去
-            this.$router.push({ name: 'QuestionSpecific', params: { questionId } })
+            this.$router.push({ path: `/questions/questions-specific/${questionId}` })
         }
     }
 }
 </script>
-
-<style lang="less" scoped>
+<style lang="less">
 *{
     box-sizing: border-box;
 }
