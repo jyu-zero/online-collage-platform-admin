@@ -29,8 +29,8 @@
         <template>
             <el-checkbox id="checked" v-model="checked">同时作为通知发送</el-checkbox>
         </template>
-        <div id="editor">
-            <p>文本编辑器</p>
+        <div class="editor">
+            <editor @func='getEditContent'></editor>
         </div>
         <el-upload
             class="upload-demo"
@@ -51,6 +51,8 @@
 
 <script>
 import { Button, Input, Checkbox, Upload } from 'element-ui'
+import Editor from '@/components/news/Editorbox'
+import E from 'wangeditor'
 
 export default {
     name: 'CreateNews',
@@ -58,7 +60,8 @@ export default {
         [Button.name]: Button,
         [Input.name]: Input,
         [Checkbox.name]: Checkbox,
-        [Upload.name]: Upload
+        [Upload.name]: Upload,
+        Editor
     },
     data() {
         return {
@@ -135,6 +138,10 @@ export default {
 
     #checked{
         margin: 14px 0;
+    }
+
+    .editor{
+        margin-bottom: 14px;
     }
 }
 </style>
