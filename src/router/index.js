@@ -36,6 +36,32 @@ const routes = [
             component: () => import('@/views/menus/accounts/index.vue')
         }]
     },
+    // 在线问答组界限 ----------
+    {
+        // 在线问答首页
+        path: '/questions',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                path: '/',
+                name: 'Questions',
+                component: () => import('@/views/menus/questions/index.vue')
+            },
+            {
+                path: 'questions-specific/:id',
+                name: 'QuestionSpecific',
+                props: true,
+                component: () => import('@/views/menus/questions/specificQuestion.vue')
+            },
+            {
+                path: 'questions-setting',
+                name: 'QuestionSetting',
+                component: () => import('@/views/menus/questions/settingQuestion.vue')
+            }
+        ]
+    },
+    
+    // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {
         path: '/news',
@@ -66,24 +92,23 @@ const routes = [
             {
                 path: '/',
                 name: 'LostAndFound',
-                component: () => import('@/views/menus/lost-and-found'),
-                children: [
-                    {
-                        path: 'lost',
-                        name: 'Lost',
-                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
-                    },
-                    {
-                        path: 'found',
-                        name: 'Found',
-                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
-                    }
-                ]
+                component: () => import('@/views/menus/lost-and-found')
             }
         ]
-    }
+    },
     // 失物招领组界限 --------- [完]
-
+    // 值班管理组界限 ----------
+    {
+        // 值班管理页面
+        path: '/duty-scheduling',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'DutyScheduling',
+            component: () => import('@/views/menus/duty-scheduling')
+        }]
+    }
+    // 值班管理组界限 ---------- [完]
 ]
 
 const router = new VueRouter({
