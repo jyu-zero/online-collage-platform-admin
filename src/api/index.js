@@ -1,5 +1,6 @@
 import user from './user'
 
+import dutyScheduling from './duty-scheduling'
 import news from './news'
 import apiPrefix from './apiPrefix'
 import _responseHandler from './responseHandler'
@@ -7,6 +8,8 @@ import question from './question'
 import dutyScheduling from './duty-scheduling'
 
 export const userApi = user
+
+export const dutySchedulingApi = dutyScheduling
 
 export const newsApi = news
 
