@@ -19,19 +19,20 @@
         <div class="main">
             <div class="news-item" v-for="newsItem of newsList" :key="newsItem.title">
                 <!-- 勾选框还需修改 -->
-                <el-checkbox v-model="checked"></el-checkbox>
-                <p class="title">{{newsItem.title}}</p>
-                <p class="top">{{newsItem.top}}</p>
-                <p class="draft">{{newsItem.draft}}</p>
-                <p class="time">{{newsItem.time}}</p>
-                <p class="writer">撰稿人：{{newsItem.writer}}</p>
-                <p class="reviewer">审稿人：{{newsItem.reviewer}}</p>
-                <p class="publish">{{newsItem.publish}}</p>
+                <el-checkbox v-model="checked" :id="index" :value="id"></el-checkbox>
+                <p class="title">{{newsItem.news_title}}</p>
+                <!-- <p class="top">{{newsItem.is_pinned}}</p>
+                <p class="draft">{{newsItem.is_draft}}</p> -->
+                <p class="time">{{newsItem.created_at}}</p>
+                <p class="writer">撰稿人：{{newsItem.author}}</p>
+                <p class="reviewer">审稿人：{{newsItem.publisher}}</p>
+                <!-- <p class="publish">{{newsItem.is_published}}</p> -->
                 <i class="fa fa-eye" aria-hidden="true"></i>
                 <p class="views">{{newsItem.views}}</p>
                 <div class="editer">
-                    <el-button id="button" type="primary">发布</el-button>
-                    <el-link id="edit" icon="el-icon-edit">编辑</el-link>
+                    <el-button id="button" type="primary" v-show="isShow" @click="untop">取消置顶</el-button>
+                    <el-button id="button" type="primary" @click="publish" v-text="btnText" v-show="flag">发布</el-button>
+                    <el-link id="edit" icon="el-icon-edit" @click="edit">编辑</el-link>
                     <template>
                         <el-button id="delete" type="text" @click="open">删除</el-button>
                     </template>
@@ -39,11 +40,7 @@
             </div>
         </div>
         <!-- 新闻列表 【完】-->
-        <!-- <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="1000">
-        </el-pagination> -->
+    
         <!-- TODO -->
         <div class="page">
             <el-pagination
@@ -74,57 +71,69 @@ export default {
         return {
             input: '',
             checked: false,
-            newsList: [
-                {
-                    title: '这是文章的标题',
-                    top: '(置顶)',
-                    draft: '(草稿)',
-                    time: '2019-11-11',
-                    writer: 'xxx',
-                    reviewer: 'xxx',
-                    publish: 0,
-                    views: 1
-                },
-                {
-                    title: '这是文章的标题',
-                    top: '(置顶)',
-                    draft: '(草稿)',
-                    time: '2019-11-11',
-                    writer: 'xxx',
-                    reviewer: 'xxx'
-                },
-                {
-                    title: '这是文章的标题',
-                    top: '(置顶)',
-                    draft: '(草稿)',
-                    time: '2019-11-11',
-                    writer: 'xxx',
-                    reviewer: 'xxx'
-                },
-                {
-                    title: '这是文章的标题',
-                    top: '(置顶)',
-                    draft: '(草稿)',
-                    time: '2019-11-11',
-                    writer: 'xxx',
-                    reviewer: 'xxx'
-                },
-                {
-                    title: '这是文章的标题',
-                    top: '(置顶)',
-                    draft: '(草稿)',
-                    time: '2019-11-11',
-                    writer: 'xxx',
-                    reviewer: 'xxx'
-                }
-            ]
+            btnText: '发布',
+            flag: true,
+            isShow: false,
+            newsLists: [2],
+            newsUnpinLists: [],
+            news_delete_id: [2],
+            news_publish_id: [],
+            pageCount: 1,
+            index: []
         }
+    },
+    created(){
+        this.getNewsList()
     },
     methods: {
         gotoCreateNews(){
             this.$router.push({ name: 'CreateNews' })
         },
+        // 置顶新闻
+        top(){
+            this.axios
+                .post(prefix.api + newsApi.top, {
+                    newsList: this.newsLists
+                })
+                .then(response => {
+                    this.getNewsList(1)
+                })
+        },
+        // 取消置顶
+        untop(){
+            this.axios
+                .post(prefix.api + newsApi.untop, {
+                    newsUnpinList: this.newsUnpinLists
+                })
+                .then(response => {
+                    this.getNewsList(1)
+                })
+        },
+
+        showToggle: function() {
+            if(this.newsList.is_published === 1) {
+                this.flag = false
+                if(this.flag === true) {
+                    this.btnText = '发布'
+                }
+                if(this.flag === false) {
+                    this.btnText = '取消发布'
+                }
+            }
+        },
+
+        // 删除新闻
+        deleted(){
+            this.axios
+                .post(prefix.api + newsApi.delete, {
+                    news_id: this.news_delete_id
+                })
+                .then(response => {
+                    this.getNewsList(1)
+                })
+        },
         // TODO
+        // 获取新闻列表
         getNewsList(page = 1){
             this.axios
                 .get(prefix.api + newsApi.getNewsList, {
@@ -135,17 +144,40 @@ export default {
                 .then(response => {
                     if(!responseHandler(response.data, this)){
                         // TODO: 在这里处理错误
+                        return {}
                     }
                     this.newsList = response.data.data.news
                     this.pageCount = response.data.data.pageCount
                 })
+            // console.log(this.is_pinned)
+            // if(this.newsList.is_pinned === 1) {
+            //     this.isShow = true
+            // }
         },
+        // 发布新闻
+        publish(){
+            this.axios
+                .post(prefix.api + newsApi.publish, {
+                    news_id: this.news_publish_id
+                })
+                .then(response => {
+                    this.getNewsList(1)
+                })
+        },
+
+        // 编辑新闻
+        edit(){
+            this.$router.push({ name: 'CreateNews' })
+        },
+
+        // 单独删除一条新闻
         open(){
             this.$confirm('此操作将永久删除该条新闻，是否继续？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
+                this.deleted()
                 this.$message({
                     type: 'success',
                     message: '删除成功!'

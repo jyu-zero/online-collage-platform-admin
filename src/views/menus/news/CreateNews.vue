@@ -65,8 +65,14 @@ export default {
             text1: '',
             text2: '',
             checked: false,
-            fileList: ''
+            fileList: '',
+            isClear: false,
+            detail: '',
+            fileFormData: null
         }
+    },
+    created(){
+        this.fileFormData = new FormData()
     },
     methods: {
         open() {
