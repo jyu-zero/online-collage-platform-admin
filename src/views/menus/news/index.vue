@@ -4,12 +4,12 @@
         <el-menu class="button">
             <el-button id="button" type="primary" @click="gotoCreateNews">创建新闻</el-button>
             <el-button id="button" type="primary">删除</el-button>
-            <el-button id="button" type="primary">置顶</el-button>
+            <el-button id="button" type="primary" @click="top">置顶</el-button>
             <div class="search">
                 <el-input
                     placeholder="请输入内容"
                     v-model="input">
-                    <i slot="prefix" class="el-input__icon el-icon-search"></i>
+                    <i slot="prefix" class="el-input__icon el-icon-search" @click="search"></i>
                 </el-input>
             </div>
         </el-menu>
@@ -30,8 +30,8 @@
                 <i class="fa fa-eye" aria-hidden="true"></i>
                 <p class="views">{{newsItem.views}}</p>
                 <div class="editer">
-                    <el-button id="button" type="primary" v-show="isShow" @click="untop">取消置顶</el-button>
-                    <el-button id="button" type="primary" @click="publish" v-text="btnText" v-show="flag">发布</el-button>
+                    <el-button id="button" type="text" @click="untop">{{newsItem.is_pinned}}</el-button>
+                    <el-button id="button" type="primary" @click="publish">{{newsItem.is_published}}</el-button>
                     <el-link id="edit" icon="el-icon-edit" @click="edit">编辑</el-link>
                     <template>
                         <el-button id="delete" type="text" @click="open">删除</el-button>
@@ -71,11 +71,9 @@ export default {
         return {
             input: '',
             checked: false,
-            btnText: '发布',
-            flag: true,
             isShow: false,
             newsLists: [2],
-            newsUnpinLists: [],
+            newsUnpinLists: [2],
             news_delete_id: [2],
             news_publish_id: [],
             pageCount: 1,
@@ -89,9 +87,17 @@ export default {
         gotoCreateNews(){
             this.$router.push({ name: 'CreateNews' })
         },
+        // 搜索框
+        // TODO
+        search(){
+            this.$axios
+                .post(prefix.api + newsApi.search, {
+
+                })
+        },
         // 置顶新闻
         top(){
-            this.axios
+            this.$axios
                 .post(prefix.api + newsApi.top, {
                     newsList: this.newsLists
                 })
@@ -101,7 +107,7 @@ export default {
         },
         // 取消置顶
         untop(){
-            this.axios
+            this.$axios
                 .post(prefix.api + newsApi.untop, {
                     newsUnpinList: this.newsUnpinLists
                 })
@@ -110,21 +116,30 @@ export default {
                 })
         },
 
-        showToggle: function() {
-            if(this.newsList.is_published === 1) {
-                this.flag = false
-                if(this.flag === true) {
-                    this.btnText = '发布'
+        // 判断是否发布
+        isPublish: function() {
+            for(let i = 0; i <= (this.newsList.length - 1); i++){
+                if(this.newsList[i].is_published === 1) {
+                    this.newsList[i].is_published = '取消发布'
+                }else{
+                    this.newsList[i].is_published = '发布'
                 }
-                if(this.flag === false) {
-                    this.btnText = '取消发布'
+            }
+        },
+        // 判断是否置顶
+        isPinned: function() {
+            for(let i = 0; i <= (this.newsList.length - 1); i++){
+                if(this.newsList[i].is_pinned === 1) {
+                    this.newsList[i].is_pinned = '取消置顶'
+                }else{
+                    this.newsList[i].is_pinned = ''
                 }
             }
         },
 
         // 删除新闻
         deleted(){
-            this.axios
+            this.$axios
                 .post(prefix.api + newsApi.delete, {
                     news_id: this.news_delete_id
                 })
@@ -135,7 +150,7 @@ export default {
         // TODO
         // 获取新闻列表
         getNewsList(page = 1){
-            this.axios
+            this.$axios
                 .get(prefix.api + newsApi.getNewsList, {
                     params: {
                         page
@@ -148,15 +163,13 @@ export default {
                     }
                     this.newsList = response.data.data.news
                     this.pageCount = response.data.data.pageCount
+                    this.isPublish()
+                    this.isPinned()
                 })
-            // console.log(this.is_pinned)
-            // if(this.newsList.is_pinned === 1) {
-            //     this.isShow = true
-            // }
         },
         // 发布新闻
         publish(){
-            this.axios
+            this.$axios
                 .post(prefix.api + newsApi.publish, {
                     news_id: this.news_publish_id
                 })
