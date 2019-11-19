@@ -15,7 +15,7 @@
         <h4>新闻</h4>
         <div class="mar">
             <div class="common-box" v-for="(item,index) in newsList" :key="index">
-                <p>{{item.news_title}}</p>
+                <p>{{item.news_title}} by {{item.author}}</p>
                 <div>
                     <!-- TODO:这里按钮还没做 -->
                     <el-button type="primary" class="but">发布</el-button>
