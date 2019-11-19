@@ -10,14 +10,14 @@
             </tr>
         </table>
         <div v-else class="tip">今日无值班人员</div>
-
-        <!-- TODO:这里接口还没做 -->
+        
         <h2>今日新增内容</h2>
         <h4>新闻</h4>
         <div class="mar">
-            <div class="common-box">
-                <p>新闻标题</p>
+            <div class="common-box" v-for="(item,index) in newsList" :key="index">
+                <p>{{item.news_title}}</p>
                 <div>
+                    <!-- TODO:这里按钮还没做 -->
                     <el-button type="primary" class="but">发布</el-button>
                     <el-button type="primary" class="but">查看</el-button>
                 </div>
@@ -63,14 +63,15 @@
 
 <script>
 import { Button, Message } from 'element-ui'
-import { responseHandler, userApi, prefix } from '@/api'
+import { responseHandler, dutySchedulingApi, prefix, userApi, newsApi } from '@/api'
 export default {
     name: 'Overview',
     data() {
         return {
             arrangeList: [],
             timeList: ['第1节', '第2节', '第3节', '第4节', '第5节', '第6节', '第7节', '第8节'],
-            lostList: []
+            lostList: [],
+            newsList: []
         }
     },
     components: {
@@ -80,6 +81,7 @@ export default {
     created () {
         this.getTodayArrange()
         this.getTodayLost()
+        this.getTodayNews()
     },
     methods: {
         getTodayArrange () {
@@ -90,12 +92,11 @@ export default {
             // 获取开学时间的毫秒数
             let etime = '2019-09-01 00:00:00'
             let times = Date.parse(new Date(etime.replace(/-/g, '/')))
-            let cha = nowTime - times
-            let days = Math.ceil(cha / 1000 / 60 / 60 / 24)
+            let timeDiff = nowTime - times
+            let days = Math.ceil(timeDiff / 1000 / 60 / 60 / 24)
             let week = Math.ceil(days / 7) % 2
             if(today >= 1 && today <= 5) {
-                console.log(this.arrangeList)
-                this.$axios.get(prefix.api + userApi.getTodayArrange, {
+                this.$axios.get(prefix.api + dutySchedulingApi.getTodayArrange, {
                     params: {
                         week,
                         day: today
@@ -105,7 +106,6 @@ export default {
                         Message.error('获取值班信息失败')
                     }
                     this.arrangeList = response.data.data
-                    console.log(this.arrangeList)
                 })
             }
         },
@@ -115,6 +115,14 @@ export default {
                     Message.error('获取失物信息失败')
                 }
                 this.lostList = response.data.data
+            })
+        },
+        getTodayNews () {
+            this.$axios.get(prefix.api + newsApi.showTodayNews).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('获取新闻信息失败')
+                }
+                this.newsList = response.data.data.news
             })
         }
     }
