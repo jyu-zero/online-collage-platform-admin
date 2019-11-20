@@ -9,7 +9,7 @@
                     <el-input v-model="formLabelAlign.id"></el-input>
                 </el-form-item>
                 <el-form-item label="密码：">
-                    <el-input v-model="formLabelAlign.passwd" show-password></el-input>
+                    <el-input v-model="formLabelAlign.password" show-password></el-input>
                 </el-form-item>
                 <el-button type="primary" @click="login">登录</el-button>
             </el-form>
@@ -18,22 +18,23 @@
 </template>
 
 <script>
-import { prefix, responseHandler, testApi } from '@/api'
-import { Form, FormItem, Button, Input } from 'element-ui'
+import { prefix, userApi } from '@/api'
+import { Form, FormItem, Button, Input, Message } from 'element-ui'
 export default {
     name: 'Login',
     components: {
         [Form.name]: Form,
         [FormItem.name]: FormItem,
         [Button.name]: Button,
-        [Input.name]: Input
+        [Input.name]: Input,
+        [Message.name]: Message
     },
     data(){
         return{
             labelPosition: 'right',
             formLabelAlign: {
                 id: '',
-                passwd: ''
+                password: ''
             }
         }
     },
@@ -41,27 +42,20 @@ export default {
         login() {
             // 登录验证
             if(this.formLabelAlign.id.trim() === '') {
-                this.$message.error({
-                    message: '请输入账号',
-                    duration: 3000
-                })
+                Message.error('请输入账号!')
                 return
             }
-            if(this.formLabelAlign.passwd.trim() === '') {
-                this.$message.error({
-                    message: '请输入密码',
-                    duration: 3000
-                })
+            if(this.formLabelAlign.password.trim() === '') {
+                Message.error('请输入密码!')
                 return
             }
             this.$axios
-                .post(prefix.api + testApi.test, {
-                    id: this.id,
-                    passwd: this.passwd
+                .post(prefix.api + userApi.login, {
+                    id: this.formLabelAlign.id,
+                    password: this.formLabelAlign.password
                 })
-                .then(response =>{
-                    if(!responseHandler.handle(response.data, this)){ return }
-                    this.$router.push({ name: 'overview' })
+                .then((response) =>{
+                    this.$router.push({ name: 'Overview' })
                 })
         }
     }
@@ -76,7 +70,7 @@ export default {
     background: url(background.jpg) no-repeat;
     background-size: 100%;
     h1{
-        margin-bottom: 50px;
+        margin: 60px;
     }
     .el-form{
         margin:0 auto;
@@ -91,7 +85,6 @@ export default {
         margin: 10px 30px;
         width: 300px;
     }
-
 }
 
 </style>
