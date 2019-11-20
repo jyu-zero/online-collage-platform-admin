@@ -1,8 +1,11 @@
 <template>
+    <!-- 后台账户管理系统 -->
     <div class="accounts">
         <!-- 按钮 -->
         <div class="a-button">
-            <el-button class="a1-button" type="primary">添加账号</el-button>
+            <el-button class="a1-button" type="primary" @click="dialogVisible = true">
+                添加账号
+            </el-button>
             <el-button class="a1-button" type="primary">导入账号</el-button>
             <el-button class="a1-button" type="primary">班级管理</el-button>
         </div>
@@ -69,22 +72,52 @@
                     </el-dropdown> -->
                 </el-table-column>
         </el-table>
-        
+
         <!-- 分页 -->
         <el-pagination
           small
           layout="prev, pager, next"
           :total="50">
         </el-pagination>
-        
+        <!-- 出现添加账号操作框 -->
+        <el-dialog
+        title="添加账号"
+        :visible.sync="dialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <p>请输入账号:</p>
+        <p>请输入姓名:</p>
+        <p>请输入性别</p>
+        <p>请输入联系方式</p>
+        <p>请输入班级年级</p>
+        <p>请输入宿舍</p>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        </span>
+        </el-dialog>
+        <!-- 添加账号操作框【完】 -->
     </div>
 </template>
 
 <script>
+// import responseHandler from '@/utils/responseHandler'
+import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog } from 'element-ui'
 export default {
     name: 'Accounts',
+    components: {
+        [Button.name]: Button,
+        [Table.name]: Table,
+        [Message.name]: Message,
+        [Input.name]: Input,
+        [Dialog.name]: Dialog,
+        [Pagination.name]: Pagination,
+        [Select.name]: Select,
+        [Dropdown.name]: Dropdown
+    },
     data() {
         return {
+            dialogVisible: false,
             tableData: [{
                 num: '151110058',
                 name: '王小虎',
@@ -128,7 +161,16 @@ export default {
                 grade: '1503',
                 dorm: '南7-201'
             }]
-            
+
+        }
+    },
+    methods: {
+        handleClose(done) {
+        this.$confirm('确认关闭？')
+        .then(_ => {
+            done();
+        })
+        .catch(_ => {});
         }
     }
 }
@@ -162,8 +204,8 @@ li{
 .el-dropdown-link {
     cursor: pointer;
     color: #409EFF;
-  }
-  .el-icon-arrow-down {
+}
+.el-icon-arrow-down {
     font-size: 12px;
-  }
+}
 </style>
