@@ -20,7 +20,7 @@
                 <router-view/>
             </main>
         </div>
-        
+
     </div>
 </template>
 
@@ -67,7 +67,12 @@ export default {
                 {
                     title: '值班管理',
                     routeName: 'DutyScheduling'
+                },
+                {
+                    title: '资料共享',
+                    routeName: 'FileShare'
                 }
+
             ]
         }
     },

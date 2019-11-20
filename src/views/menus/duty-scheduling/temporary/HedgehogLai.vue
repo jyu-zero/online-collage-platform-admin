@@ -281,7 +281,7 @@ export default {
 
 <style lang="less">
 .duty-scheduling{
-    padding: 0 40px;
+    padding: 0 41px;
 }
 h1{
     text-align: center;
