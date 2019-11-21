@@ -16,7 +16,7 @@ export default {
     },
     methods: {
         getContent: function () {
-            alert(this.editorContent)
+            alert(this.editorContent)// 该方法可以获取富文本的内容
         }
     },
     mounted() {
@@ -27,6 +27,7 @@ export default {
         }
         editor.customConfig.uploadImgShowBase64 = true
         editor.create()
+        editor.txt.html(this.catchData)
     }
 }
 </script>

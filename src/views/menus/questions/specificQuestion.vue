@@ -14,9 +14,13 @@
                             <i class = "el-icon-s-order"></i><span>{{questionType}}</span>
                         </div>
                     </el-col>
-                    <el-col :span = "8" class="question-title">
-                        <el-button type="danger" @click='delectQuestion(questionId)' style="margin: 0px 17px;">删除问题<i class="el-icon-delete-solid"></i></el-button>
-                        <el-button type="primary" @click="open">添加回答<i class="el-icon-edit"></i></el-button>
+                    <el-col :span = "8" class="question-title" style="
+                    padding-left: 5px;
+                    padding-right: 34px;
+                    display: flex;
+                    flex-direction: row-reverse;">
+                        <el-button type="danger" @click='delectQuestion(questionId)' style="margin: 6px 8px;">删除问题<i class="el-icon-delete-solid"></i></el-button>
+                        <el-button type="primary" @click="open" style="margin: 6px 8px;">添加回答<i class="el-icon-edit"></i></el-button>
                     </el-col>
                 </el-row>
             </el-card>
@@ -83,11 +87,6 @@
                     <div class = "grid-content bg-purple"></div>
                 </el-col>
             </el-row>
-    <!-- <el-button type = "primary" @click = "open" class = "setanswer">
-        添加回答<i class = "el-icon-edit"></i>
-    </el-button> -->
-    <Editor style = "display:none;"></Editor>
-    <!-- <router-view/> -->
   </div>
 </template>
 
@@ -122,6 +121,7 @@ export default {
             allPage: '100', // 总页数
             currentpage: 1, // 当前页数
             submitanswer: '',
+            illegalKeyword: [],
             anonymous: true,
             questionId: this.$route.params.id,
             questionTitle: '如何进行？',
@@ -130,7 +130,8 @@ export default {
             browseTimes: 12,
             questionType: '生活帮助',
             questionDescription: '这里是一段问题描述，由提问人设置的问题描述',
-            answers: []
+            answers: [],
+            editorKey: 0
         }
     },
     mounted(){
@@ -175,10 +176,6 @@ export default {
                     alert(response.data.msg)
                 }
             })
-        },
-        catchData(value){
-            this.submitanswer = value//  在这里接受子组件传过来的参数，赋值给data里的参数
-            alert(value)
         },
         // 点击分页按钮的逻辑
         handleCurrentChange(val){
@@ -241,7 +238,9 @@ export default {
                             input: (html) =>{
                                 this.submitanswer = html
                             }
-                        } }, this.submitanswer)
+                        },
+                        key: this.editorKey++
+                    }, this.submitanswer)
                 ]),
                 showCancelButton: true,
                 confirmButtonText: '确定',
@@ -250,6 +249,12 @@ export default {
                     if (action === 'confirm') {
                         instance.confirmButtonLoading = true
                         instance.confirmButtonText = '执行中...'
+                        this.illegalKeyword.forEach((e) => {
+                            let param = e
+                            let reg = new RegExp(param, 'gim') // re为/^\d+bl$/gim
+                            this.submitanswer = this.submitanswer.replace(reg, '*')
+                        })
+
                         let content = this.submitanswer // 问题内容
                         let questionsId = this.questionId // 问题id
                         let anonymous = this.anonymous // 是否匿名
@@ -279,9 +284,6 @@ export default {
                     message: 'action: ' + action
                 })
             })
-            var editor1 = new E('#div4')
-            editor1.customConfig.uploadImgShowBase64 = true
-            editor1.create()
         }
     }
 }
@@ -354,7 +356,7 @@ export default {
     padding: 10px;
 }
 
-</style>
+</style>+
 
 <style lang="less">
 .el-message-box  {
