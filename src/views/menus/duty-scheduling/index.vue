@@ -20,7 +20,7 @@
                     <tbody>
                         <tr
                             v-for="row of arrangeData"
-                            :key="row"
+                            :key="row.rowId"
                             v-bind:class="'arrange-table-row_'+row.rowId"
                         >
                             <td
@@ -62,7 +62,8 @@
 
 <script>
 import { Button, Select, Option, Switch } from 'element-ui'
-import api from '@/api/duty-scheduling'
+import { prefix, dutySchedulingApi } from '@/api'
+
 export default {
     name: 'DutyScheduling',
     components: {
@@ -76,10 +77,15 @@ export default {
         col: Number
     },
     methods: {
-        beginToArrange(){
+        beginToArrange() {
             this.isActive = true
-            this.axios
-                .get('/api' + api.getFreeStaffList)
+            // TODO freeStaffList获取待完成
+            this.$axios
+                .get(prefix.api + dutySchedulingApi.getFreeStaffList, {
+                    params: {
+                        
+                    }
+                })
                 .then(
                     response => {
                         console.log(response)
@@ -88,6 +94,9 @@ export default {
         },
         cancel() {
             this.isActive = false
+        },
+        resetArrange(){
+            
         }
     },
     data() {

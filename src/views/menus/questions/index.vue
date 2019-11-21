@@ -138,9 +138,6 @@ export default {
         this.getQuestions()
     },
     methods: {
-        skip(questionId){
-            this.$router.push({ path: `/questions/questions-specific/${questionId}` })
-        },
         handleCurrentChange(val){
             this.getQuestions(val)
             this.page = val
@@ -287,7 +284,7 @@ export default {
         },
         // 前往问答系统设置页面
         goToSettingQuestion(){
-            this.$router.push({ path: 'questions-setting' })
+            this.$router.push({ path: '/questions/questions-setting' })
         },
         // 查看问题详情页
         goToDetailedQuestion(questionId){
