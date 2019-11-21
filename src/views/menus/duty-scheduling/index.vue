@@ -18,7 +18,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr
+                        <!-- <tr
                             v-for="row of arrangeData"
                             :key="row.rowId"
                             v-bind:class="'arrange-table-row_'+row.rowId"
@@ -37,15 +37,14 @@
                                     @change="checkSelectedOptions()"
                                 >
                                     <el-option
-                                        v-for="item in options[model]"
+                                        v-for="item in options[row.rowId][col]"
                                         :key="item.value"
                                         :label="item.name"
-                                        :value="item.value"
                                     ></el-option>
                                 </el-select>
                                 <span></span>
                             </td>
-                        </tr>
+                        </tr> -->
                     </tbody>
                 </table>
                 <div class="row-bg">
@@ -76,8 +75,7 @@ export default {
     },
     props: {
         row: Number,
-        col: Number,
-        model: String
+        col: Number
     },
     methods: {
         beginToArrange() {
@@ -89,14 +87,38 @@ export default {
                 .then(
                     response => {
                         if(response.data.code === '0000'){
-                            // console.log(response)
-                            for(var freeStaff of response.data.data[0].people){
-                                var freeStaffObj = {
-                                    // courseId: ,
-                                    value: freeStaff,
-                                    name: freeStaff
+                            console.log(response)
+                            var colArr = []
+                            var courseArr = []
+                            var courseId = 0
+                            for(var row = 0; row < 8; row++) {
+                                courseId = row
+                                for(var count = 0; count < 5; count++) {
+                                    console.log(courseId)
+                                    if(response.data.data[courseId] !== 'undefined') {
+                                        console.log('kill it')
+                                        for(var freeStaff of response.data.data[courseId].people) {
+                                            // console.log(freeStaff)
+                                            var freeStaffObj = {
+                                                value: freeStaff,
+                                                name: freeStaff,
+                                                disabled: true
+                                            }
+                                            courseArr.push(freeStaffObj)
+                                        }
+                                        colArr.push(courseArr)
+                                        courseId = courseId + 8
+                                        console.log(colArr)
+                                        return
+                                    }else{
+                                        colArr.push([])
+                                        courseId = courseId + 8
+                                        console.log(colArr)
+                                        return
+                                    }
                                 }
-                                this.options.push(freeStaffObj)
+                                this.options.push(colArr)
+                                console.log(this.options)
                             }
                         }
                     }
@@ -186,18 +208,18 @@ export default {
                 }
             ],
             options: [
-                // {
-                //     value: '选项1',
-                //     label: '黄金糕fweg'
-                // },
-                // {
-                //     value: '选项2',
-                //     label: '双皮奶vds',
-                //     disabled: true
-                // },
+                // [
+                //     '选项1',
+                //     '黄金糕fweg'
+                // ],
+                // [
+                //     '选项2',
+                //     '双皮奶vds',
+                // ],
                 // {
                 //     value: '选项3',
                 //     label: '蚵仔煎vds'
+                //     disabled: true
                 // },
                 // {
                 //     value: '选项4',

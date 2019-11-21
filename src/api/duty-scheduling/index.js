@@ -1,4 +1,5 @@
-export default{
+
+export default {
     // 获取可值班人员列表
     'getFreeStaffList': '/admin/get-people',
     // 提交无课人员信息
