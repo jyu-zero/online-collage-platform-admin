@@ -30,7 +30,7 @@
             <el-checkbox id="checked" v-model="checked">同时作为通知发送</el-checkbox>
         </template>
         <div class="editor">
-            <editor @func='getEditContent' :editorContent='editorContent'></editor>
+            <editor @func='getEditContent' :editorContent='editorContent' :inputName="name"></editor>
         </div>
         <el-upload
             class="upload-demo"
@@ -79,7 +79,8 @@ export default {
             isClear: false,
             detail: '',
             fileFormData: null, // 将要上传的formdata数据
-            percentage: 0 // 存放上传百分比
+            percentage: 0, // 存放上传百分比
+            name: []
         }
     },
     created(){

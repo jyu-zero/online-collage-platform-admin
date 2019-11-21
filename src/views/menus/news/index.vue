@@ -5,11 +5,15 @@
             <el-button id="button" type="primary" @click="gotoCreateNews">创建新闻</el-button>
             <el-button id="button" type="primary">删除</el-button>
             <el-button id="button" type="primary" @click="top">置顶</el-button>
+            <el-button id="button" type="primary" @click="untop">取消置顶</el-button>
             <div class="search">
-                <el-input
-                    placeholder="请输入内容"
-                    v-model="input">
-                    <i slot="prefix" class="el-input__icon el-icon-search" @click="search"></i>
+                <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                    <el-select v-model="select" slot="prepend" placeholder="请选择">
+                        <el-option label="新闻标题" value="1"></el-option>
+                        <el-option label="撰稿人" value="2"></el-option>
+                        <el-option label="创建时间" value="3"></el-option>
+                    </el-select>
+                    <el-button slot="append" icon="el-icon-search" @click="search(1)"></el-button>
                 </el-input>
             </div>
         </el-menu>
@@ -17,34 +21,36 @@
 
         <!-- 新闻列表 -->
         <div class="main">
-            <div class="news-item" v-for="newsItem of newsList" :key="newsItem.title">
-                <!-- 勾选框还需修改 -->
-                <el-checkbox v-model="checked" :id="index" :value="id"></el-checkbox>
-                <p class="title">{{newsItem.news_title}}</p>
-                <!-- <p class="top">{{newsItem.is_pinned}}</p>
-                <p class="draft">{{newsItem.is_draft}}</p> -->
-                <p class="time">{{newsItem.created_at}}</p>
-                <p class="writer">撰稿人：{{newsItem.author}}</p>
-                <p class="reviewer">审稿人：{{newsItem.publisher}}</p>
-                <!-- <p class="publish">{{newsItem.is_published}}</p> -->
-                <i class="fa fa-eye" aria-hidden="true"></i>
-                <p class="views">{{newsItem.views}}</p>
-                <div class="editer">
-                    <el-button id="button" type="text" @click="untop">{{newsItem.is_pinned}}</el-button>
-                    <el-button id="button" type="primary" @click="publish">{{newsItem.is_published}}</el-button>
-                    <el-link id="edit" icon="el-icon-edit" @click="edit">编辑</el-link>
-                    <template>
-                        <el-button id="delete" type="text" @click="open">删除</el-button>
-                    </template>
+            <el-checkbox-group v-model="checked">
+                <div class="news-item" v-for="newsItem of newsList" :key="newsItem.title">
+                    <!-- 勾选框还需修改 -->
+                    <el-checkbox class="my-checkbox" :label="newsItem.news_id"></el-checkbox>
+                    <p class="title">{{newsItem.news_title}}</p>
+                    <p class="top">{{newsItem.is_pinned}}</p>
+                    <p class="draft">{{newsItem.is_draft}}</p>
+                    <p class="time">{{newsItem.created_at}}</p>
+                    <p class="writer">撰稿人：{{newsItem.author}}</p>
+                    <p class="reviewer" v-show="isShow">审稿人：{{newsItem.publisher}}</p>
+                    <!-- <p class="publish">{{newsItem.is_published}}</p> -->
+                    <font-awesome-icon icon="user-secret" />
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                    <p class="views">{{newsItem.views}}</p>
+                    <div class="editer">
+                        <el-button id="button" type="primary" @click="publish">{{newsItem.is_published}}</el-button>
+                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit">编辑</el-button>
+                        <template>
+                            <el-button id="delete" type="text" @click="open">删除</el-button>
+                        </template>
+                    </div>
                 </div>
-            </div>
+            </el-checkbox-group>
         </div>
         <!-- 新闻列表 【完】-->
     
         <!-- TODO -->
         <div class="page">
             <el-pagination
-                :hide-on-single-page="value"
+                :hide-on-single-page="true"
                 :page-count="pageCount"
                 @current-change="getNewsList"
                 layout="prev, pager, next">
@@ -55,7 +61,7 @@
 
 <script>
 import { prefix, responseHandler, newsApi } from '@/api'
-import { Button, Menu, Input, Checkbox, Link, Pagination } from 'element-ui'
+import { Button, Menu, Input, Checkbox, CheckboxGroup, Link, Pagination, Select, Option } from 'element-ui'
 
 export default {
     name: 'News',
@@ -64,17 +70,23 @@ export default {
         [Menu.name]: Menu,
         [Input.name]: Input,
         [Checkbox.name]: Checkbox,
+        [CheckboxGroup.name]: CheckboxGroup,
         [Link.name]: Link,
-        [Pagination.name]: Pagination
+        [Pagination.name]: Pagination,
+        [Select.name]: Select,
+        [Option.name]: Option
     },
     data(){
         return {
             input: '',
-            checked: false,
+            input3: '',
+            select: '',
+            checked: [],
             isShow: false,
-            newsLists: [2],
-            newsUnpinLists: [2],
-            news_delete_id: [2],
+            newsList: [],
+            newsLists: [],
+            newsUnpinLists: [],
+            news_delete_id: [],
             news_publish_id: [],
             pageCount: 1,
             index: []
@@ -89,17 +101,26 @@ export default {
         },
         // 搜索框
         // TODO
-        search(){
+        search(page = 1){
+            console.log(page)
             this.$axios
-                .post(prefix.api + newsApi.search, {
-
+                .get(prefix.api + newsApi.search, {
+                    params: {
+                        page,
+                        select: this.select,
+                        keyWords: this.keyWords
+                    }
+                })
+                .then(response => {
+                    this.newsList = ''
                 })
         },
         // 置顶新闻
         top(){
+            console.log(this.checked)
             this.$axios
                 .post(prefix.api + newsApi.top, {
-                    newsList: this.newsLists
+                    newsId: this.checked
                 })
                 .then(response => {
                     this.getNewsList(1)
@@ -109,7 +130,7 @@ export default {
         untop(){
             this.$axios
                 .post(prefix.api + newsApi.untop, {
-                    newsUnpinList: this.newsUnpinLists
+                    newsId: this.checked
                 })
                 .then(response => {
                     this.getNewsList(1)
@@ -121,18 +142,30 @@ export default {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_published === 1) {
                     this.newsList[i].is_published = '取消发布'
+                    this.newsList[i].isShow = true
                 }else{
                     this.newsList[i].is_published = '发布'
+                    this.newsList[i].isShow = false
                 }
             }
         },
         // 判断是否置顶
-        isPinned: function() {
+        isPinned() {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_pinned === 1) {
-                    this.newsList[i].is_pinned = '取消置顶'
+                    this.newsList[i].is_pinned = '(置顶)'
                 }else{
                     this.newsList[i].is_pinned = ''
+                }
+            }
+        },
+        // 判断是否草稿
+        isDraft() {
+            for(let i = 0; i <= (this.newsList.length - 1); i++){
+                if(this.newsList[i].is_draft === 1) {
+                    this.newsList[i].is_draft = '(草稿)'
+                }else{
+                    this.newsList[i].is_draft = ''
                 }
             }
         },
@@ -165,6 +198,7 @@ export default {
                     this.pageCount = response.data.data.pageCount
                     this.isPublish()
                     this.isPinned()
+                    this.isDraft()
                 })
         },
         // 发布新闻
@@ -219,6 +253,10 @@ export default {
 
         .search{
             margin-left: auto;
+
+            /deep/ .el-select .el-input {
+                width: 110px;
+            }
         }
 
         #button{
@@ -228,6 +266,12 @@ export default {
 
     .main{
         flex: 1;
+    }
+
+    .my-checkbox{
+        /deep/ .el-checkbox__label{
+            display: none;
+        }
     }
 
     .news-item{

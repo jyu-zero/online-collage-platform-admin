@@ -16,7 +16,7 @@ export default {
         }
     },
     methods: {
-        getContent: function () {
+        getContent() {
             alert(this.editorContent)
         }
     },

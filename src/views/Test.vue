@@ -35,5 +35,5 @@ export default {
 <style lang="less">
     .test{
         height:100%;
-    }
+  }
 </style>

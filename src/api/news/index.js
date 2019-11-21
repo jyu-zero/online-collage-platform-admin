@@ -8,5 +8,7 @@ export default {
     // 删除新闻
     deleted: '/admin/news/delete-news',
     // 发布新闻
-    publish: '/admin/news/news-published'
+    publish: '/admin/news/news-published',
+    // 新闻搜索框
+    search: '/admin/news/search-bar'
 }
