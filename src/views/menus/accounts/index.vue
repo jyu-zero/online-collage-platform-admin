@@ -87,10 +87,10 @@
         :before-close="handleClose">
         <p>请输入账号:</p>
         <p>请输入姓名:</p>
-        <p>请输入性别</p>
-        <p>请输入联系方式</p>
-        <p>请输入班级年级</p>
-        <p>请输入宿舍</p>
+        <p>请输入性别:</p>
+        <p>请输入联系方式:</p>
+        <p>请输入班级年级:</p>
+        <p>请输入宿舍:</p>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
             <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -166,11 +166,11 @@ export default {
     },
     methods: {
         handleClose(done) {
-        this.$confirm('确认关闭？')
-        .then(_ => {
-            done();
-        })
-        .catch(_ => {});
+            this.$confirm('确认关闭？')
+                .then(_ => {
+                    done()
+                })
+                .catch(_ => {})
         }
     }
 }
