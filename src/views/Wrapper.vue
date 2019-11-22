@@ -57,6 +57,10 @@ export default {
                     routeName: 'News'
                 },
                 {
+                    title: '新闻管理',
+                    routeName: 'News'
+                },
+                {
                     title: '失物招领',
                     routeName: 'LostAndFound'
                 },
