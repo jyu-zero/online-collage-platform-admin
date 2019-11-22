@@ -14,7 +14,7 @@
             <div class="title" id="deadline">账号到期时间</div>
             <div class="title">操作</div>
         </div> -->
-
+        <!-- 添加表格组件 -->
         <el-table
         :data="tableData"
         border
@@ -41,7 +41,7 @@
         <el-table-column
             prop="sex"
             label="性别"
-            width="120"
+            width="108"
             align="center">
         </el-table-column>
         <el-table-column
@@ -58,22 +58,23 @@
         </el-table-column>
         <el-table-column
             label="操作"
-            width="100"
+            width="120"
             align="center">
-
-            <template>
-                <el-dropdown>
-                <span class="el-dropdown-link">
-                    下拉菜单<i class="el-icon-arrow-down"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>黄金糕</el-dropdown-item>
-                    <el-dropdown-item>狮子头</el-dropdown-item>
-                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                </el-dropdown-menu>
-                </el-dropdown>
-            </template>
+            <!-- 在表格组件中嵌套下拉菜单组件 -->
+                <template slot-scope="scope">
+                    <el-dropdown>
+                    <span class="el-dropdown-link">
+                        ···<i class="el-icon--left"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item @click="resetPasswd(scope.row)">重置密码</el-dropdown-item>
+                        <el-button type="text" @click="open">点击打开 Message Box</el-button>
+                        <el-dropdown-item @click="modifyInfo">修改信息</el-dropdown-item>
+                        <el-dropdown-item @click="degrade">降级为学生账号</el-dropdown-item>
+                        <el-dropdown-item @click="deleteId">删除账号</el-dropdown-item>
+                    </el-dropdown-menu>
+                    </el-dropdown>
+                </template>
 
         </el-table-column>
         </el-table>
@@ -154,19 +155,43 @@ export default {
     },
     methods: {
         addAccount(){
-            
+            this.$router.push({ name: 'addAccounts' })
         },
         insertAccount(){
 
         },
-        handleClick(row){
+        resetPasswd(row){
             console.log(row)
+            this.$router.push({ name: 'resetPasswd' })
+        },
+        modifyInfo(){
+            alert('降级')
+        },
+        deleteId(){
+            alert('删除')
         },
         getAccountList(page = 1){
             
         },
         logout(){
            
+        },
+        open() {
+            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                })
+            })
         }
     }
 }
@@ -174,14 +199,14 @@ export default {
 
 <style lang="less" scoped>
 .accounts{
-    height:100%;
+    height: 100%;
     // display: flex;
     // flex-direction: column;
     .el-button{
-        margin: 30px 0 30px 36px;
+        margin: 30px -5px 30px 40px;
     }
     .el-table{
-        margin: 0 auto;
+        margin-left: 50px;
     }
     // .table{
     //     margin: 0 auto;
@@ -203,11 +228,8 @@ export default {
             cursor: pointer;
         }
     }
-    .el-icon-arrow-down {
-        font-size: 12px
-    }
     .el-pagination{
-        margin:0 auto;
+        margin: 0 auto;
     }
 }
 

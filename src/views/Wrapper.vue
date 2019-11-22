@@ -3,6 +3,16 @@
         <!-- 顶部导航栏 -->
         <header>
             <h1>线上学院后台管理系统</h1>
+            <el-dropdown @command="handleProfileOperation">
+                <span class="el-dropdown-link">
+                    {{name}}
+                    {{account}}
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </header>
         <!-- 顶部导航栏 [完] -->
         <div class="wrapper-body">
@@ -20,16 +30,19 @@
                 <router-view/>
             </main>
         </div>
-        
     </div>
 </template>
 
 <script>
-import { Menu, MenuItem } from 'element-ui'
+import { prefix, userApi } from '@/api'
+import { Menu, MenuItem, Dropdown, DropdownMenu, DropdownItem } from 'element-ui'
 export default {
     components: {
         [Menu.name]: Menu,
-        [MenuItem.name]: MenuItem
+        [MenuItem.name]: MenuItem,
+        [Dropdown.name]: Dropdown,
+        [DropdownMenu.name]: DropdownMenu,
+        [DropdownItem.name]: DropdownItem
     },
     name: 'Wrapper',
     computed: {
@@ -39,6 +52,8 @@ export default {
     },
     data() {
         return {
+            name: '',
+            account: '',
             menus: [
                 {
                     title: '概览',
@@ -73,6 +88,20 @@ export default {
         },
         gotoMainPage(){
             this.$router.push({ name: 'overview' })
+        },
+        handleProfileOperation(command){
+            switch(command){
+                case 'login':
+                    this.login()
+                    break
+                default:
+                    break
+            }
+        },
+        logout(){
+            this.$axios.post(prefix.api + userApi.logout).then((response)=>{
+                this.$route.push({ name: 'Login' })
+            })
         }
 
     }

@@ -30,11 +30,24 @@ const routes = [
         // 账号管理页面
         path: '/accounts',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Accounts',
-            component: () => import('@/views/menus/accounts/index.vue')
-        }]
+        children: [
+            {
+                // 账号管理
+                path: '/',
+                name: 'Accounts',
+                component: () => import('@/views/menus/accounts/index.vue')
+            }, {
+                // 添加账户
+                path: '/addAccounts',
+                name: 'addAccounts',
+                component: () => import('@/views/menus/accounts/addAccounts.vue')
+            }, {
+                // 重置密码
+                path: '/resetPasswd',
+                name: 'resetPasswd',
+                component: () => import('@/views/menus/accounts/resetPasswd.vue')
+            }
+        ]
     },
     // 在线问答组界限 ----------
     {
