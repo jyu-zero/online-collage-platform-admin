@@ -3,11 +3,11 @@
         <!-- 新闻页面 -->
         <el-menu class="button">
             <el-button id="button" type="primary" @click="gotoCreateNews">创建新闻</el-button>
-            <el-button id="button" type="primary">删除</el-button>
+            <el-button id="button" type="danger" @click="deleted">删除</el-button>
             <el-button id="button" type="primary" @click="top">置顶</el-button>
             <el-button id="button" type="primary" @click="untop">取消置顶</el-button>
             <div class="search">
-                <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                <el-input placeholder="请输入内容" v-model="keyWords" class="input-with-select">
                     <el-select v-model="select" slot="prepend" placeholder="请选择">
                         <el-option label="新闻标题" value="1"></el-option>
                         <el-option label="撰稿人" value="2"></el-option>
@@ -21,7 +21,7 @@
 
         <!-- 新闻列表 -->
         <div class="main">
-            <el-checkbox-group v-model="checked">
+            <el-checkbox-group id="main" v-model="checked">
                 <div class="news-item" v-for="newsItem of newsList" :key="newsItem.title">
                     <!-- 勾选框还需修改 -->
                     <el-checkbox class="my-checkbox" :label="newsItem.news_id"></el-checkbox>
@@ -32,14 +32,13 @@
                     <p class="writer">撰稿人：{{newsItem.author}}</p>
                     <p class="reviewer" v-show="isShow">审稿人：{{newsItem.publisher}}</p>
                     <!-- <p class="publish">{{newsItem.is_published}}</p> -->
-                    <font-awesome-icon icon="user-secret" />
-                    <i class="fa fa-eye" aria-hidden="true"></i>
+                    <font-awesome-icon class="eye" icon="eye" />
                     <p class="views">{{newsItem.views}}</p>
                     <div class="editer">
-                        <el-button id="button" type="primary" @click="publish">{{newsItem.is_published}}</el-button>
-                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit">编辑</el-button>
+                        <el-button id="button" type="primary" v-show="newsItem.isShow1" @click="publish(newsItem.news_id)">{{newsItem.is_published}}</el-button>
+                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)">编辑</el-button>
                         <template>
-                            <el-button id="delete" type="text" @click="open">删除</el-button>
+                            <el-button id="delete" type="text" @click="singalDeleted(newsItem.news_id)">删除</el-button>
                         </template>
                     </div>
                 </div>
@@ -79,17 +78,17 @@ export default {
     data(){
         return {
             input: '',
-            input3: '',
+            keyWords: '',
             select: '',
             checked: [],
             isShow: false,
+            isShow1: true,
             newsList: [],
             newsLists: [],
-            newsUnpinLists: [],
-            news_delete_id: [],
-            news_publish_id: [],
             pageCount: 1,
-            index: []
+            active1: true,
+            newsId: '', // 新闻id
+            newsIds: [] // 单独删除新闻的id
         }
     },
     created(){
@@ -102,7 +101,6 @@ export default {
         // 搜索框
         // TODO
         search(page = 1){
-            console.log(page)
             this.$axios
                 .get(prefix.api + newsApi.search, {
                     params: {
@@ -113,6 +111,13 @@ export default {
                 })
                 .then(response => {
                     this.newsList = ''
+                    this.newsList = response.data.data.news
+                    this.pageCount = response.data.data.pageCount
+                    this.isPublish()
+                    this.isPinned()
+                    this.isDraft()
+                    console.log(this.select)
+                    console.log(this.keyWords)
                 })
         },
         // 置顶新闻
@@ -164,8 +169,11 @@ export default {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_draft === 1) {
                     this.newsList[i].is_draft = '(草稿)'
+                    this.$set(this.newsList[i], 'isShow1', false)
+                    // console.log(this.newsList[i].isShow1)
                 }else{
                     this.newsList[i].is_draft = ''
+                    this.$set(this.newsList[i], 'isShow1', true)
                 }
             }
         },
@@ -173,8 +181,19 @@ export default {
         // 删除新闻
         deleted(){
             this.$axios
-                .post(prefix.api + newsApi.delete, {
-                    news_id: this.news_delete_id
+                .post(prefix.api + newsApi.deleted, {
+                    newsId: this.checked
+                })
+                .then(response => {
+                    this.getNewsList(1)
+                })
+        },
+        // 单独删除新闻
+        singalDeleted(newsId){
+            this.newsIds.push(newsId)
+            this.$axios
+                .post(prefix.api + newsApi.deleted, {
+                    newsId: this.newsIds
                 })
                 .then(response => {
                     this.getNewsList(1)
@@ -202,10 +221,10 @@ export default {
                 })
         },
         // 发布新闻
-        publish(){
+        publish(newsId){
             this.$axios
                 .post(prefix.api + newsApi.publish, {
-                    news_id: this.news_publish_id
+                    newsId: newsId
                 })
                 .then(response => {
                     this.getNewsList(1)
@@ -213,18 +232,24 @@ export default {
         },
 
         // 编辑新闻
-        edit(){
-            this.$router.push({ name: 'CreateNews' })
+        edit(newsId, newsTitle, newsTime){
+            this.$router.push({
+                name: 'EditorNews',
+                params: {
+                    id: newsId
+                }
+            })
         },
 
         // 单独删除一条新闻
+        // TODO
         open(){
             this.$confirm('此操作将永久删除该条新闻，是否继续？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                this.deleted()
+                this.singalDeleted()
                 this.$message({
                     type: 'success',
                     message: '删除成功!'
@@ -255,7 +280,7 @@ export default {
             margin-left: auto;
 
             /deep/ .el-select .el-input {
-                width: 110px;
+                width: 100px;
             }
         }
 
@@ -266,6 +291,10 @@ export default {
 
     .main{
         flex: 1;
+
+        #main{
+            font-size: 16px
+        }
     }
 
     .my-checkbox{
@@ -288,7 +317,7 @@ export default {
             font-size: 14px;
         }
 
-        i{
+        .eye{
             margin-left: 16px;
         }
 
