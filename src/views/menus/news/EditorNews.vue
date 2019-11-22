@@ -1,5 +1,5 @@
 <template>
-  <div class="create-body">
+  <div class="edit-body">
       <div class="hander">
         <template>
             <el-button id="cancel" type="text" @click="open">取消</el-button>
@@ -15,6 +15,7 @@
             placeholder="请输入标题"
             v-model="text1"
             maxlength="10"
+            value=""
             show-word-limit>
         </el-input>
         <p>新闻发表时间</p>
@@ -24,6 +25,7 @@
             placeholder="请输入时间"
             v-model="text2"
             maxlength="10"
+            value=""
             show-word-limit>
         </el-input>
         <template>
@@ -59,7 +61,7 @@ import Editor from '@/components/news/Editorbox'
 import E from 'wangeditor'
 
 export default {
-    name: 'CreateNews',
+    name: 'EditorNews',
     components: {
         [Button.name]: Button,
         [Input.name]: Input,
@@ -78,13 +80,27 @@ export default {
             fileFormData: null, // 将要上传的formdata数据
             percentage: 0, // 存放上传百分比
             name: [],
-            editorContent: ''
+            editorContent: '',
+            id: this.$router.params.id,
+            newsContent: []
         }
     },
     created(){
         this.fileFormData = new FormData()
+        this.Content()
     },
     methods: {
+        // TODO
+        Content(id){
+            this.$axios
+                .get(prefix.api + newsApi.editNews, {
+                    newsId: id
+                })
+                .then(response => {
+                    this.newsContent = response.data.data.news
+                })
+            console.log(this.newsContent)
+        },
         open() {
             this.$confirm('检测到未保存的内容，是否在离开页面前保存修改', '确认信息', {
                 distinguishCancelAndClose: true,
@@ -162,7 +178,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.create-body{
+.edit-body{
     height:100%;
     display: flex;
     flex-direction: column;

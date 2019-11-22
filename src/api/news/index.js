@@ -10,5 +10,7 @@ export default {
     // 发布新闻
     publish: '/admin/news/news-published',
     // 新闻搜索框
-    search: '/admin/news/search-bar'
+    search: '/admin/news/search-bar',
+    // 编辑新闻
+    editNews: '/admin/news/edit-news'
 }
