@@ -130,8 +130,7 @@ export default {
             browseTimes: 12,
             questionType: '生活帮助',
             questionDescription: '这里是一段问题描述，由提问人设置的问题描述',
-            answers: [],
-            editorKey: 0
+            answers: []
         }
     },
     mounted(){
@@ -239,7 +238,8 @@ export default {
                                 this.submitanswer = html
                             }
                         },
-                        key: this.editorKey++
+                        ref: 'myEditor',
+                        refInFor: true
                     }, this.submitanswer)
                 ]),
                 showCancelButton: true,
@@ -254,7 +254,7 @@ export default {
                             let reg = new RegExp(param, 'gim') // re为/^\d+bl$/gim
                             this.submitanswer = this.submitanswer.replace(reg, '*')
                         })
-
+                        this.$refs.myEditor[0].clear()
                         let content = this.submitanswer // 问题内容
                         let questionsId = this.questionId // 问题id
                         let anonymous = this.anonymous // 是否匿名
