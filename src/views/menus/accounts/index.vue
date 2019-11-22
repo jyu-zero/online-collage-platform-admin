@@ -10,69 +10,33 @@
             <el-button class="a1-button" type="primary">班级管理</el-button>
         </div>
         <!-- 表格 -->
-         <el-table
-            :data="tableData"
-            border
-            style ="with=100%">
-                <el-table-column
-                    prop="num"
-                    label="学号"
-                    width="180"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="name"
-                    label="姓名"
-                    width="180"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="sex"
-                    label="性别"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="contact"
-                    label="联系方式"
-                    width="180"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="grade"
-                    label="班级年级"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="dorm"
-                    label="宿舍"
-                    width="180"
-                    align="center">
-                </el-table-column>
-                <el-table-column
-                    prop="operate"
-                    label="操作"
-                    align="center">
-                    <!-- <li>
-                        <span>
-                            <i class="el-icon-more">
-                            </i>
-                        </span>
-                    </li> -->
-                    <!-- <el-dropdown>
-                        <span class="el-dropdown-link">
-                            下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
-                        </span>
-                        <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item>黄金糕</el-dropdown-item>
-                            <el-dropdown-item>狮子头</el-dropdown-item>
-                            <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                            <el-dropdown-item disabled>双皮奶</el-dropdown-item>
-                            <el-dropdown-item divided>蚵仔煎</el-dropdown-item>
-                        </el-dropdown-menu>
-                    </el-dropdown> -->
-                </el-table-column>
-        </el-table>
-
+        <main>
+            <div class="title-box">
+                <div class="title-box-item">学号</div>
+                <div class="title-box-item">姓名</div>
+                <div class="title-box-item">性别</div>
+                <div class="title-box-item">联系方式</div>
+                <div class="title-box-item">班级年级</div>
+                <div class="title-box-item">宿舍</div>
+                <div class="title-box-item">操作</div>
+            </div>
+            <div class="content-box">
+                <div class="content-box-item">1511928321</div>
+                <div class="content-box-item">李四</div>
+                <div class="content-box-item">男</div>
+                <div class="content-box-item">191192747182</div>
+                <div class="content-box-item">1503</div>
+                <div class="content-box-item">南7-201</div>
+                <div class="content-box-item operate">···
+                    <div class="operate-box">
+                        <div class="operate-box-item" @click='show'>删除</div>
+                        <div class="operate-box-item" @click="resetting">重置密码</div>
+                        <div class="operate-box-item">重置密码</div>
+                        <div class="operate-box-item">重置密码</div>
+                </div>
+                </div>
+            </div>
+        </main>
         <!-- 分页 -->
         <el-pagination
           small
@@ -103,9 +67,9 @@
         </span>
         </el-dialog>
         <!-- 添加账号对话框【完】 -->
-        <!-- 导入账号对话框 -->
-
-        <!-- 导入账号对话框【完】 -->
+        <!-- 学生个人信息表格中操作弹出框 -->
+        
+        <!-- 学生个人信息表格中操作弹出框【完】 -->
     </div>
 </template>
 
@@ -135,6 +99,7 @@ export default {
             contact: '',
             class_grade: '',
             dormitory: '',
+            operate: '',
             // 添加账号中的内容【完】
             // 表格中的内容
             tableData: [{
@@ -143,48 +108,53 @@ export default {
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201南7-201南7-201南7-201南7-201南7-201南7-201南7-201南7-201'
             }, {
                 num: '151110058',
                 name: '王小虎',
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201'
             }, {
                 num: '151110058',
                 name: '王小虎',
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201'
             }, {
                 num: '151110058',
                 name: '王小虎',
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201'
             }, {
                 num: '151110058',
                 name: '王小虎',
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201'
             }, {
                 num: '151110058',
                 name: '王小虎',
                 sex: '男',
                 contact: '18813211223',
                 grade: '1503',
-                dorm: '南7-201'
+                dormitory: '南7-201'
             }]
-            // 表格中的内容【完】
-
+            
         }
     },
     methods: {
+        resetting(){
+            console.log('重置')
+        },
+        show(){
+            console.log('删除')
+        },
         // 添加账号框却认关闭窗口
         handleClose(done) {
             this.$confirm('确认关闭？')
@@ -221,6 +191,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@boxheight:50px;
 .accounts{
     // height:100%;
     flex-direction: column;
@@ -251,5 +222,57 @@ li{
 }
 .el-icon-arrow-down {
     font-size: 12px;
+}
+.drop{
+    font-size: 30px;
+    &:hover{
+        color: #409EFF;
+    }
+    cursor: pointer;
+}
+
+.title-box{
+    width: 120*7px;
+    height: @boxheight;
+    border: 1px solid black;
+    display: flex;
+    .title-box-item{
+        width: 120px;
+        height: 100%;
+        line-height: 60px;
+        text-align: center;
+    }
+}
+.content-box{
+    height: @boxheight;
+    width: 120*7px;
+    border: 1px solid black;
+    border-top: none;
+    display: flex;
+    position: relative;
+    .content-box-item{
+        width: 120px;
+        height: 100%;
+        line-height: 60px;
+        text-align: center;
+    }
+}
+.operate{
+    position: relative;
+}
+.operate:hover{
+    .operate-box{
+        display: block;
+    }
+}
+
+.operate-box{
+    border: 1px solid black;
+    position: absolute;
+    padding: 10px;
+    right: 0;
+    top: 35px;
+    background: white;
+    display: none;
 }
 </style>
