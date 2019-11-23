@@ -34,7 +34,13 @@ const routes = [
             path: '/',
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
-        }]
+        },
+        {
+            path: '/ressetting',
+            name: 'Ressetting',
+            component: () => import('@/views/menus/accounts/Ressetting.vue')
+        }
+        ]
     },
     // 在线问答组界限 ----------
     {
