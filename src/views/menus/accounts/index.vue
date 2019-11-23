@@ -93,7 +93,7 @@ export default {
             // 是否弹出添加账号对话框
             dialogVisible: false,
             // 添加账号中的内容
-            account: '',
+            account: '1',
             name: '',
             sex: '',
             contact: '',

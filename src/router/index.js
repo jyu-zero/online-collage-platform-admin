@@ -27,14 +27,26 @@ const routes = [
         }]
     },
     {
-        // 账号管理页面
+        // 学生账号管理页面
+        path: '/students',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Students',
+            component: () => import('@/views/menus/students/index.vue')
+        }
+        ]
+    },
+    {
+        // 后台账号管理页面
         path: '/accounts',
         component: () => import('@/views/Wrapper.vue'),
         children: [{
             path: '/',
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
-        }]
+        }
+        ]
     },
     // 在线问答组界限 ----------
     {
@@ -136,6 +148,7 @@ const routes = [
         ]
     }
     // 文件分享组界限 ---------- [完]
+    
 ]
 
 const router = new VueRouter({
