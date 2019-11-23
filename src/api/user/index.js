@@ -3,6 +3,8 @@ export default {
     'login': '/login',
     // 登出
     'logout': '/admin/logout',
+    // 后台账号管理
+    'getAccounts': '/admin/accounts',
     // 添加账号
     'addAccount': '/accounts/addAccounts',
     // 重置密码
