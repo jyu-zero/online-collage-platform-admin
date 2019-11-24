@@ -54,12 +54,26 @@ const routes = [
         // 在线问答首页
         path: '/questions',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'Questions',
-            component: () => import('@/views/menus/questions/index.vue')
-        }]
+        children: [
+            {
+                path: '/',
+                name: 'Questions',
+                component: () => import('@/views/menus/questions/index.vue')
+            },
+            {
+                path: 'questions-specific/:id',
+                name: 'QuestionSpecific',
+                props: true,
+                component: () => import('@/views/menus/questions/specificQuestion.vue')
+            },
+            {
+                path: 'questions-setting',
+                name: 'QuestionSetting',
+                component: () => import('@/views/menus/questions/settingQuestion.vue')
+            }
+        ]
     },
+
     // 在线问答组界限 ---------- [完]
     // 新闻管理组界限 -----------
     {
@@ -91,19 +105,7 @@ const routes = [
             {
                 path: '/',
                 name: 'LostAndFound',
-                component: () => import('@/views/menus/lost-and-found'),
-                children: [
-                    {
-                        path: 'lost',
-                        name: 'Lost',
-                        component: () => import('@/views/menus/lost-and-found/pages/Lost.vue')
-                    },
-                    {
-                        path: 'found',
-                        name: 'Found',
-                        component: () => import('@/views/menus/lost-and-found/pages/Found.vue')
-                    }
-                ]
+                component: () => import('@/views/menus/lost-and-found')
             }
         ]
     },
@@ -113,13 +115,40 @@ const routes = [
         // 值班管理页面
         path: '/duty-scheduling',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'DutyScheduling',
-            component: () => import('@/views/menus/duty-scheduling')
-        }]
-    }
+        children: [
+            {
+                path: '/',
+                name: 'DutyScheduling',
+                component: () => import('@/views/menus/duty-scheduling')
+            },
+            {
+                path: 'freeCourse',
+                name: 'freeCourse',
+                component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
+            }
+            
+        ]
+    },
     // 值班管理组界限 ---------- [完]
+    // 文件分享组界限 ----------
+    {
+        // 文件分享页面
+        path: '/file-share',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [
+            {
+                path: '/',
+                name: 'FileShare',
+                component: () => import('@/views/menus/file-share/index.vue')
+            },
+            {
+                path: 'setting-share',
+                name: 'SettingShare',
+                component: () => import('@/views/menus/file-share/settingShare.vue')
+            }
+        ]
+    }
+    // 文件分享组界限 ---------- [完]
 ]
 
 const router = new VueRouter({
