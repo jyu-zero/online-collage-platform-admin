@@ -45,6 +45,10 @@ export default {
                     routeName: 'Overview'
                 },
                 {
+                    title: '学生账号管理',
+                    routeName: 'Students'
+                },
+                {
                     title: '后台账号管理',
                     routeName: 'Accounts'
                 },

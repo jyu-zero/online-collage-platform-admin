@@ -7,7 +7,7 @@
                 添加账号
             </el-button>
             <el-button class="a1-button" type="primary">导入账号</el-button>
-            <el-button class="a1-button" type="primary">班级管理</el-button>
+            <el-button class="a1-button" type="primary" @click="classManager">班级管理</el-button>
         </div>
         <!-- 表格 -->
         <main>
@@ -29,7 +29,7 @@
                 <div class="content-box-item">{{item.dormitory}}</div>
                 <div class="content-box-item operate ">···
                     <div class="operate-box">
-                        <div class="operate-box-item" @click='isAppear = true'>重置密码</div>
+                        <div class="operate-box-item" @click='sentPasswordAppear(item.account)'>重置密码</div>
                         <div class="operate-box-item" @click='lock(item.account)'>锁定账号</div>
                         <div class="operate-box-item" @click='alterMassage = true'> 修改信息</div>
                         <div class="operate-box-item" @click='del'>删除账号</div>
@@ -39,8 +39,6 @@
             <!-- 出现重置密码窗口 -->
             <div class="item-box" v-if="isAppear">
                 <div class="close" v-on:click="isAppear = false">×</div>
-                <p class="password">请输入学号:</p>
-                <el-input placeholder="请输入学号" v-model="account"></el-input>
                 <p class="password">旧密码:</p>
                 <el-input placeholder="请输入旧密码" v-model="old_password" show-password></el-input>
                 <p class="password">新密码:</p>
@@ -60,8 +58,7 @@
         <el-dialog
         title="添加账号"
         :visible.sync="dialogVisible"
-        width="30%"
-        :before-close="handleClose">
+        width="30%">
         <p>请输入学号:</p>
         <el-input v-model="account" placeholder="请输入学号" ></el-input>
         <p>请输入姓名:</p>
@@ -76,7 +73,7 @@
         <el-input v-model="dormitory" placeholder="请输入宿舍"></el-input>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            <el-button type="primary" @click="addAccount">确 定</el-button>
         </span>
         </el-dialog>
         <!-- 添加账号对话框【完】 -->
@@ -84,8 +81,7 @@
         <el-dialog
             title="修改信息"
             :visible.sync="alterMassage"
-            width="30%"
-            :before-close="handleClose">
+            width="30%">
             <p>请输入学号:</p>
             <el-input v-model="account" placeholder="请输入学号" ></el-input>
             <p>请输入姓名:</p>
@@ -98,6 +94,10 @@
             <el-input v-model="class_grade" placeholder="请输入班级年级"></el-input>
             <p>请输入宿舍:</p>
             <el-input v-model="dormitory" placeholder="请输入宿舍"></el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="alterMassage = false">取 消</el-button>
+                <el-button type="primary" @click="alterInformation">确 定</el-button>
+            </span>
         </el-dialog>
         <!-- 学生个人信息表-操作-修改信息【完】 -->
     </div>
@@ -121,7 +121,7 @@ export default {
     },
     data() {
         return {
-            // 是的弹出修改信息的对话框
+            // 是否弹出修改信息的对话框
             alterMassage: false,
             // 是否弹出添加账号对话框
             dialogVisible: false,
@@ -139,58 +139,16 @@ export default {
             dormitory: '',
             operate: '',
             information: []
-            // 添加账号中的内容【完】
-            // // 表格中的内容
-            // tableData: [{
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }, {
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }, {
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }, {
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }, {
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }, {
-            //     num: '151110058',
-            //     name: '王小虎',
-            //     sex: '男',
-            //     contact: '18813211223',
-            //     grade: '1503',
-            //     dormitory: '南7-201'
-            // }]
-            
         }
     },
     created(){
         this.getStudents()
     },
     methods: {
+        // 跳转班级管理
+        classManager(){
+            this.$router.push({ name: 'Monitor' })
+        },
         // 学生账号管理
         getStudents(page = 1){
             this.$axios.get(prefix.api + userApi.getStudents, {
@@ -198,16 +156,13 @@ export default {
                     page
                 }
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
                 this.information = response.data.data.information
-                console.log(this.information)
             })
         },
-        
         // 获取添加账号中的内容
         addAccount(){
             // 判断输入框是否为空
@@ -223,13 +178,16 @@ export default {
                 class: this.class_grade,
                 dormitory: this.dormitory
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
+                this.dialogVisible = false
             })
-            this.dialogVisible(false)
+        },
+        sentPasswordAppear(acc){
+            this.isAppear = true
+            this.account = acc
         },
         sentPassword(){
             // 判断三个输入框是否为空
@@ -252,13 +210,12 @@ export default {
                 new_password: this.new_password,
                 account: this.account
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
+                this.isAppear = false
             })
-            this.eject(false)
         },
         // 锁定账号
         lock(acc){
@@ -267,9 +224,8 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                console.log(acc)
-                this.$$axios.post(prefix.api + userApi.studentsLock, {
-                    account: this.account
+                this.$axios.post(prefix.api + userApi.studentsLock, {
+                    account: acc
                 }).then((response)=>{
                     console.log(response)
                     if(!responseHandler(response.data, this)){
@@ -289,14 +245,31 @@ export default {
                 this.$axios.post(prefix.api + userApi.studentsDelete, {
                     account: this.account
                 }).then((response)=>{
-                    console.log(response)
                     if(!responseHandler(response.data, this)){
                         Message.error('请求失败')
                     }
                     Message.success('请求成功')
                 })
             })
+        },
+        // 修改信息
+        alterInformation(){
+            this.$axios.post(prefix.api + userApi.studentsAlter, {
+                account: this.account,
+                name: this.name,
+                sex: this.sex,
+                contact: this.contact,
+                class: this.class_grade,
+                dormitory: this.dormitory
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('请求失败')
+                }
+                Message.success('请求成功')
+                this.alterMassage = false
+            })
         }
+
     }
 }
 </script>
@@ -404,13 +377,13 @@ li{
 .item-box{
     padding: 20px;
     width: 300px;
-    height: 500px;
+    height: 400px;
     border: 1px solid black;
     position: absolute;
     left: 50%;
     top: 50%;
     margin-left: -150px;
-    margin-top: -250px;
+    margin-top: -200px;
     text-align: center;
     background: white;
 }

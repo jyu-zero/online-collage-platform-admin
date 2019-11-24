@@ -12,8 +12,16 @@ export default {
     'studentsDelete': '/admin/students/delete',
     // 学生账号管理-锁定账号
     'studentsLock': '/admin/students/lock-students',
+    // 学生账号管理-修改信息
+    'studentsAlter': '/admin/students/alter-students',
     // 学生账号管理
     'getStudents': '/admin/students',
-    // 班级管理
-    'getMonitor': '/admin/students/monitor'
+    // 学生账号管理-班级管理
+    'studentsMonitor': '/admin/students/monitor',
+    // 学生账号管理-班级管理-添加班级
+    'addClass': '/admin/students/monitor/create',
+    // 学生账号管理-班级管理-修改班长
+    'alterClass': '/admin/students/monitor/alter',
+    // 学生账号管理-班级管理-删除班长
+    'deleteClass': '/admin/students/monitor/delete'
 }
