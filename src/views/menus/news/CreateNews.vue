@@ -2,10 +2,17 @@
   <div class="create-body">
       <div class="hander">
         <template>
-            <el-button id="cancel" type="text" @click="open">取消</el-button>
+            <el-button id="cancel" type="text" @click="cancle">取消</el-button>
+            <el-dialog title="取消" :visible.sync="dialog" center>
+                <div class="word">检测到有未保存的内容，是否确认离开?</div>
+                <div slot="footer" class="dialog-footer">
+                    <el-button class="cancle" @click="dialogFormVisible">取消</el-button>
+                    <el-button class="submit" type="primary" @click="submit">确认</el-button>
+                </div>
+            </el-dialog>
         </template>
-        <el-button id="save" type="primary">保存</el-button>
-        <el-button id="draft" type="primary">草稿</el-button>
+        <el-button class="save" type="primary" @click="save">保存</el-button>
+        <el-button class="draft" type="primary" @click="draft">草稿</el-button>
     </div>
     <div>
         <p>新闻标题</p>
@@ -21,7 +28,7 @@
         <el-input
             id="input"
             type="text"
-            placeholder="请输入时间"
+            placeholder="格式:xxxx-xx-xx"
             v-model="text2"
             maxlength="10"
             show-word-limit>
@@ -32,20 +39,29 @@
         <div class="editor">
             <editor v-model="editorContent" :inputName="name"></editor>
         </div>
-        <el-upload
+        <!-- <el-upload
             class="upload-demo"
             ref="upload"
             action="uploadfile"
-            :on-preview="handlePreview"
+            :on-change="handleChange"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
             multiple
             :limit="3"
             :auto-upload="false"
-            :on-exceed="handleExceed"
-            :file-list="fileList">
+            :on-exceed="handleExceed">
             <el-button slot="trigger" size="small" type="primary" >选取文件</el-button>
-            <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+        </el-upload> -->
+        <el-upload
+        class="upload-demo"
+        action=""
+        multiple
+        :limit="3"
+        :auto-upload="false"
+        :on-remove="handleRemove"
+        :on-change="handleChange">
+            <el-button size="small" type="primary">点击上传</el-button>
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
         </el-upload>
     </div>
@@ -53,8 +69,8 @@
 </template>
 
 <script>
-import { prefix, responseHandler, newsApi } from '@/api'
-import { Button, Input, Checkbox, Upload } from 'element-ui'
+import { prefix, responseHandler, newsApi, testApi } from '@/api'
+import { Button, Input, Checkbox, Upload, Dialog } from 'element-ui'
 import Editor from '@/components/news/Editorbox'
 import E from 'wangeditor'
 
@@ -65,12 +81,14 @@ export default {
         [Input.name]: Input,
         [Checkbox.name]: Checkbox,
         [Upload.name]: Upload,
+        [Dialog.name]: Dialog,
         Editor
     },
     data() {
         return {
             text1: '',
             text2: '',
+            dialog: false,
             checked: false,
             fileList: [],
             isClear: false,
@@ -81,60 +99,95 @@ export default {
             editorContent: ''
         }
     },
-    created(){
-        this.fileFormData = new FormData()
-    },
     methods: {
-        open() {
-            this.$confirm('检测到未保存的内容，是否在离开页面前保存修改', '确认信息', {
-                distinguishCancelAndClose: true,
-                confirmButtonText: '保存',
-                cancelButtonText: '放弃修改'
-            })
-                .then(() => {
-                    this.$message({
-                        type: 'info',
-                        message: '保存修改'
-                    })
+        // 保存
+        // save() {
+        //     let fileFormData = new FormData()
+        //     fileFormData.append('newsTitle', this.text1)
+        //     for(let file of this.files){
+        //         fileFormData.append('file[]', file)
+        //     }
+        //     this.$axios
+        //         .post(prefix.api + newsApi.save, fileFormData)
+        //         .then(response => {
+        //         })
+        // },
+        save() {
+            let fileFormData = new FormData()
+            fileFormData.append('newsTitle', this.text1)
+            fileFormData.append('createdAt', this.text2)
+            fileFormData.append('newsContent', this.editorContent)
+            fileFormData.append('isInformed', Number(this.checked))
+            for(let file of this.fileList){
+                fileFormData.append('file[]', file.raw)
+            }
+            console.log(fileFormData)
+            this.$axios
+                .post(prefix.api + newsApi.save, fileFormData)
+                .then(response => {
+                    console.log(this.text1)
+                    console.log(this.text2)
+                    console.log(this.editorContent)
+                    console.log(this.checked)
+                    console.log(fileFormData)
                 })
-                .catch(action => {
-                    this.$message({
-                        type: 'info',
-                        message: action === 'cancel'
-                            ? '放弃保存并离开页面'
-                            : '停留在当前页面'
-                    })
+        },
+        // 存为草稿
+        draft(){
+            let fileFormData = new FormData()
+            fileFormData.append('newsTitle', this.text1)
+            fileFormData.append('createdAt', this.text2)
+            fileFormData.append('newsContent', this.editorContent)
+            fileFormData.append('isInformed', Number(this.checked))
+            for(let file of this.fileList){
+                fileFormData.append('file[]', file.raw)
+            }
+            this.$axios
+                .post(prefix.api + newsApi.draft, fileFormData)
+                .then(response => {
+                    console.log(this.text1)
+                    console.log(this.text2)
+                    console.log(this.editorContent)
+                    console.log(this.checked)
+                    console.log(fileFormData)
                 })
+        },
+        // 取消
+        cancle(){
+            if(this.text1 === '' & this.text2 === ''){
+                this.submit()
+            }else{
+                this.dialog = true
+            }
+        },
+        submit() {
+            this.$router.push({ name: 'News' })
+        },
+        dialogFormVisible(){
+            this.dialog = false
         },
         getEditContent(data){
             this.content = data
             console.log(this.content)
         },
-        submitUpload() {
-            for(let i = 0; i < this.fileList.length; i++) {
-                this.fileFormData.append('file[]', this.fileList[i].raw)
-            }
-            const formData = this.fileFormData
-            console.log(this.fileFormData.getAll('file[]'))
-            this.$axios
-                .post(prefix.api + newsApi.uploads, formData)
-                .then(response=>{
-                    this.fileFormData.delete('file[]')
-                    this.$refs.upload.clearFiles()
-                })
-        },
         handleRemove(file, fileList) {
             console.log(file, fileList)
+            this.fileList = fileList
         },
-        handlePreview(file) {
+        handleChange(file, fileList) {
+            this.fileList = fileList
             console.log(file)
+            console.log(fileList)
         },
+        // handleChange(e, a){
+        //     this.files.push(e.raw)
+        // },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择3个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
         },
-        beforeRemove(file, fileList) {
-            return this.$confirm(`确定移除 ${file.name} ?`)
-        },
+        // beforeRemove(file, fileList) {
+        //     return this.$confirm(`确定移除 ${file.name} ?`)
+        // },
         // 限制类型大小
         beforeAvatarUpload(file){
             var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
@@ -145,17 +198,6 @@ export default {
                     type: 'warning'
                 })
             }
-        },
-        handleFile(event) {
-            this.file = event.target.files[0]
-            let formData = new FormData()
-            formData.append('photofile', this.file)
-            console.log(formData.getAll('photofile'))
-            this.$axios
-                .post(prefix.api + newsApi.upload, formData)
-                .then(response => {
-                    this.getPic()
-                })
         }
     }
 }
@@ -171,9 +213,13 @@ export default {
     .hander{
         margin-left: auto;
         text-align: center;
+
+        .word{
+            text-align: center;
+        }
     }
 
-    #save, #draft{
+    .save, .draft, .cancle, .submit{
         padding: 8px 10px;
         margin-left: 16px;
     }

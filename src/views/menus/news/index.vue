@@ -3,7 +3,7 @@
         <!-- 新闻页面 -->
         <el-menu class="button">
             <el-button id="button" type="primary" @click="gotoCreateNews">创建新闻</el-button>
-            <el-button id="button" type="danger" @click="deleted">删除</el-button>
+            <el-button id="button" type="danger" @click="deleted" >删除</el-button>
             <el-button id="button" type="primary" @click="top">置顶</el-button>
             <el-button id="button" type="primary" @click="untop">取消置顶</el-button>
             <div class="search">
@@ -36,9 +36,9 @@
                     <p class="views">{{newsItem.views}}</p>
                     <div class="editer">
                         <el-button id="button" type="primary" v-show="newsItem.isShow1" @click="publish(newsItem.news_id)">{{newsItem.is_published}}</el-button>
-                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)">编辑</el-button>
+                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)" effect="dark" content="编辑" placement="bottom"></el-button>
                         <template>
-                            <el-button id="delete" type="text" @click="singalDeleted(newsItem.news_id)">删除</el-button>
+                            <el-button id="delete" type="text" icon="el-icon-delete" @click="singalDeleted(newsItem.news_id)" effect="dark" content="删除" placement="bottom"></el-button>
                         </template>
                     </div>
                 </div>
