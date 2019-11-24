@@ -132,6 +132,7 @@ export default {
     },
     created() {
         this.getAccounts()
+        this.logout()
     },
     methods: {
         getAccounts(page = 1){
@@ -144,9 +145,9 @@ export default {
                 // 在这里处理错误
                     Message.error('请求失败')
                 }
+                this.pageCount = response.data.data.pageCount
                 this.tableData = response.data.data.information
                 console.log(this.tableData)
-                this.pageCount = response.data.data.pageCount
                 Message.success('请求成功')
             })
         },
@@ -159,22 +160,24 @@ export default {
         handleCommand(command){
             this.$message('click on item ' + command)
         },
-        resetPasswd(row){
-            console.log(row)
-            this.$router.push({ name: 'resetPasswd' })
-        },
-        modifyInfo(){
-            alert('降级')
-        },
-        deleteId(){
-            alert('删除')
-        },
         logout(){
-           
+            this.$axios.post(prefix.api + userApi.logout).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                // 在这里处理错误
+                    Message.error('请求失败')
+                }
+                Message.success('请求成功')
+            })
         },
         abc(z){
             console.log(z)
             if(z.row.option === '1'){
+                this.$router.push({ name: 'resetPasswd' })
+            }
+            if(z.row.option === '2'){
+                this.$router.push({ name: 'modifyInfo' })
+            }
+            if(z.row.option === '3'){
                 
             }
         },

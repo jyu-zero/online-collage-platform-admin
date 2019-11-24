@@ -1,6 +1,6 @@
 <template>
-    <div class="addAccounts">
-        <h1>添加账号</h1>
+    <div class="modifyInfo">
+        <h1>修改信息</h1>
             <div class="input-items">
             <label class="item" for="account">学号：</label>
                 <el-input v-model="account"></el-input>
@@ -21,23 +21,22 @@
             <label class="item" for="contact">联系方式：</label>
                 <el-input v-model="contact"></el-input>
             </div>
-        <el-button type="primary" @click="addAccount">确定</el-button>
+        <el-button type="primary" @click="modifyInfo">确定</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
     </div>
 </template>
-
 <script>
 import { prefix, responseHandler, userApi } from '@/api'
 import { Input, Button, Message } from 'element-ui'
 export default {
-    name: 'addAccounts',
+    name: 'modifyInfo',
     components: {
         [Input.name]: Input,
         [Button.name]: Button,
         [Message.name]: Message
     },
     data(){
-        return{
+        return {
             account: '',
             admin_role_id: '',
             name: '',
@@ -46,8 +45,8 @@ export default {
         }
     },
     methods: {
-        addAccount(){
-            this.$axios.post(prefix.api + userApi.addAccount, {
+        modifyInfo(){
+            this.$axios.post(prefix.api + userApi.modifyInfo, {
                 account: this.account,
                 admin_role_id: this.admin_role_id,
                 name: this.name,
@@ -69,7 +68,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.addAccounts {
+.modifyInfo {
     width: 320px;
     margin: 0 auto;
     .input-items {
