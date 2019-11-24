@@ -1,5 +1,15 @@
 <template>
     <div class="duty">
+        <div id="btn1">
+            <!-- Todo：整合金隆安排表 -->
+            <!-- <el-button type="primary" @click="goToArrange">安排人员</el-button> -->
+            <!-- 清空安排表数据库 -->
+            <el-button type="primary" @click="resetArrange">重置所有安排</el-button>
+            <!-- 自加：清空无课表 -->
+            <el-button type="primary" @click="resetFreelnformation">重置无课表</el-button>
+            <!-- Todo:整合棉伟登记无课表 -->
+            <!-- <el-button type="primary" @click="goToRegister">登记无课表</el-button> -->
+        </div>
         <div class="button-group">
             <el-button type="primary" class="arrange-button" @click="beginToArrange()">安排值班人员</el-button>
             <el-button type="primary" class="reset-arrange-button" @click="resetArrange()">重置所有安排</el-button>
@@ -18,7 +28,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- <tr
+                        <tr
                             v-for="row of arrangeData"
                             :key="row.rowId"
                             v-bind:class="'arrange-table-row_'+row.rowId"
@@ -30,21 +40,20 @@
                             >
                                 <el-select
                                     :model="row['col_'+col+'Data']"
-                                    class="selecter"
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
                                     @change="checkSelectedOptions()"
                                 >
                                     <el-option
-                                        v-for="item in options[row.rowId][col]"
+                                        v-for="item in options[col]"
                                         :key="item.value"
                                         :label="item.name"
                                     ></el-option>
                                 </el-select>
                                 <span></span>
                             </td>
-                        </tr> -->
+                        </tr>
                     </tbody>
                 </table>
                 <div class="row-bg">
@@ -58,11 +67,36 @@
                 </div>
             </div>
         </div>
+        <!-- 主表格 -->
+        <el-table  :data="tableData" border  style="width: 60%" >
+            <el-table-column prop="course" label="" width="100">
+            </el-table-column>
+            <el-table-column prop="monday"  label="星期一">
+            </el-table-column>
+            <el-table-column prop="tuesday"   label="星期二">
+            </el-table-column>
+            <el-table-column prop="wednesday"  label="星期三">
+            </el-table-column>
+            <el-table-column prop="thursday"  label="星期四">
+            </el-table-column>
+            <el-table-column prop="friday" label="星期五">
+            </el-table-column>
+        </el-table>
+        <!-- 主表格完 -->
+
+        <!-- 查看单双周 -->
+        <!-- Todo：等待后台单双周接口 -->
+        <div id = "btn">
+            <!-- <el-button type="primary" @click="goToSingleWeek">单周</el-button>
+            <el-button type="primary" @click="goToDoubleWeek">双周</el-button> -->
+        </div>
+        <!-- 这里开始是delon写的 -->
+        
     </div>
 </template>
 
 <script>
-import { Button, Select, Option, Switch } from 'element-ui'
+import { Button, Select, Option, Switch, Table } from 'element-ui'
 import { prefix, dutySchedulingApi } from '@/api'
 
 export default {
@@ -71,13 +105,87 @@ export default {
         [Button.name]: Button,
         [Select.name]: Select,
         [Option.name]: Option,
-        [Switch.name]: Switch
+        [Switch.name]: Switch,
+        [Table.name]: Table
     },
     props: {
         row: Number,
         col: Number
     },
+    created(){
+        this.getArrange()
+    },
     methods: {
+        //   goToArrange(){
+        //       this.$router.push({name:''})
+        //   },
+        // 重置所有安排
+        resetArrange(){
+            this.$axios.post(prefix.api + dutySchedulingApi.resetArrange).then(response=> {
+                if(response.data.code = '0000') {
+                    this.$message({
+                        message: response.data.msg,
+                        type: 'success',
+                        center: true
+                    })
+                }
+            })
+        },
+        resetFreelnformation(){
+            this.$axios.post(prefix.api + dutySchedulingApi.resetFreeInformation).then(response=> {
+                if(response.data.code = '0000') {
+                    this.$message({
+                        message: response.data.msg,
+                        type: 'success',
+                        center: true
+                    })
+                }
+            })
+        },
+        getArrange(){
+            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then(response=> {
+                if(response.data.code = '0000') {
+                    this.message = response.data.data
+                    this.dutyStaff = this.message.map(item=> { return { 'name': item.name } })
+                    for(let i = 0; i < this.dutyStaff.length; i++) {
+                        let weekday = ''
+                        switch(i % 5) {
+                            case 0:
+                                weekday = 'monday'
+                                break
+                            case 1:
+                                weekday = 'tuesday'
+                                break
+                            case 2:
+                                weekday = 'wednesday'
+                                break
+                            case 3:
+                                weekday = 'thursday'
+                                break
+                            case 4:
+                                weekday = 'friday'
+                                break
+                            case 5:
+                                weekday = 'monday'
+                                break
+                            case 6:
+                                weekday = 'tuesday'
+                                break
+                            case 7:
+                                weekday = 'wednesday'
+                                break
+                            case 8:
+                                weekday = 'thursday'
+                                break
+                            case 9:
+                                weekday = 'friday'
+                                break
+                        }
+                        this.tableData[Math.floor(i / 5)][weekday] = this.dutyStaff[i].name
+                    }
+                }
+            })
+        },
         beginToArrange() {
             this.isActive = true
             // console.log(evevt)
@@ -88,13 +196,13 @@ export default {
                     response => {
                         if(response.data.code === '0000'){
                             console.log(response)
-                            var colArr = []
-                            var courseArr = []
                             var courseId = 0
-                            for(var row = 0; row < 8; row++) {
+                            for(var row = 0; row < 1; row++) {
                                 courseId = row
+                                var colArr = []
                                 for(var count = 0; count < 5; count++) {
                                     console.log(courseId)
+                                    var courseArr = []
                                     if(response.data.data[courseId] !== 'undefined') {
                                         console.log('kill it')
                                         for(var freeStaff of response.data.data[courseId].people) {
@@ -109,12 +217,10 @@ export default {
                                         colArr.push(courseArr)
                                         courseId = courseId + 8
                                         console.log(colArr)
-                                        return
                                     }else{
                                         colArr.push([])
                                         courseId = courseId + 8
-                                        console.log(colArr)
-                                        return
+                                        // console.log(colArr)
                                     }
                                 }
                                 this.options.push(colArr)
@@ -133,14 +239,71 @@ export default {
         },
         cancel() {
             this.isActive = false
-        },
-        // TODO
-        resetArrange(){
-            
         }
     },
     data() {
         return {
+            duty: [],
+            message: [],
+            // 主体表格信息获取
+            // clas：第一列信息
+            tableData: [{
+                course: '第一节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第二节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第三节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第四节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第五节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第六节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第七节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }, {
+                course: '第八节',
+                monday: '',
+                tuesday: '',
+                wednesday: '',
+                thursday: '',
+                friday: ''
+            }],
             arrangeData: [
                 {
                     rowId: 1,
@@ -208,27 +371,14 @@ export default {
                 }
             ],
             options: [
-                // [
-                //     '选项1',
-                //     '黄金糕fweg'
-                // ],
-                // [
-                //     '选项2',
-                //     '双皮奶vds',
-                // ],
-                // {
-                //     value: '选项3',
-                //     label: '蚵仔煎vds'
-                //     disabled: true
-                // },
-                // {
-                //     value: '选项4',
-                //     label: '龙须面vds'
-                // },
-                // {
-                //     value: '选项5',
-                //     label: '北京烤鸭vds'
-                // }
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []
             ],
             arrange: [],
             week: false,
