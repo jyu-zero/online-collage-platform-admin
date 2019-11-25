@@ -113,6 +113,7 @@ export default {
     },
     data(){
         return{
+            pageCount: 1,
             options: [{
                 value: '1',
                 label: '重置密码'
@@ -132,7 +133,6 @@ export default {
     },
     created() {
         this.getAccounts()
-        this.logout()
     },
     methods: {
         getAccounts(page = 1){
@@ -147,7 +147,6 @@ export default {
                 }
                 this.pageCount = response.data.data.pageCount
                 this.tableData = response.data.data.information
-                console.log(this.tableData)
                 Message.success('请求成功')
             })
         },
@@ -160,17 +159,7 @@ export default {
         handleCommand(command){
             this.$message('click on item ' + command)
         },
-        logout(){
-            this.$axios.post(prefix.api + userApi.logout).then((response)=>{
-                if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
-                }
-                Message.success('请求成功')
-            })
-        },
         abc(z){
-            console.log(z)
             if(z.row.option === '1'){
                 this.$router.push({ name: 'resetPasswd' })
             }

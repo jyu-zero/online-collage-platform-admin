@@ -5,6 +5,8 @@ export default {
     'logout': '/admin/logout',
     // 获取账号信息
     'getAccounts': '/admin/accounts',
+    // 获取后台姓名和学号
+    'getLoginAccount': '/admin/get-student-name',
     // 添加账号
     'addAccount': '/admin/accounts/create-account',
     // 重置密码
