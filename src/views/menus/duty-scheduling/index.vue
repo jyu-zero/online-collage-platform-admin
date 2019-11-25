@@ -1,19 +1,41 @@
 <template>
     <div class="duty">
-        <div id="btn1">
-            <!-- Todo：整合金隆安排表 -->
-            <!-- <el-button type="primary" @click="goToArrange">安排人员</el-button> -->
+        <div id="btn-set" class="button-group">
+            <!-- TODO:整合金隆安排表 -->
+            <el-button type="primary" @click="beginToArrange">安排人员</el-button>
             <!-- 清空安排表数据库 -->
             <el-button type="primary" @click="resetArrange">重置所有安排</el-button>
             <!-- 自加：清空无课表 -->
             <el-button type="primary" @click="resetFreelnformation">重置无课表</el-button>
-            <!-- Todo:整合棉伟登记无课表 -->
+            <!-- TODO:整合棉伟登记无课表 -->
             <!-- <el-button type="primary" @click="goToRegister">登记无课表</el-button> -->
         </div>
-        <div class="button-group">
-            <el-button type="primary" class="arrange-button" @click="beginToArrange()">安排值班人员</el-button>
-            <el-button type="primary" class="reset-arrange-button" @click="resetArrange()">重置所有安排</el-button>
+
+        <!-- 主表格 -->
+        <el-table  :data="tableData" border  style="width: 93%; margin: 0 auto" >
+            <el-table-column  prop="course" label=""  align="center">
+            </el-table-column>
+            <el-table-column  prop="monday"  label="星期一" align="center" >
+            </el-table-column>
+            <el-table-column  prop="tuesday"   label="星期二" align="center">
+            </el-table-column>
+            <el-table-column  prop="wednesday"  label="星期三" align="center">
+            </el-table-column>
+            <el-table-column  prop="thursday"  label="星期四" align="center">
+            </el-table-column>
+            <el-table-column  prop="friday" label="星期五" align="center">
+            </el-table-column>
+        </el-table>
+        <!-- 主表格完 -->
+
+        <!-- 查看单双周 -->
+        <div id = "btn-single-double">
+            <el-button type="primary" icon="el-icon-arrow-left" @click="getSingleWeek">单周</el-button>
+            <el-button type="primary"  @click="currentDuty">当前值班</el-button>
+            <el-button type="primary"  @click="getDoubleWeek">双周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
         </div>
+
+        <!-- 这里开始是delon写的 -->
         <div class="arrange-page-screen"  :class="{active:isActive}">
             <div class="arrange-page">
                 <h2>安排人员</h2>
@@ -29,9 +51,9 @@
                     </thead>
                     <tbody>
                         <tr
-                            v-for="row of arrangeData"
-                            :key="row.rowId"
-                            v-bind:class="'arrange-table-row_'+row.rowId"
+                            v-for="row in arrangeData"
+                            :key="row[0]"
+                            v-bind:class="'arrange-table-row_'+row[0]"
                         >
                             <td
                                 v-for="col in 5"
@@ -39,15 +61,16 @@
                                 v-bind:class="'arrange-table-column_'+col"
                             >
                                 <el-select
-                                    :model="row['col_'+col+'Data']"
+                                    v-model="row[col+'why']"
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
-                                    @change="checkSelectedOptions()"
+                                    @change="checkSelectedOptions"
                                 >
                                     <el-option
-                                        v-for="item in options[col]"
+                                        v-for="item in options[row[col] - 1]"
                                         :key="item.value"
+                                        :value="item.value"
                                         :label="item.name"
                                     ></el-option>
                                 </el-select>
@@ -61,43 +84,18 @@
                         <el-switch v-model="week" active-text="双周值日安排" inactive-text="单周值日安排"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
-                        <el-button @click="cancel()">取消</el-button>
+                        <el-button @click="cancelArrange()">取消</el-button>
                         <el-button type="primary">确认</el-button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- 主表格 -->
-        <el-table  :data="tableData" border  style="width: 60%" >
-            <el-table-column prop="course" label="" width="100">
-            </el-table-column>
-            <el-table-column prop="monday"  label="星期一">
-            </el-table-column>
-            <el-table-column prop="tuesday"   label="星期二">
-            </el-table-column>
-            <el-table-column prop="wednesday"  label="星期三">
-            </el-table-column>
-            <el-table-column prop="thursday"  label="星期四">
-            </el-table-column>
-            <el-table-column prop="friday" label="星期五">
-            </el-table-column>
-        </el-table>
-        <!-- 主表格完 -->
-
-        <!-- 查看单双周 -->
-        <!-- Todo：等待后台单双周接口 -->
-        <div id = "btn">
-            <!-- <el-button type="primary" @click="goToSingleWeek">单周</el-button>
-            <el-button type="primary" @click="goToDoubleWeek">双周</el-button> -->
-        </div>
-        <!-- 这里开始是delon写的 -->
-        
     </div>
 </template>
 
 <script>
-import { Button, Select, Option, Switch, Table } from 'element-ui'
-import { prefix, dutySchedulingApi } from '@/api'
+import { Button, Select, Option, Switch, Table, TableColumn, Message } from 'element-ui'
+import { prefix, dutySchedulingApi, responseHandler } from '@/api'
 
 export default {
     name: 'DutyScheduling',
@@ -106,83 +104,161 @@ export default {
         [Select.name]: Select,
         [Option.name]: Option,
         [Switch.name]: Switch,
-        [Table.name]: Table
+        [Table.name]: Table,
+        [TableColumn.name]: TableColumn,
+        [Message.name]: Message
     },
     props: {
         row: Number,
         col: Number
     },
     created(){
-        this.getArrange()
+        // 获取当前值班表
+        this.currentDuty()
+        // 获取双周值班表
+        this.getDoubleWeek()
+        // 获取单周值班表
+        this.getSingleWeek()
     },
     methods: {
         //   goToArrange(){
         //       this.$router.push({name:''})
         //   },
-        // 重置所有安排
-        resetArrange(){
-            this.$axios.post(prefix.api + dutySchedulingApi.resetArrange).then(response=> {
-                if(response.data.code = '0000') {
-                    this.$message({
-                        message: response.data.msg,
-                        type: 'success',
-                        center: true
-                    })
+        // 重置安排表
+        resetArrange() {
+            this.$axios.post(prefix.api + dutySchedulingApi.resetArrange).then((response) => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('重置失败')
                 }
+                Message.success({
+                    message: response.data.msg,
+                    type: 'success',
+                    center: true
+                })
             })
         },
-        resetFreelnformation(){
-            this.$axios.post(prefix.api + dutySchedulingApi.resetFreeInformation).then(response=> {
-                if(response.data.code = '0000') {
-                    this.$message({
-                        message: response.data.msg,
-                        type: 'success',
-                        center: true
-                    })
+        // 重置无课表
+        resetFreelnformation() {
+            this.$axios.post(prefix.api + dutySchedulingApi.resetFreeInformation).then((response) => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('重置失败')
                 }
+                Message.success({
+                    message: response.data.msg,
+                    type: 'success',
+                    center: true
+                })
             })
         },
-        getArrange(){
-            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then(response=> {
-                if(response.data.code = '0000') {
-                    this.message = response.data.data
-                    this.dutyStaff = this.message.map(item=> { return { 'name': item.name } })
-                    for(let i = 0; i < this.dutyStaff.length; i++) {
-                        let weekday = ''
-                        switch(i % 5) {
-                            case 0:
-                                weekday = 'monday'
-                                break
-                            case 1:
-                                weekday = 'tuesday'
-                                break
-                            case 2:
-                                weekday = 'wednesday'
-                                break
-                            case 3:
-                                weekday = 'thursday'
-                                break
-                            case 4:
-                                weekday = 'friday'
-                                break
-                            case 5:
-                                weekday = 'monday'
-                                break
-                            case 6:
-                                weekday = 'tuesday'
-                                break
-                            case 7:
-                                weekday = 'wednesday'
-                                break
-                            case 8:
-                                weekday = 'thursday'
-                                break
-                            case 9:
-                                weekday = 'friday'
-                                break
-                        }
-                        this.tableData[Math.floor(i / 5)][weekday] = this.dutyStaff[i].name
+        // 获取当前周值班安排 TODO:计算当前时间改变单双周
+        currentDuty() {
+            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('获取当前值班失败！')
+                }
+                this.message = response.data.data
+                this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
+                this.dutyStaff = this.dutyStaff.slice(0, 40)
+                for(let i = 0; i < this.dutyStaff.length; i++){
+                    let weekday = ''
+                    switch(i % 5){
+                        case 0:
+                            weekday = 'monday'
+                            break
+                        case 1:
+                            weekday = 'tuesday'
+                            break
+                        case 2:
+                            weekday = 'wednesday'
+                            break
+                        case 3:
+                            weekday = 'thursday'
+                            break
+                        case 4:
+                            weekday = 'friday'
+                            break
                     }
+                    let names = this.dutyStaff[i].name
+                    if(Array.isArray(names)){
+                        names = names.join(',')
+                    }
+                    this.tableData[Math.floor(i / 5)][weekday] = names
+                }
+            })
+        },
+        // TODO:跳转注册链接
+        //   goToRegister(){
+
+        //   },
+        // 获取单周值班表
+        getSingleWeek() {
+            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('获取当前单周值班失败！')
+                }
+                this.message = response.data.data
+                this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
+                this.dutyStaff = this.dutyStaff.slice(0, 40)
+                for(let i = 0; i < this.dutyStaff.length; i++){
+                    let weekday = ''
+                    switch(i % 5){
+                        case 0:
+                            weekday = 'monday'
+                            break
+                        case 1:
+                            weekday = 'tuesday'
+                            break
+                        case 2:
+                            weekday = 'wednesday'
+                            break
+                        case 3:
+                            weekday = 'thursday'
+                            break
+                        case 4:
+                            weekday = 'friday'
+                            break
+                    }
+                    let names = this.dutyStaff[i].name
+                    if(Array.isArray(names)){
+                        names = names.join(',')
+                    }
+                    this.tableData[Math.floor(i / 5)][weekday] = names
+                }
+            })
+        },
+        // 获取双周值班表
+        getDoubleWeek() {
+            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('获取当前单周值班失败！')
+                }
+                this.message = response.data.data
+                this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
+                this.dutyStaff = this.dutyStaff.slice(40, 80)
+                for(let i = 0; i < this.dutyStaff.length; i++){
+                    let weekday = ''
+                    switch(i % 5){
+                        case 0:
+                            weekday = 'monday'
+                            break
+                        case 1:
+                            weekday = 'tuesday'
+                            break
+                        case 2:
+                            weekday = 'wednesday'
+                            break
+                        case 3:
+                            weekday = 'thursday'
+                            break
+                        case 4:
+                            weekday = 'friday'
+                            break
+                    }
+                    let names = this.dutyStaff[i].name
+                    if(Array.isArray(names)){
+                        names = names.join(',')
+                    }
+                    this.tableData[Math.floor(i / 5)][weekday] = names
                 }
             })
         },
@@ -197,193 +273,181 @@ export default {
                         if(response.data.code === '0000'){
                             console.log(response)
                             var courseId = 0
-                            for(var row = 0; row < 1; row++) {
-                                courseId = row
-                                var colArr = []
-                                for(var count = 0; count < 5; count++) {
-                                    console.log(courseId)
-                                    var courseArr = []
-                                    if(response.data.data[courseId] !== 'undefined') {
-                                        console.log('kill it')
-                                        for(var freeStaff of response.data.data[courseId].people) {
-                                            // console.log(freeStaff)
-                                            var freeStaffObj = {
-                                                value: freeStaff,
-                                                name: freeStaff,
-                                                disabled: true
-                                            }
-                                            courseArr.push(freeStaffObj)
+                            var courseArr = []
+                            for(let i = 0; i < 32; i++) {
+                                courseId = i
+                                // console.log(courseId)
+                                if(response.data.data[courseId].people !== []){
+                                    for(var freeStaff of response.data.data[courseId].people) {
+                                        // console.log(courseArr)
+                                        // console.log(freeStaff)
+                                        var freeStaffObj = {
+                                            value: freeStaff,
+                                            name: freeStaff,
+                                            disabled: false
                                         }
-                                        colArr.push(courseArr)
-                                        courseId = courseId + 8
-                                        console.log(colArr)
-                                    }else{
-                                        colArr.push([])
-                                        courseId = courseId + 8
-                                        // console.log(colArr)
+                                        courseArr.push(freeStaffObj)
                                     }
+                                    this.options.push(courseArr)
+                                    courseArr = []
+                                }else{
+                                    this.options.push([])
+                                    courseArr = []
                                 }
-                                this.options.push(colArr)
-                                console.log(this.options)
                             }
+                            console.log(this.options)
                         }
                     }
                 )
         },
-        checkSelectedOptions(selections){
+        checkSelectedOptions(selections) {
             console.log(selections)
         },
         // TODO
-        clearFreeStaffList(){
+        clearFreeStaffList() {
 
         },
-        cancel() {
+        cancelArrange() {
             this.isActive = false
         }
     },
     data() {
         return {
-            duty: [],
+            // 返回的值班安排数组中的姓名
+            dutyStaff: [],
+            // 返回的值班安排
             message: [],
-            // 主体表格信息获取
-            // clas：第一列信息
-            tableData: [{
-                course: '第一节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第二节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第三节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第四节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第五节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第六节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第七节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }, {
-                course: '第八节',
-                monday: '',
-                tuesday: '',
-                wednesday: '',
-                thursday: '',
-                friday: ''
-            }],
-            arrangeData: [
+            // 1.主体表格信息获取2.clas：第一列信息3.传入一个数组
+            tableData: [
                 {
-                    rowId: 1,
-                    col_1Data: '1',
-                    col_2Data: '9',
-                    col_3Data: '17',
-                    col_4Data: '25',
-                    col_5Data: '33'
+                    course: '第一节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 2,
-                    col_1Data: '2',
-                    col_2Data: '10',
-                    col_3Data: '18',
-                    col_4Data: '26',
-                    col_5Data: '34'
+                    course: '第二节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 3,
-                    col_1Data: '3',
-                    col_2Data: '11',
-                    col_3Data: '19',
-                    col_4Data: '27',
-                    col_5Data: '35'
+                    course: '第三节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 4,
-                    col_1Data: '4',
-                    col_2Data: '12',
-                    col_3Data: '20',
-                    col_4Data: '28',
-                    col_5Data: '36'
+                    course: '第四节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 5,
-                    col_1Data: '5',
-                    col_2Data: '13',
-                    col_3Data: '21',
-                    col_4Data: '29',
-                    col_5Data: '37'
+                    course: '第五节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 6,
-                    col_1Data: '6',
-                    col_2Data: '14',
-                    col_3Data: '22',
-                    col_4Data: '30',
-                    col_5Data: '38'
+                    course: '第六节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 7,
-                    col_1Data: '7',
-                    col_2Data: '15',
-                    col_3Data: '23',
-                    col_4Data: '31',
-                    col_5Data: '39'
+                    course: '第七节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 },
                 {
-                    rowId: 8,
-                    col_1Data: '8',
-                    col_2Data: '16',
-                    col_3Data: '24',
-                    col_4Data: '32',
-                    col_5Data: '40'
+                    course: '第八节',
+                    monday: '',
+                    tuesday: '',
+                    wednesday: '',
+                    thursday: '',
+                    friday: ''
                 }
             ],
-            options: [
-                [],
-                [],
-                [],
-                [],
-                [],
-                [],
-                [],
-                []
+            arrangeData: [
+                [
+                    'row_1',
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ], [
+                    'row_2',
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                ], [
+                    'row_3',
+                    11,
+                    12,
+                    13,
+                    14,
+                    15
+                ], [
+                    'row_4',
+                    16,
+                    17,
+                    18,
+                    19,
+                    20
+                ], [
+                    'row_5',
+                    21,
+                    22,
+                    23,
+                    24,
+                    25
+                ], [
+                    'row_6',
+                    26,
+                    27,
+                    28,
+                    29,
+                    30
+                ]
+                // ], [
+                //     'row_7',
+                //     31,
+                //     32,
+                //     33,
+                //     34,
+                //     35
+                // ], [
+                //     'row_8',
+                //     36,
+                //     37,
+                //     38,
+                //     39,
+                //     40
+                // ]
             ],
+            options: [],
             arrange: [],
             week: false,
-            isActive: false,
-            arrangeVm: this
+            isActive: false
         }
     }
 }
@@ -399,6 +463,7 @@ export default {
 .button-group{
     width: 100%;
     margin-top: 2%;
+    margin-bottom: 2%;
     padding-left: 2%;
     & button{
         width:120px;
@@ -490,6 +555,10 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+#btn-single-double{
+    text-align: center;
+    margin-top: 20px;
 }
 // .arrange-bts-group,.week-choose-bt{
 //     display: inline-block;
