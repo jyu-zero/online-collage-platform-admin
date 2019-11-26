@@ -102,9 +102,9 @@ export default {
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
-        [TableColumn.name]: TableColumn,
-        [Select.name]: Select,
-        [Option.name]: Option,
+        [Message.name]: Message,
+        [Input.name]: Input,
+        [Dialog.name]: Dialog,
         [Pagination.name]: Pagination,
         [Dropdown.name]: Dropdown,
         [DropdownMenu.name]: DropdownMenu,
@@ -192,6 +192,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@boxheight:50px;
 .accounts{
     height: 100%;
     // display: flex;
@@ -218,9 +219,6 @@ export default {
     // }
     .el-dropdown-link {
         color: #409EFF;
-        &:hover {
-            cursor: pointer;
-        }
     }
     .el-pagination{
         margin: 0 auto;
@@ -237,4 +235,13 @@ export default {
     }
 }
 
+.operate-box{
+    border: 1px solid black;
+    position: absolute;
+    padding: 10px;
+    right: 0;
+    top: 35px;
+    background: white;
+    display: none;
+}
 </style>
