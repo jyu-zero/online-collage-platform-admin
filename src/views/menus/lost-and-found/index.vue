@@ -662,7 +662,7 @@
 <script>
 import { Pagination, Message } from 'element-ui'
 import { prefix, responseHandler, lostAndFoundApi } from '@/api'
-// import { stat } from 'fs'
+import { stat } from 'fs'
 export default {
     name: 'LostAndFound',
     components: {
