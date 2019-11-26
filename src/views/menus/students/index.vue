@@ -227,7 +227,6 @@ export default {
                 this.$axios.post(prefix.api + userApi.studentsLock, {
                     account: acc
                 }).then((response)=>{
-                    console.log(response)
                     if(!responseHandler(response.data, this)){
                         Message.error('请求失败')
                     }
