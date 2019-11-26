@@ -10,8 +10,8 @@ export default {
     'getArrange': '/admin/get-arrange',
     // 重置所有安排
     'resetArrange': '/admin/reset-arrange',
-    // 重置无课信息
-    'esetFreeInformation': '/admin/reset-free-information',
+    // 重置无课表按钮
+    'resetFreeInformation': '/admin/reset-free-information',
     // 获取今天的值班安排
     'getTodayArrange': '/admin/get-today-arrange'
 }
