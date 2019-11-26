@@ -52,7 +52,8 @@
         <el-pagination
           small
           layout="prev, pager, next"
-          :total="50">
+          @current-change="handleCurrentChange"
+          :page-count="pageCount">
         </el-pagination>
         <!-- 出现添加账号对话框 -->
         <el-dialog
@@ -138,7 +139,9 @@ export default {
             class_grade: '',
             dormitory: '',
             operate: '',
-            information: []
+            information: [],
+            // 总页数
+            pageCount: 1
         }
     },
     created(){
@@ -160,8 +163,14 @@ export default {
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
+                this.pageCount = response.data.data.pageCount
                 this.information = response.data.data.information
             })
+        },
+        // 分页
+        handleCurrentChange(val){
+            this.getStudents(val)
+            this.page = val
         },
         // 获取添加账号中的内容
         addAccount(){
