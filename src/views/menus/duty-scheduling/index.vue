@@ -70,6 +70,7 @@
                                     placeholder="请安排同学值日"
                                     size="small"
                                     @change="checkSelectedOptions"
+                                    ref="selector"
                                 >
                                     <el-option
                                         v-for="item in options[row[col] - 1]"
@@ -88,8 +89,8 @@
                         <el-switch v-model="week" active-text="双周值日安排" inactive-text="单周值日安排"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
-                        <el-button @click="cancelArrange()">取消</el-button>
-                        <el-button type="primary">确认</el-button>
+                        <el-button @click="toCancelArrange()">取消</el-button>
+                        <el-button type="primary" @click="submitArrangement()">确认</el-button>
                     </div>
                 </div>
             </div>
@@ -298,6 +299,7 @@ export default {
                 }
             })
         },
+        // 开始进行安排时，获取可安排人员列表
         beginToArrange() {
             this.isActive = true
             // console.log(evevt)
@@ -331,19 +333,42 @@ export default {
                                     courseArr = []
                                 }
                             }
-                            console.log(this.options)
                         }
                     }
                 )
         },
         checkSelectedOptions(selections) {
-            console.log(selections)
+            // console.log(selections)
         },
-        // TODO
-        clearFreeStaffList() {
-
+        // 提交值日安排表
+        submitArrangement() {
+            for(let i = 0; i < 30; i++){
+                this.$refs.selector[i].$options.propsData.value.forEach(value => {
+                    let arrangeObj = {
+                        courseId: i,
+                        name: value
+                    }
+                    this.arrange.push(arrangeObj)
+                })
+            }
+            console.log(this.arrange)
+            this.$axios
+                .post(prefix.api + dutySchedulingApi.submitArrange, {
+                    arrange: this.arrange
+                })
+                .then(response=>{
+                    if(!responseHandler(response.data, this)){
+                        Message.error('提交是出现未知错误:( 请联系管理员')
+                    }
+                    Message.success({
+                        message: response.data.msg,
+                        type: 'success',
+                        center: true
+                    })
+                })
+            this.isActive = false
         },
-        cancelArrange() {
+        toCancelArrange() {
             this.isActive = false
         },
         cancelFreeCourse() {
@@ -394,7 +419,7 @@ export default {
         },
         // 提交id数组
         submit() {
-            this.axios
+            this.$axios
                 .post(prefix.api + dutySchedulingApi.submitFreeInformation, {
                     freeCourseList: this.saveIdArr
                 })
@@ -539,8 +564,8 @@ export default {
                 //     40
                 // ]
             ],
-            options: [],
             arrange: [],
+            options: [],
             week: false,
             isActive: false,
 
@@ -603,7 +628,7 @@ export default {
     padding: 10px 15px;
     background: #fff;
     margin: auto;
-    z-index: 99;
+    z-index: 1;
     border-radius: 2px;
 }
 .active{
@@ -686,7 +711,6 @@ h3 {
   margin-bottom: 10px;
 }
 .course-container {
-background: #fff;
   box-sizing: border-box;
   width: @width*5+47px;
   padding: 20px;
@@ -703,7 +727,6 @@ background: #fff;
 table {
   border-collapse: collapse;
   table-layout: fixed;
-  border:1px solid #eee;
 }
 td {
   width: @width;
