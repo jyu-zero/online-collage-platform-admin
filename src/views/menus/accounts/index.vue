@@ -5,20 +5,10 @@
         <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
         <el-button type="primary"  value="insert" @click="insertAccount">导入账号</el-button>
 
-        <!-- <div class="table">
-            <div class="title" id="id">学号</div>
-            <div class="title" id="type">账号类型</div>
-            <div class="title" id="name">姓名</div>
-            <div class="title" id="sex">性别</div>
-            <div class="title" id="phone">联系方式</div>
-            <div class="title" id="deadline">账号到期时间</div>
-            <div class="title">操作</div>
-        </div> -->
-
         <el-table
         :data="tableData"
         border
-        style="width: 80%">
+        style="width: 85%">
         <el-table-column
             fixed
             prop="account"
@@ -41,7 +31,7 @@
         <el-table-column
             prop="sex"
             label="性别"
-            width="120"
+            width="108"
             align="center">
         </el-table-column>
         <el-table-column
@@ -58,40 +48,54 @@
         </el-table-column>
         <el-table-column
             label="操作"
-            width="100"
+            width="186"
             align="center">
-
-            <template>
-                <el-dropdown>
-                <span class="el-dropdown-link">
-                    下拉菜单<i class="el-icon-arrow-down"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>黄金糕</el-dropdown-item>
-                    <el-dropdown-item>狮子头</el-dropdown-item>
-                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                    <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                </el-dropdown-menu>
-                </el-dropdown>
+            <!-- 在表格组件中嵌套下拉菜单组件 -->
+            <!-- <div class="handleCommand" @click="handleCommand">···
+            </div> -->
+            <template slot-scope="scope">
+                <el-select v-model="scope.row.option" placeholder="请选择" @change="abc(scope)" value-key="scope.row.id">
+                    <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+                </el-select>
             </template>
+                <!-- <template slot-scope="scope">
+                    <el-dropdown @command="handleCommand">
+                    <span class="el-dropdown-link">
+                        ···<i class="el-icon--left"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="resetPasswd" @change="abc(scope)">重置密码</el-dropdown-item>
+                        <el-dropdown-item command="modifyInfo">修改信息</el-dropdown-item>
+                        <el-dropdown-item command="degrade">降级为学生账号</el-dropdown-item>
+                        <el-dropdown-item command="deleteId">删除账号</el-dropdown-item>
+                    </el-dropdown-menu>
+                    </el-dropdown>
+                </template> -->
 
         </el-table-column>
         </el-table>
 
         <!-- 添加分页功能 -->
-        <el-pagination
+        <!-- <el-pagination
             background
             layout="prev, pager, next"
-            @current-change="getAccountList"
-            :page-count="pageCount">
-        </el-pagination>
+            @current-change="getAccounts"
+            :page-count="pageCount"
+            :total="50">
+        </el-pagination> -->
 
     </div>
 </template>
 
 <script>
 // import responseHandler from '@/utils/responseHandler'
-import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem } from 'element-ui'
+import { prefix, responseHandler, userApi } from '@/api'
+import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem, Message } from 'element-ui'
 
 export default {
     name: 'Accounts',
@@ -104,69 +108,84 @@ export default {
         [Pagination.name]: Pagination,
         [Dropdown.name]: Dropdown,
         [DropdownMenu.name]: DropdownMenu,
-        [DropdownItem.name]: DropdownItem
+        [DropdownItem.name]: DropdownItem,
+        [Message.name]: Message
     },
     data(){
         return{
-            tableData: [{
-                account: '123456789',
-                accountType: '学生管理员',
-                name: 'XXX',
-                sex: '女',
-                contact: '0663-1008611',
-                time: '2019.11.12',
-                // pageCount: 1,
-                accountList: [
-                
-                ] }, {
-                account: '123456789',
-                accountType: '学生',
-                name: 'XXX',
-                sex: '男',
-                contact: '0663-1008611',
-                time: '2019.11.12',
-                // pageCount: 1,
-                accountList: [
-                
-                ] }, {
-                account: '123456789',
-                accountType: '老师',
-                name: 'XXX',
-                sex: '男',
-                contact: '0663-1008611',
-                time: '2019.11.12',
-                // pageCount: 1,
-                accountList: [
-                
-                ] }, {
-                account: '123456789',
-                accountType: '学生',
-                name: 'XXX',
-                sex: '女',
-                contact: '0663-1008611',
-                time: '2019.11.12',
-                // pageCount: 1,
-                accountList: [
-                
-                ] }
-            ]
+            pageCount: 1,
+            options: [{
+                value: '1',
+                label: '重置密码'
+            }, {
+                value: '2',
+                label: '修改信息'
+            }, {
+                value: '3',
+                label: '降级为学生账号'
+            }, {
+                value: '4',
+                label: '删除账号'
+            }],
+            value: '',
+            tableData: []
         }
     },
+    created() {
+        this.getAccounts()
+    },
     methods: {
+        getAccounts(page = 1){
+            this.$axios.get(prefix.api + userApi.getAccounts, {
+                params: {
+                    page
+                }
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                // 在这里处理错误
+                    Message.error('请求失败')
+                }
+                this.pageCount = response.data.data.pageCount
+                this.tableData = response.data.data.information
+                Message.success('请求成功')
+            })
+        },
         addAccount(){
-            
+            this.$router.push({ name: 'addAccounts' })
         },
         insertAccount(){
 
         },
-        handleClick(row){
-            console.log(row)
+        handleCommand(command){
+            this.$message('click on item ' + command)
         },
-        getAccountList(page = 1){
-            
+        abc(z){
+            if(z.row.option === '1'){
+                this.$router.push({ name: 'resetPasswd' })
+            }
+            if(z.row.option === '2'){
+                this.$router.push({ name: 'modifyInfo' })
+            }
+            if(z.row.option === '3'){
+                
+            }
         },
-        logout(){
-           
+        open() {
+            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                })
+            })
         }
     }
 }
@@ -174,14 +193,14 @@ export default {
 
 <style lang="less" scoped>
 .accounts{
-    height:100%;
+    height: 100%;
     // display: flex;
     // flex-direction: column;
     .el-button{
-        margin: 30px 0 30px 36px;
+        margin: 30px -5px 30px 40px;
     }
     .el-table{
-        margin: 0 auto;
+        margin-left: 50px;
     }
     // .table{
     //     margin: 0 auto;
@@ -203,11 +222,18 @@ export default {
             cursor: pointer;
         }
     }
-    .el-icon-arrow-down {
-        font-size: 12px
-    }
     .el-pagination{
-        margin:0 auto;
+        margin: 0 auto;
+    }
+    .handleCommand{
+        display: block;
+        color: #409EFF;
+        &:hover{
+            // width: 180px;
+            // height: 200px;
+            // border: 1px solid rgb(155, 155, 155);
+            cursor: pointer;
+        }
     }
 }
 

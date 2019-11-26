@@ -8,6 +8,7 @@ export default {
     // 重置无课表按钮
     'resetFreeInformation': '/admin/reset-free-information',
     // 获取安排列表
-    'getArrange': '/admin/get-arrange'
-
+    'getArrange': '/admin/get-arrange',
+    // 获取今天的值班安排
+    'getTodayArrange': '/admin/get-today-arrange'
 }
