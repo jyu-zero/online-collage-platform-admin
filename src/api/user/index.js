@@ -18,7 +18,6 @@ export default {
     // 删除账号
     'deleteAccount': '/admin/accounts/delete',
     // 显示今日新增的失物
-    'todayAdd': '/admin/goods/today-add',
-    // 获取今天的值班安排
-    'getTodayArrange': '/admin/get-today-arrange'
+    'todayAdd': '/admin/goods/today-add'
+    
 }
