@@ -141,11 +141,6 @@ const routes = [
                 path: 'freeCourse',
                 name: 'freeCourse',
                 component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
-            },
-            {
-                path: 'hedgehog-lai',
-                name: 'HedgehogLai',
-                component: () => import('@/views/menus/duty-scheduling/temporary/HedgehogLai.vue')
             }
             
         ]
