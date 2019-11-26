@@ -51,17 +51,18 @@ const routes = [
                 path: '/modifyInfo',
                 name: 'modifyInfo',
                 component: () => import('@/views/menus/accounts/modifyInfo.vue')
-            }, {
-                // 降级为学生账号
-                path: '/degrade',
-                name: 'degrade',
-                component: () => import('@/views/menus/accounts/degrade.vue')
-            }, {
-                // 删除账号
-                path: '/deleteAccount',
-                name: 'deleteAccount',
-                component: () => import('@/views/menus/accounts/deleteAccount.vue')
             }
+            // {
+            //     // 降级为学生账号
+            //     path: '/degrade',
+            //     name: 'degrade',
+            //     component: () => import('@/views/menus/accounts/degrade.vue')
+            // }, {
+            //     // 删除账号
+            //     path: '/deleteAccount',
+            //     name: 'deleteAccount',
+            //     component: () => import('@/views/menus/accounts/deleteAccount.vue')
+            // }
         ]
     },
     // 在线问答组界限 ----------
@@ -140,6 +141,11 @@ const routes = [
                 path: 'freeCourse',
                 name: 'freeCourse',
                 component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
+            },
+            {
+                path: 'hedgehog-lai',
+                name: 'HedgehogLai',
+                component: () => import('@/views/menus/duty-scheduling/temporary/HedgehogLai.vue')
             }
             
         ]
