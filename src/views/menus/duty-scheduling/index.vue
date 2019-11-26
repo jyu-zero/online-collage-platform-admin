@@ -686,6 +686,7 @@ h3 {
   margin-bottom: 10px;
 }
 .course-container {
+background: #fff;
   box-sizing: border-box;
   width: @width*5+47px;
   padding: 20px;
@@ -702,6 +703,7 @@ h3 {
 table {
   border-collapse: collapse;
   table-layout: fixed;
+  border:1px solid #eee;
 }
 td {
   width: @width;
