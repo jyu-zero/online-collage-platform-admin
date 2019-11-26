@@ -63,20 +63,6 @@
                     </el-option>
                 </el-select>
             </template>
-                <!-- <template slot-scope="scope">
-                    <el-dropdown @command="handleCommand">
-                    <span class="el-dropdown-link">
-                        ···<i class="el-icon--left"></i>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="resetPasswd" @change="abc(scope)">重置密码</el-dropdown-item>
-                        <el-dropdown-item command="modifyInfo">修改信息</el-dropdown-item>
-                        <el-dropdown-item command="degrade">降级为学生账号</el-dropdown-item>
-                        <el-dropdown-item command="deleteId">删除账号</el-dropdown-item>
-                    </el-dropdown-menu>
-                    </el-dropdown>
-                </template> -->
-
         </el-table-column>
         </el-table>
 
@@ -95,20 +81,15 @@
 <script>
 // import responseHandler from '@/utils/responseHandler'
 import { prefix, responseHandler, userApi } from '@/api'
-import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem, Message } from 'element-ui'
+import { Button, Table, Select, Pagination, Message } from 'element-ui'
 
 export default {
     name: 'Accounts',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
-        [TableColumn.name]: TableColumn,
         [Select.name]: Select,
-        [Option.name]: Option,
         [Pagination.name]: Pagination,
-        [Dropdown.name]: Dropdown,
-        [DropdownMenu.name]: DropdownMenu,
-        [DropdownItem.name]: DropdownItem,
         [Message.name]: Message
     },
     data(){

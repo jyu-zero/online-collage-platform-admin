@@ -41,7 +41,7 @@ export default {
     methods: {
         login() {
             // 登录验证
-            // if(this.formLabelAlign.id.trim() === '') {
+            // if(this.formLabelAlign.account.trim() === '') {
             //     Message.error('请输入账号!')
             //     return
             // }
