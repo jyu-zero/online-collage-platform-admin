@@ -67,13 +67,13 @@
         </el-table>
 
         <!-- 添加分页功能 -->
-        <!-- <el-pagination
+        <el-pagination
             background
             layout="prev, pager, next"
             @current-change="getAccounts"
             :page-count="pageCount"
             :total="50">
-        </el-pagination> -->
+        </el-pagination>
 
     </div>
 </template>

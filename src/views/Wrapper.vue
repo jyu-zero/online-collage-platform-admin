@@ -7,8 +7,8 @@
             <el-dropdown @command="logout">
                 <span class="el-dropdown-link">
                     <div class="get-account-box">
-                        <span>{{name}}</span>
-                        <span>{{account}}</span>
+                        <div>{{this.name}}</div>
+                        <div>{{this.account}}</div>
                     </div>
                     <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
                 </span>
@@ -94,27 +94,35 @@ export default {
             ]
         }
     },
+    created() {
+        this.getLoginAccount()
+    },
     methods: {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
         },
+        // 获取学生学号姓名
         getLoginAccount(){
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                 // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('请登录！')
+                    this.$router.push({ name: 'Overview' })
+                    return
                 }
                 Message.success('请求成功')
+                this.name = response.data.data.name
+                this.account = response.data.data.account
             })
         },
+        // 注销
         logout(){
             this.$axios.post(prefix.api + userApi.logout).then((response)=>{
                 if(!responseHandler(response.data, this)){
                 // 在这里处理错误
                     Message.error('请求失败')
                 }
-                Message.success('请求成功')
+                Message.success('注销成功')
                 this.$router.push({ name: 'Login' })
             })
         }
