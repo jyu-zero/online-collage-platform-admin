@@ -41,14 +41,14 @@ export default {
     methods: {
         login() {
             // 登录验证
-            if(this.formLabelAlign.id.trim() === '') {
-                Message.error('请输入账号!')
-                return
-            }
-            if(this.formLabelAlign.password.trim() === '') {
-                Message.error('请输入密码!')
-                return
-            }
+            // if(this.formLabelAlign.account.trim() === '') {
+            //     Message.error('请输入账号!')
+            //     return
+            // }
+            // if(this.formLabelAlign.password.trim() === '') {
+            //     Message.error('请输入密码!')
+            //     return
+            // }
             this.$axios.post(prefix.api + userApi.login, {
                 account: this.formLabelAlign.account,
                 password: this.formLabelAlign.password
