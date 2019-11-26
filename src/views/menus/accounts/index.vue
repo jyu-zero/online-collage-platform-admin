@@ -173,6 +173,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@boxheight:50px;
 .accounts{
     height: 100%;
     // display: flex;
@@ -199,9 +200,6 @@ export default {
     // }
     .el-dropdown-link {
         color: #409EFF;
-        &:hover {
-            cursor: pointer;
-        }
     }
     .el-pagination{
         margin: 0 auto;
@@ -218,4 +216,13 @@ export default {
     }
 }
 
+.operate-box{
+    border: 1px solid black;
+    position: absolute;
+    padding: 10px;
+    right: 0;
+    top: 35px;
+    background: white;
+    display: none;
+}
 </style>

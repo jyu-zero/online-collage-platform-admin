@@ -29,5 +29,7 @@ export default {
     // 添加类型
     'addType': '/admin/add-type',
     // 问答系统设置
-    'setQuestionAndAnswer': '/admin/set-question-and-answer'
+    'setQuestionAndAnswer': '/admin/set-question-and-answer',
+    // 获取后台主页的问题列表
+    'getHomeQuestions': '/admin/home/get-questions'
 }

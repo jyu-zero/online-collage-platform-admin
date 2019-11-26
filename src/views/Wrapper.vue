@@ -64,12 +64,12 @@ export default {
                     routeName: 'Overview'
                 },
                 {
-                    title: '后台账号管理',
-                    routeName: 'Accounts'
+                    title: '学生账号管理',
+                    routeName: 'Students'
                 },
                 {
-                    title: '问答页面',
-                    routeName: 'Question'
+                    title: '后台账号管理',
+                    routeName: 'Accounts'
                 },
                 {
                     title: '新闻管理',
