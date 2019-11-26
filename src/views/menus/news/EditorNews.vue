@@ -81,9 +81,8 @@ export default {
             dialog: false,
             checked: false,
             fileList: [],
-            news: [],
-            update: [],
-            remove: [],
+            newUpload: [],
+            deleteFile: [],
             fileId: [],
             isClear: false,
             detail: '',
@@ -209,15 +208,15 @@ export default {
         // 移除附件
         handleRemove(file, fileList) {
             // console.log(file, fileList)
-            this.fileList = fileList
+            // this.fileList = fileList
             console.log(this.fileList)
         },
         beforeRemove(file, fileList) {
             // return this.$confirm(`确定移除 ${file.name} ?`)
         },
         handleChange(file, fileList) {
-            // this.news.push(file)
-            // this.fileList.push(file)
+            let fileFormData = new FormData()
+            fileFormData.append('newsTitle', this.newUpload)
             this.fileList = fileList
             console.log(file)
             console.log(this.fileList)

@@ -6,7 +6,7 @@
             <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
                 <!-- <font-awesome-icon icon="user-o"/> -->
                 <el-form-item label="账号：">
-                    <el-input v-model="formLabelAlign.id"></el-input>
+                    <el-input v-model="formLabelAlign.account"></el-input>
                 </el-form-item>
                 <el-form-item label="密码：">
                     <el-input v-model="formLabelAlign.password" show-password></el-input>
@@ -50,7 +50,7 @@ export default {
                 return
             }
             this.$axios.post(prefix.api + userApi.login, {
-                id: this.formLabelAlign.id,
+                account: this.formLabelAlign.account,
                 password: this.formLabelAlign.password
             }).then((response) =>{
                 this.$router.push({ name: 'Overview' })
