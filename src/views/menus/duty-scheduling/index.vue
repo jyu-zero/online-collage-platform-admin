@@ -69,7 +69,6 @@
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
-                                    @change="checkSelectedOptions"
                                     ref="selector"
                                 >
                                     <el-option
@@ -86,7 +85,7 @@
                 </table>
                 <div class="row-bg">
                     <div class="week-choose-bt">
-                        <el-switch v-model="week" active-text="双周值日安排" inactive-text="单周值日安排"></el-switch>
+                        <el-switch v-model="isEvenWeek" active-text="双周值日安排" inactive-text="单周值日安排" @change="changeWeek"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
                         <el-button @click="toCancelArrange()">取消</el-button>
@@ -312,7 +311,7 @@ export default {
                             console.log(response)
                             var courseId = 0
                             var courseArr = []
-                            for(let i = 0; i < 32; i++) {
+                            for(let i = 0; i < 40; i++) {
                                 courseId = i
                                 // console.log(courseId)
                                 if(response.data.data[courseId].people !== []){
@@ -337,19 +336,103 @@ export default {
                     }
                 )
         },
-        checkSelectedOptions(selections) {
-            // console.log(selections)
+        changeWeek(isEven) {
+            if(isEven){
+                this.options = []
+                this.$axios
+                    .get(prefix.api + dutySchedulingApi.getFreeStaffList)
+                    .then(
+                        response => {
+                            if(response.data.code === '0000'){
+                                console.log('开始双周的安排')
+                                var courseId = 0
+                                var courseArr = []
+                                for(let i = 40; i < 80; i++) {
+                                    courseId = i
+                                    if(response.data.data[courseId].people !== []){
+                                        for(var freeStaff of response.data.data[courseId].people) {
+                                            var freeStaffObj = {
+                                                value: freeStaff,
+                                                name: freeStaff,
+                                                disabled: false
+                                            }
+                                            courseArr.push(freeStaffObj)
+                                        }
+                                        this.options.push(courseArr)
+                                        courseArr = []
+                                    }else{
+                                        this.options.push([])
+                                        courseArr = []
+                                    }
+                                }
+                            }
+                        }
+                    )
+            }else{
+                this.options = []
+                this.$axios
+                    .get(prefix.api + dutySchedulingApi.getFreeStaffList)
+                    .then(
+                        response => {
+                            if(response.data.code === '0000'){
+                                console.log('开始单周的安排')
+                                var courseId = 0
+                                var courseArr = []
+                                for(let i = 0; i < 40; i++) {
+                                    courseId = i
+                                    if(response.data.data[courseId].people !== []){
+                                        for(var freeStaff of response.data.data[courseId].people) {
+                                            var freeStaffObj = {
+                                                value: freeStaff,
+                                                name: freeStaff,
+                                                disabled: false
+                                            }
+                                            courseArr.push(freeStaffObj)
+                                        }
+                                        this.options.push(courseArr)
+                                        courseArr = []
+                                    }else{
+                                        this.options.push([])
+                                        courseArr = []
+                                    }
+                                }
+                            }
+                        }
+                    )
+            }
         },
         // 提交值日安排表
         submitArrangement() {
-            for(let i = 0; i < 30; i++){
-                this.$refs.selector[i].$options.propsData.value.forEach(value => {
-                    let arrangeObj = {
-                        courseId: i,
-                        name: value
+            if(!this.isEvenWeek){
+                for(let i = 0; i < 30; i++){
+                    let nameArr = this.$refs.selector[i].$options.propsData.value
+                    if(nameArr !== []){
+                        let arrangeObj = {
+                            courseId: i,
+                            name: nameArr
+                        }
+                        this.arrange.push(arrangeObj)
+                    }else{
+                        break
                     }
-                    this.arrange.push(arrangeObj)
-                })
+                }
+            }else{
+                // TODO arrange是否要清空
+                this.arrange = []
+                for(let i = 0; i < 30; i++){
+                    let nameArr = this.$refs.selector[i].$options.propsData.value
+                    for(let courseId = 40; courseId < 80; courseId++){
+                        if(nameArr !== []){
+                            let arrangeObj = {
+                                courseId: courseId,
+                                name: nameArr
+                            }
+                            this.arrange.push(arrangeObj)
+                        }else{
+                            break
+                        }
+                    }
+                }
             }
             console.log(this.arrange)
             this.$axios
@@ -368,6 +451,7 @@ export default {
                 })
             this.isActive = false
         },
+        // TODO 取消后清楚所有值日安排
         toCancelArrange() {
             this.isActive = false
         },
@@ -566,7 +650,7 @@ export default {
             ],
             arrange: [],
             options: [],
-            week: false,
+            isEvenWeek: false,
             isActive: false,
 
             visibility: false,
@@ -699,13 +783,6 @@ a {
     text-align: center;
     margin-top: 20px;
 }
-// .arrange-bts-group,.week-choose-bt{
-//     display: inline-block;
-// }
-// .arrange-bts-group{
-//     align-self: flex-end;
-// }
-
 h3 {
   margin: 0;
   margin-bottom: 10px;
