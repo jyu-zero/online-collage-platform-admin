@@ -59,10 +59,9 @@
 </template>
 
 <script>
-import { prefix, responseHandler, newsApi } from '@/api'
+import { prefix, newsApi } from '@/api'
 import { Button, Input, Checkbox, Upload, Dialog } from 'element-ui'
 import Editor from '@/components/news/Editorbox'
-import E from 'wangeditor'
 
 export default {
     name: 'EditorNews',
@@ -81,15 +80,15 @@ export default {
             dialog: false,
             checked: false,
             fileList: [],
-            newUpload: [],
-            deleteFile: [],
+            newUpload: [], // 存放新增附件
+            deleteUpload: [], // 存放删除的附件的id
             fileId: [],
             isClear: false,
             detail: '',
             fileFormData: null, // 将要上传的formdata数据
             percentage: 0, // 存放上传百分比
             editorContent: '',
-            id: this.$route.params.id
+            id: this.$route.params.id // 获取后端的新闻id
         }
     },
     created(){
@@ -155,25 +154,17 @@ export default {
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
             fileFormData.append('newsId', this.id)
-            // 把新添加的附件放到file[new]传给后端
-            let i = 0
-            let j = 0
-            for(let file of this.fileList){
-                fileFormData.append('file[' + i + '][content]', file.raw)
-                for(j; j <= i; j++){
-                    fileFormData.append('file[' + j + '][id]', this.fileId[j])
-                }
-                i++
+            for(let file of this.deleteUpload){
+                fileFormData.append('deleteUpload[]', file.file_id)
             }
-            // console.log(this.fileList)
+            for(let file of this.newUpload){
+                fileFormData.append('newUpload[]', file.raw)
+            }
+            console.log(fileFormData.getAll('deleteUpload[]'))
+            console.log(fileFormData.getAll('newUpload[]'))
             this.$axios
                 .post(prefix.api + newsApi.saveNews, fileFormData)
                 .then(response => {
-                    // console.log(this.text1)
-                    // console.log(this.text2)
-                    // console.log(this.editorContent)
-                    // console.log(this.checked)
-                    // console.log(fileFormData)
                 })
         },
         // 存为草稿
@@ -184,46 +175,30 @@ export default {
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
             fileFormData.append('newsId', this.id)
-            // 把新添加的附件放到file[new]传给后端
-            let i = 0
-            for(let file of this.fileList){
-                fileFormData.append('file[new][' + i + '][content]', file.raw)
-                for(let j = 0; j <= i; j++){
-                    fileFormData.append('file[new][' + j + '][id]', this.fileId[j])
-                }
-                i++
+            for(let file of this.deleteUpload){
+                fileFormData.append('deleteUpload', file.file_id)
+            }
+            for(let file of this.newUpload){
+                fileFormData.append('newUpload', file.raw)
             }
             this.$axios
                 .post(prefix.api + newsApi.saveDraft, fileFormData)
                 .then(response => {
-                    // console.log(this.text1)
-                    // console.log(this.text2)
-                    // console.log(this.editorContent)
-                    // console.log(this.checked)
-                    // console.log(fileFormData)
                 })
         },
 
         // TODO
         // 移除附件
         handleRemove(file, fileList) {
-            // console.log(file, fileList)
-            // this.fileList = fileList
-            console.log(this.fileList)
+            this.deleteUpload.push(file)
         },
         beforeRemove(file, fileList) {
             // return this.$confirm(`确定移除 ${file.name} ?`)
         },
         handleChange(file, fileList) {
-            let fileFormData = new FormData()
-            fileFormData.append('newsTitle', this.newUpload)
-            this.fileList = fileList
+            this.newUpload.push(file)
             console.log(file)
-            console.log(this.fileList)
         },
-        // handleChange(e, a){
-        //     this.files.push(e.raw)
-        // },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择3个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
         },
