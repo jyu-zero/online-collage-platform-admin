@@ -361,7 +361,6 @@ export default {
 <style lang="less">
 .el-message-box  {
     width: 50% !important;
-    height: 67%;
     .w-e-text-container{
         height: 359px;
     }
