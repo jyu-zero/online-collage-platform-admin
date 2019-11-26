@@ -84,6 +84,7 @@ export default {
             news: [],
             update: [],
             remove: [],
+            fileId: [],
             isClear: false,
             detail: '',
             fileFormData: null, // 将要上传的formdata数据
@@ -93,7 +94,6 @@ export default {
         }
     },
     created(){
-        this.fileFormData = new FormData()
         this.Content()
         this.getEdit()
     },
@@ -101,7 +101,7 @@ export default {
         // TODO
         // 获取新闻内容
         Content(){
-            console.log(this.id)
+            // console.log(this.id)
             this.$axios
                 .get(prefix.api + newsApi.editNews, {
                     params: {
@@ -114,6 +114,17 @@ export default {
                     this.checked = Boolean(response.data.data.new[0].is_informed)
                     this.editorContent = response.data.data.new[0].news_content
                     this.fileList = response.data.data.storage_path
+                    // 把从后端获取到的当前新闻的附件的id放进fileId
+                    for(let i = 0; i < this.fileList.length; i++){
+                        this.fileId.push(this.fileList[i].file_id)
+                    }
+                    if(this.fileList.length === 2){
+                        this.fileId.push('')
+                    }
+                    if(this.fileList.length === 1){
+                        this.fileId.push('', '')
+                    }
+                    console.log(this.fileId)
                     console.log(this.fileList)
                     // console.log(this.file)
                 })
@@ -144,18 +155,26 @@ export default {
             fileFormData.append('createdAt', this.text2)
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
+            fileFormData.append('newsId', this.id)
+            // 把新添加的附件放到file[new]传给后端
+            let i = 0
+            let j = 0
             for(let file of this.fileList){
-                fileFormData.append('file[]', file.raw)
+                fileFormData.append('file[' + i + '][content]', file.raw)
+                for(j; j <= i; j++){
+                    fileFormData.append('file[' + j + '][id]', this.fileId[j])
+                }
+                i++
             }
-            // console.log(fileFormData)
+            // console.log(this.fileList)
             this.$axios
-                .post(prefix.api + newsApi.save, fileFormData)
+                .post(prefix.api + newsApi.saveNews, fileFormData)
                 .then(response => {
-                    console.log(this.text1)
-                    console.log(this.text2)
-                    console.log(this.editorContent)
-                    console.log(this.checked)
-                    console.log(fileFormData)
+                    // console.log(this.text1)
+                    // console.log(this.text2)
+                    // console.log(this.editorContent)
+                    // console.log(this.checked)
+                    // console.log(fileFormData)
                 })
         },
         // 存为草稿
@@ -165,11 +184,18 @@ export default {
             fileFormData.append('createdAt', this.text2)
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
+            fileFormData.append('newsId', this.id)
+            // 把新添加的附件放到file[new]传给后端
+            let i = 0
             for(let file of this.fileList){
-                fileFormData.append('file[]', file.raw)
+                fileFormData.append('file[new][' + i + '][content]', file.raw)
+                for(let j = 0; j <= i; j++){
+                    fileFormData.append('file[new][' + j + '][id]', this.fileId[j])
+                }
+                i++
             }
             this.$axios
-                .post(prefix.api + newsApi.draft, fileFormData)
+                .post(prefix.api + newsApi.saveDraft, fileFormData)
                 .then(response => {
                     // console.log(this.text1)
                     // console.log(this.text2)
@@ -183,22 +209,18 @@ export default {
         // 移除附件
         handleRemove(file, fileList) {
             // console.log(file, fileList)
-            // this.remove.push(file)
-            // this.fileList.pop(file)
+            this.fileList = fileList
             console.log(this.fileList)
         },
         beforeRemove(file, fileList) {
             // return this.$confirm(`确定移除 ${file.name} ?`)
         },
         handleChange(file, fileList) {
-            // if(file in this.fileList){
-            //     this.update.push(file)
-            // }
             // this.news.push(file)
-            // this.fileList.push(this.file)
-            // console.log(file)
-            // console.log(this.news)
-            // console.log(this.fileList)
+            // this.fileList.push(file)
+            this.fileList = fileList
+            console.log(file)
+            console.log(this.fileList)
         },
         // handleChange(e, a){
         //     this.files.push(e.raw)

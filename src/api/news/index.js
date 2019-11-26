@@ -21,10 +21,12 @@ export default {
     save: '/admin/news/create-news',
     // 存为草稿新闻
     draft: '/admin/news/draft-news',
+    // 后台新闻管理创建页面     [完]
 
     // 后台新闻管理编辑新闻界面
     // 保存新闻
-    saveNews: '',
+    saveNews: '/admin/news/edit-save-news',
     // 存为新闻草稿
-    saveDraft: ''
+    saveDraft: '/admin/news/edit-save-news'
+    // 后台新闻管理编辑新闻界面     [完]
 }

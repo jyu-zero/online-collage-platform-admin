@@ -36,9 +36,13 @@
                     <p class="views">{{newsItem.views}}</p>
                     <div class="editer">
                         <el-button id="button" type="primary" v-show="newsItem.isShow1" @click="publish(newsItem.news_id)">{{newsItem.is_published}}</el-button>
-                        <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)" effect="dark" content="编辑" placement="bottom"></el-button>
+                        <el-tooltip class="item" effect="dark" content="编辑" placement="bottom">
+                            <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)"></el-button>
+                        </el-tooltip>
                         <template>
-                            <el-button id="delete" type="text" icon="el-icon-delete" @click="singalDeleted(newsItem.news_id)" effect="dark" content="删除" placement="bottom"></el-button>
+                            <el-tooltip class="item" effect="dark" content="删除" placement="bottom">
+                                <el-button id="delete" type="text" icon="el-icon-delete" @click="singalDeleted(newsItem.news_id)"></el-button>
+                            </el-tooltip>
                         </template>
                     </div>
                 </div>
@@ -60,7 +64,7 @@
 
 <script>
 import { prefix, responseHandler, newsApi } from '@/api'
-import { Button, Menu, Input, Checkbox, CheckboxGroup, Link, Pagination, Select, Option } from 'element-ui'
+import { Button, Menu, Input, Checkbox, CheckboxGroup, Link, Pagination, Select, Option, Tooltip } from 'element-ui'
 
 export default {
     name: 'News',
@@ -73,7 +77,8 @@ export default {
         [Link.name]: Link,
         [Pagination.name]: Pagination,
         [Select.name]: Select,
-        [Option.name]: Option
+        [Option.name]: Option,
+        [Tooltip.name]: Tooltip
     },
     data(){
         return {
