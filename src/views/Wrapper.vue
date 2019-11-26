@@ -137,10 +137,12 @@ export default {
         padding: 0 20px;
         background:#5e91fa;
         color:#fff;
-
         h1{
             margin:0;
             font-size:20px;
+        }
+        a{
+            margin-left: 520px;
         }
     }
 
@@ -171,4 +173,5 @@ export default {
     display: flex;
     flex-direction:column;
 }
+
 </style>
