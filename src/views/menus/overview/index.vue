@@ -6,7 +6,7 @@
                 <td v-for="(item,index) in timeList" :key="index">{{item}}</td>
             </tr>
             <tr>
-                <td v-for="(item,index) in arrangeList" :key="index">{{item}}</td>
+                <td v-for="(item,index) in arrangeList" :key="index"><span v-for="(name,index) in item" :key="index">{{name}} </span></td>
             </tr>
         </table>
         <div v-else class="tip">今日无值班人员</div>
