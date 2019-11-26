@@ -1,5 +1,4 @@
 import user from './user'
-
 import dutyScheduling from './duty-scheduling'
 import news from './news'
 import apiPrefix from './apiPrefix'

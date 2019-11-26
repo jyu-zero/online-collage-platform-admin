@@ -7,7 +7,7 @@
                 <div class="left-btn">
                     <el-button type="danger" @click="isConfirmToDelete">删除</el-button>
                     <el-button @click="pinQuestion">置顶</el-button>
-                    <el-button @click="lockQuestion">锁定</el-button>
+                    <el-button @click="isConfirmToLock">锁定</el-button>
                     <el-button type="primary" @click="goToSettingQuestion">问答系统设置</el-button>
                 </div>
                 <!-- 四个按钮 [完]-->
@@ -45,17 +45,22 @@
                 <!-- 问题列表 -->
                 <div class="question-box" v-for="questionItem of questionList" :key="questionItem.questionId">
                     <el-row :gutter="20">
-                        <el-col :span="6">
+                        <el-col :span="10">
                             <div class="grid-content bg-purple left-align">
-                                <el-checkbox @change="checkId(questionItem.questionId)">{{questionItem.title}}
-                                    <el-button type="text" disabled>
-                                        {{questionItem.status}}
-                                    </el-button>
-                                </el-checkbox>
+                                <el-row :gutter="20">
+                                    <el-col :span="4"><div class="grid-content bg-purple">
+                                        <el-button type="text" disabled>
+                                            {{questionItem.status}}
+                                        </el-button>
+                                    </div></el-col>
+                                    <el-col :span="20"><div class="grid-content bg-purple handle">
+                                        <el-checkbox @change="checkId(questionItem.questionId)">{{questionItem.title}}</el-checkbox>
+                                    </div></el-col>
+                                </el-row>
                                 <p class="description">提问人{{questionItem.name}} {{questionItem.time}}</p>
                             </div>
                         </el-col>
-                        <el-col :span="8" :offset="10">
+                        <el-col :span="10" :offset="4">
                             <div class="grid-content bg-purple right-align">
                                 <i class="el-icon-s-promotion">{{questionItem.typeName}}</i>
                                 <i class="el-icon-view">{{questionItem.views}}</i>
@@ -64,6 +69,7 @@
                             </div>
                         </el-col>
                     </el-row>
+                    <div :class="{top:questionItem.isLocked}"></div>
                 </div>
                 <!-- 问题列表 [完]-->
 
@@ -133,7 +139,7 @@ export default {
             input: ''
         }
     },
-    mounted(){
+    created(){
         this.getQuestionTypes()
         this.getQuestions()
     },
@@ -189,6 +195,27 @@ export default {
                 this.getQuestions()
             })
         },
+        // 点击锁定按钮时弹出是否确认框
+        isConfirmToLock(){
+            MessageBox.confirm('问题将永久被锁定, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                Message({
+                    type: 'success',
+                    message: '已成功锁定',
+                    duration: 1000
+                })
+                this.lockQuestion()
+            }).catch(() => {
+                Message({
+                    type: 'info',
+                    message: '已取消锁定',
+                    duration: 1000
+                })
+            })
+        },
         // 锁定问题
         lockQuestion(){
             this.$axios.post(prefix.api + questionApi.lockQuestion, {
@@ -201,10 +228,6 @@ export default {
                 this.getQuestions()
             })
         },
-        // 跳转至问答系统设置
-        goToSetQuestionAndAnswer(){
-            this.$router.push({ name: 'QuestionSetting' })
-        },
         // 搜索问题
         searchQuestions(){
             this.$axios.post(prefix.api + questionApi.searchQuestions, {
@@ -216,7 +239,6 @@ export default {
                     // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
-                Message.success('请求成功')
                 this.questionList = response.data.data.information
                 for(var i = 0; i < this.questionList.length; i++){
                     if(this.questionList[i].status === 0){
@@ -246,7 +268,6 @@ export default {
                     // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
-                Message.success('请求成功')
                 this.typeName = response.data.data
             })
         },
@@ -261,7 +282,6 @@ export default {
                     // TODO 在这里处理错误
                     Message.error('请求失败')
                 }
-                Message.success('请求成功')
                 this.pageCount = response.data.data.pageCount
                 this.questionList = response.data.data.information
                 for(var i = 0; i < this.questionList.length; i++){
@@ -393,6 +413,7 @@ export default {
                 border-top: 0;
                 padding: 20px 40px;
                 box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+                position: relative;
 
                 &:nth-child(3) {
                     border: 1px solid rgb(49, 49, 49);
@@ -404,6 +425,13 @@ export default {
                     justify-content: center;
                     align-items: center;
 
+                    .handle{
+                        width: 100%;
+                        overflow: hidden;
+                        text-overflow:ellipsis;
+                        white-space: nowrap;
+                    }
+
                     .left-align{
                         text-align: left;
                     }
@@ -414,6 +442,7 @@ export default {
 
                     .el-checkbox__label{
                         font-size: 16px;
+                        display: inline;
                     }
 
                     .is-disabled{
@@ -430,6 +459,16 @@ export default {
                         margin-right: 18px;
                     }
                 }
+            }
+
+            .top{
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top:0;
+                left:0;
+                background: rgba(110, 110, 110, 0.1);
+                z-index: 2;
             }
         }
 
