@@ -127,6 +127,7 @@ export default {
 }
 .table{
     margin: 30px;
+    position: relative; overflow: auto;
 }
 
 </style>

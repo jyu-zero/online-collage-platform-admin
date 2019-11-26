@@ -1,81 +1,102 @@
 <template>
     <!-- 后台账户管理系统 -->
     <div class="accounts">
-        <!-- 按钮 -->
-        <div class="a-button">
-            <el-button class="a1-button" type="primary" @click="dialogVisible = true">
-                添加账号
-            </el-button>
-            <el-button class="a1-button" type="primary">导入账号</el-button>
-            <el-button class="a1-button" type="primary">班级管理</el-button>
-        </div>
-        <!-- 表格 -->
-        <main>
-            <div class="title-box">
-                <div class="title-box-item">学号</div>
-                <div class="title-box-item">姓名</div>
-                <div class="title-box-item">性别</div>
-                <div class="title-box-item">联系方式</div>
-                <div class="title-box-item">班级年级</div>
-                <div class="title-box-item">宿舍</div>
-                <div class="title-box-item">操作</div>
-            </div>
-            <div class="content-box">
-                <div class="content-box-item">1511928321</div>
-                <div class="content-box-item">李四</div>
-                <div class="content-box-item">男</div>
-                <div class="content-box-item">191192747182</div>
-                <div class="content-box-item">1503</div>
-                <div class="content-box-item">南7-201</div>
-                <div class="content-box-item operate">···
-                    <div class="operate-box">
-                        <div class="operate-box-item" @click='show'>删除</div>
-                        <div class="operate-box-item" @click="resetting">重置密码</div>
-                        <div class="operate-box-item">重置密码</div>
-                        <div class="operate-box-item">重置密码</div>
-                </div>
-                </div>
-            </div>
-        </main>
-        <!-- 分页 -->
-        <el-pagination
-          small
-          layout="prev, pager, next"
-          :total="50">
-        </el-pagination>
-        <!-- 出现添加账号对话框 -->
-        <el-dialog
-        title="添加账号"
-        :visible.sync="dialogVisible"
-        width="30%"
-        :before-close="handleClose">
-        <p>请输入学号:</p>
-        <el-input v-model="account" placeholder="请输入学号" ></el-input>
-        <p>请输入姓名:</p>
-        <el-input v-model="name" placeholder="请输入姓名"></el-input>
-        <p>请输入性别:</p>
-        <el-input v-model="sex" placeholder="请输入性别"></el-input>
-        <p>请输入联系方式:</p>
-        <el-input v-model="contact" placeholder="请输入联系方式"></el-input>
-        <p>请输入班级年级:</p>
-        <el-input v-model="class_grade" placeholder="请输入班级年级"></el-input>
-        <p>请输入宿舍:</p>
-        <el-input v-model="dormitory" placeholder="请输入宿舍"></el-input>
-        <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加账号对话框【完】 -->
-        <!-- 学生个人信息表格中操作弹出框 -->
-        
-        <!-- 学生个人信息表格中操作弹出框【完】 -->
+        <!-- 添加两个按钮 -->
+        <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
+        <el-button type="primary"  value="insert" @click="insertAccount">导入账号</el-button>
+
+        <el-table
+        :data="tableData"
+        border
+        style="width: 85%">
+        <el-table-column
+            fixed
+            prop="account"
+            label="学号"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="accountType"
+            label="账号类型"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="姓名"
+            width="120"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="sex"
+            label="性别"
+            width="108"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="contact"
+            label="联系方式"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            prop="time"
+            label="账号到期时间"
+            width="180"
+            align="center">
+        </el-table-column>
+        <el-table-column
+            label="操作"
+            width="186"
+            align="center">
+            <!-- 在表格组件中嵌套下拉菜单组件 -->
+            <!-- <div class="handleCommand" @click="handleCommand">···
+            </div> -->
+            <template slot-scope="scope">
+                <el-select v-model="scope.row.option" placeholder="请选择" @change="abc(scope)" value-key="scope.row.id">
+                    <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+                </el-select>
+            </template>
+                <!-- <template slot-scope="scope">
+                    <el-dropdown @command="handleCommand">
+                    <span class="el-dropdown-link">
+                        ···<i class="el-icon--left"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="resetPasswd" @change="abc(scope)">重置密码</el-dropdown-item>
+                        <el-dropdown-item command="modifyInfo">修改信息</el-dropdown-item>
+                        <el-dropdown-item command="degrade">降级为学生账号</el-dropdown-item>
+                        <el-dropdown-item command="deleteId">删除账号</el-dropdown-item>
+                    </el-dropdown-menu>
+                    </el-dropdown>
+                </template> -->
+
+        </el-table-column>
+        </el-table>
+
+        <!-- 添加分页功能 -->
+        <!-- <el-pagination
+            background
+            layout="prev, pager, next"
+            @current-change="getAccounts"
+            :page-count="pageCount"
+            :total="50">
+        </el-pagination> -->
+
     </div>
 </template>
 
 <script>
-import { userApi, prefix, responseHandler } from '@/api'
-import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog } from 'element-ui'
+// import responseHandler from '@/utils/responseHandler'
+import { prefix, responseHandler, userApi } from '@/api'
+import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem, Message } from 'element-ui'
+
 export default {
     name: 'Accounts',
     components: {
@@ -85,106 +106,86 @@ export default {
         [Input.name]: Input,
         [Dialog.name]: Dialog,
         [Pagination.name]: Pagination,
-        [Select.name]: Select,
-        [Dropdown.name]: Dropdown
+        [Dropdown.name]: Dropdown,
+        [DropdownMenu.name]: DropdownMenu,
+        [DropdownItem.name]: DropdownItem,
+        [Message.name]: Message
     },
-    data() {
-        return {
-            // 是否弹出添加账号对话框
-            dialogVisible: false,
-            // 添加账号中的内容
-            account: '1',
-            name: '',
-            sex: '',
-            contact: '',
-            class_grade: '',
-            dormitory: '',
-            operate: '',
-            // 添加账号中的内容【完】
-            // 表格中的内容
-            tableData: [{
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201南7-201南7-201南7-201南7-201南7-201南7-201南7-201南7-201'
+    data(){
+        return{
+            pageCount: 1,
+            options: [{
+                value: '1',
+                label: '重置密码'
             }, {
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201'
+                value: '2',
+                label: '修改信息'
             }, {
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201'
+                value: '3',
+                label: '降级为学生账号'
             }, {
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201'
-            }, {
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201'
-            }, {
-                num: '151110058',
-                name: '王小虎',
-                sex: '男',
-                contact: '18813211223',
-                grade: '1503',
-                dormitory: '南7-201'
-            }]
-            
+                value: '4',
+                label: '删除账号'
+            }],
+            value: '',
+            tableData: []
         }
     },
+    created() {
+        this.getAccounts()
+    },
     methods: {
-        resetting(){
-            console.log('重置')
-        },
-        show(){
-            console.log('删除')
-        },
-        // 添加账号框却认关闭窗口
-        handleClose(done) {
-            this.$confirm('确认关闭？')
-                .then(_ => {
-                    done()
-                })
-                .catch(_ => {})
-        },
-        // 获取添加账号中的内容
-        addAccount(){
-            // 判断输入框是否为空
-            if(this.account === '' || this.name === '' || this.sex === '' || this.contact === '' || this.class_grade === '' || this.dormitory === ''){
-                Message.error('输入框不能为空！')
-                return
-            }
-            this.$axios.post(prefix.api + userApi.addAccount, {
-                account: this.account,
-                name: this.name,
-                sex: this.sex,
-                contact: this.contact,
-                class_grade: this.class_grade,
-                dormitory: this.dormitory
+        getAccounts(page = 1){
+            this.$axios.get(prefix.api + userApi.getAccounts, {
+                params: {
+                    page
+                }
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
+                // 在这里处理错误
                     Message.error('请求失败')
                 }
+                this.pageCount = response.data.data.pageCount
+                this.tableData = response.data.data.information
                 Message.success('请求成功')
             })
-            this.dialogVisible(false)
+        },
+        addAccount(){
+            this.$router.push({ name: 'addAccounts' })
+        },
+        insertAccount(){
+
+        },
+        handleCommand(command){
+            this.$message('click on item ' + command)
+        },
+        abc(z){
+            if(z.row.option === '1'){
+                this.$router.push({ name: 'resetPasswd' })
+            }
+            if(z.row.option === '2'){
+                this.$router.push({ name: 'modifyInfo' })
+            }
+            if(z.row.option === '3'){
+                
+            }
+        },
+        open() {
+            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功!'
+                })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                })
+            })
         }
     }
 }
@@ -193,76 +194,44 @@ export default {
 <style lang="less" scoped>
 @boxheight:50px;
 .accounts{
-    // height:100%;
-    flex-direction: column;
-    margin:40px ;
-    display: flex;
-}
-.a-button{
-    margin-bottom: 40px;
-}
-.a1-button{
-    font-family: '';
-    font-weight: 400;
-    font-style: normal;
-    font-size: 13px;
-    letter-spacing: normal;
-    width: 140px;
-    height: 40px;
-}
-.el-icon-more{
-    vertical-align: middle;
-}
-li{
-    list-style: none;
-}
-.el-dropdown-link {
-    cursor: pointer;
-    color: #409EFF;
-}
-.el-icon-arrow-down {
-    font-size: 12px;
-}
-.drop{
-    font-size: 30px;
-    &:hover{
+    height: 100%;
+    // display: flex;
+    // flex-direction: column;
+    .el-button{
+        margin: 30px -5px 30px 40px;
+    }
+    .el-table{
+        margin-left: 50px;
+    }
+    // .table{
+    //     margin: 0 auto;
+    //     display: flex;
+    //     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    //     font-size: 18px;
+    //     .title{
+    //         padding: 10px 10px;
+    //         border: 1px solid black;
+    //         text-align: center;
+    //     }
+    //     div:nth-child(n+2){
+    //         border-left: none;
+    //     }
+    // }
+    .el-dropdown-link {
         color: #409EFF;
     }
-    cursor: pointer;
-}
-
-.title-box{
-    width: 120*7px;
-    height: @boxheight;
-    border: 1px solid black;
-    display: flex;
-    .title-box-item{
-        width: 120px;
-        height: 100%;
-        line-height: 60px;
-        text-align: center;
+    .el-pagination{
+        margin: 0 auto;
     }
-}
-.content-box{
-    height: @boxheight;
-    width: 120*7px;
-    border: 1px solid black;
-    border-top: none;
-    display: flex;
-    position: relative;
-    .content-box-item{
-        width: 120px;
-        height: 100%;
-        line-height: 60px;
-        text-align: center;
-    }
-}
-.operate{
-    position: relative;
-}
-.operate:hover{
-    .operate-box{
+    .handleCommand{
         display: block;
+        color: #409EFF;
+        &:hover{
+            // width: 180px;
+            // height: 200px;
+            // border: 1px solid rgb(155, 155, 155);
+            cursor: pointer;
+        }
     }
 }
 
