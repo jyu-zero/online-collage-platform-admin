@@ -33,7 +33,7 @@ export default {
         return{
             labelPosition: 'right',
             formLabelAlign: {
-                id: '',
+                account: '',
                 password: ''
             }
         }
@@ -49,14 +49,12 @@ export default {
                 Message.error('请输入密码!')
                 return
             }
-            this.$axios
-                .post(prefix.api + userApi.login, {
-                    id: this.formLabelAlign.id,
-                    password: this.formLabelAlign.password
-                })
-                .then((response) =>{
-                    this.$router.push({ name: 'Overview' })
-                })
+            this.$axios.post(prefix.api + userApi.login, {
+                id: this.formLabelAlign.id,
+                password: this.formLabelAlign.password
+            }).then((response) =>{
+                this.$router.push({ name: 'Overview' })
+            })
         }
     }
 }
