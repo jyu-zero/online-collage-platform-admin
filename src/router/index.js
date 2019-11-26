@@ -50,6 +50,36 @@ const routes = [
             path: '/',
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
+        }, {
+            // 账号管理
+            path: '/',
+            name: 'Accounts',
+            component: () => import('@/views/menus/accounts/index.vue')
+        }, {
+            // 添加账户
+            path: '/addAccounts',
+            name: 'addAccounts',
+            component: () => import('@/views/menus/accounts/addAccounts.vue')
+        }, {
+            // 重置密码
+            path: '/resetPasswd',
+            name: 'resetPasswd',
+            component: () => import('@/views/menus/accounts/resetPasswd.vue')
+        }, {
+            // 修改信息
+            path: '/modifyInfo',
+            name: 'modifyInfo',
+            component: () => import('@/views/menus/accounts/modifyInfo.vue')
+        }, {
+            // 降级为学生账号
+            path: '/degrade',
+            name: 'degrade',
+            component: () => import('@/views/menus/accounts/degrade.vue')
+        }, {
+            // 删除账号
+            path: '/deleteAccount',
+            name: 'deleteAccount',
+            component: () => import('@/views/menus/accounts/deleteAccount.vue')
         }
         ]
     },
