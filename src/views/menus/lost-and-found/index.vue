@@ -650,7 +650,7 @@
                         <input type="text" placeholder="拾取人联系方式" v-model="enterContactNum">
                     </div>
                     <div class="text-right">
-                        <button class="blue-btn btn claim-btn" @click="enterRetrieve">确认找回</button>
+                        <button class="blue-btn btn claim-btn">确认找回</button>
                     </div>
                 </div>
             </div>
