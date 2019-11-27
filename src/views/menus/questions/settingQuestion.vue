@@ -28,8 +28,8 @@
                 <el-input
                     type="textarea"
                     :rows="10"
-                    placeholder="请输入内容"
-                    v-model="illegalKeyword">
+                    placeholder="请输入非法关键字"
+                    v-model.trim="illegalKeyword">
                 </el-input>
              </el-col>
     </el-row>
@@ -163,7 +163,7 @@ export default {
         return {
             illegalKeyword: [], // 非法关键字
             isAnonymous: false, // 是否匿名
-            isUnionReply: false, // 是否运行学生会在后台
+            isUnionReply: false, // 是否运行学生会在后台回复信息
             endtime: '00:00', // 提交限制时间
             maxsumbit: '', // 学生一天最多提交的问题数
             begintime: '00:00',
@@ -175,18 +175,34 @@ export default {
         this.getQuestionType()
     },
     methods: {
+        // 封装的处理放回数据提示的方法
+        responsemesg(response){
+            if (response.data.code === '0000') {
+                this.$message({
+                    type: 'success',
+                    message: response.data.msg
+                })
+            }else {
+                this.$message({
+                    type: 'error',
+                    message: response.data.msg
+                })
+            }
+        },
         // 前往问答系统
         goToQuestion(){
             this.$router.push({ path: '/questions' })
         },
         // 设置问题系统
         setQuestion(){
-            let illegalKeyword = this.illegalKeyword.split(' ')
-            var arr = illegalKeyword.filter(function (el) {
-                return el !== ''
-            })
-            illegalKeyword = arr
-            window.console.log(illegalKeyword)
+            let illegalKeyword
+            if(typeof this.illegalKeyword === 'string'){
+                illegalKeyword = this.illegalKeyword.split(' ')
+                var arr = illegalKeyword.filter(function (el) {
+                    return el !== ''
+                })
+                illegalKeyword = arr
+            }
             let startTime = this.begintime.split(':')[0] // 获取开始的是第几个小时
             let endTime = this.endtime.split(':')[0] // 获取结束的是第几个小时
             let maxSubmit = this.maxsumbit
@@ -195,9 +211,7 @@ export default {
             this.$axios.post(prefix.api + questionApi.setQuestionAndAnswer, {
                 illegalKeyword, startTime, endTime, maxSubmit, isAnonymous, isUnionReply
             }).then(response=>{
-                if (response.data.code === '0000') {
-                    alert(response.data.msg)
-                }
+                this.responsemesg(response)// 返回值处理
             })
         },
         // 获取问题的类型
@@ -209,6 +223,7 @@ export default {
                         this.questiontype.push(item)
                     })
                 }
+                this.responsemesg(response)// 返回值处理
             })
         },
         // 添加问题类型
@@ -221,12 +236,8 @@ export default {
                 this.$axios.post(prefix.api + questionApi.addType, {
                     value
                 }).then(response=>{
-                    if (response.data.code === '0000') {
-                        this.$message({
-                            type: 'success',
-                            message: response.data.msg
-                        })
-                    }
+                    this.responsemesg(response)// 返回值处理
+                    this.questiontype.push(value)
                 })
             }).catch(() => {
                 this.$message({
@@ -253,7 +264,7 @@ export default {
         },
         // 这里处理已经勾选的问题类型的删除操作
         delect(){
-            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+            this.$confirm('此操作将永久删除问题类型, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -261,6 +272,26 @@ export default {
                 this.$message({
                     type: 'success',
                     message: '删除成功!'
+                })
+                let questiontype = this.questiontype// 获取问题类型
+                let delectType = [] // 传给后端需要删除的问题类型
+                // 有选择才进行发送请求
+                if(this.delectCheckbox.length === 0){
+                    alert('请选择要删除的类型名')
+                    return
+                }
+                this.delectCheckbox.forEach(function(index){
+                    delectType.push(questiontype[index])
+                })
+                this.$axios.post(prefix.api + questionApi.adminDeleteType, {
+                    delectType }).then(response => {
+                    if (response.data.code === '0000') {
+                        this.$message({
+                            message: response.data.msg,
+                            type: 'success'
+                        })
+                        this.submitanswer = ''
+                    }
                 })
             }).catch(() => {
                 this.$message({

@@ -31,5 +31,7 @@ export default {
     // 问答系统设置
     'setQuestionAndAnswer': '/admin/set-question-and-answer',
     // 获取后台主页的问题列表
-    'getHomeQuestions': '/admin/home/get-questions'
+    'getHomeQuestions': '/admin/home/get-questions',
+    // 删除问题类型
+    'adminDeleteType': '/admin/delete-type'
 }
