@@ -17,7 +17,7 @@
                     <div class="title category">
                         <span>待认领</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of pendingclaimMessage" :key="thingItem.goodId">
+                    <div class="thing-item" v-for="(thingItem, index) of pendingclaimMessage" :key="index">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img :src="thingItem.imgSrc" alt="">
                         <div class="position-all flex-center thing-bg">
@@ -51,7 +51,7 @@
                                             <input type="text" :value="thingItem.contact" class="g-contact">
                                         </div>
                                     </div>
-                                    <button class="blue-btn btn claim-btn" @click="showEnterClaimWrap(thingItem.goodId)">确认认领</button>
+                                    <button class="blue-btn btn claim-btn" @click="showEnterClaimWrap(thingItem.goodId, index)">确认认领</button>
                                 </div>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                     <div class="title category">
                         <span>待找回</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of pendingRetrieveMessage" :key="thingItem.goodId">
+                    <div class="thing-item" v-for="(thingItem, index) of pendingRetrieveMessage" :key="index">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img :src="thingItem.imgSrc" alt="">
                         <div class="position-all flex-center thing-bg">
@@ -104,7 +104,7 @@
                                             <input type="text" :value="thingItem.contact" class="r-contact">
                                         </div>
                                     </div>
-                                    <button class="blue-btn btn claim-btn" @click="showEnterRetrieveWrap(thingItem.goodId)">确认找回</button>
+                                    <button class="blue-btn btn claim-btn" @click="showEnterRetrieveWrap(thingItem.goodId, index)">确认找回</button>
                                 </div>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
                     <div class="title category">
                         <span>已找回</span>
                     </div>
-                    <div class="thing-item" v-for="thingItem of retrievedMessage" :key="thingItem.goodId">
+                    <div class="thing-item" v-for="(thingItem, index) of retrievedMessage" :key="index">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img :src="thingItem.imgSrc" alt="">
                         <div class="position-all">
@@ -173,7 +173,11 @@
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <span>{{thingItem.contact}}</span>
+                                            <span>{{thingItem.foundContact}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;拾取时间:&nbsp;</p>
+                                            <span>{{thingItem.foundAtWhen}}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -194,7 +198,7 @@
                     <div class="title category">
                         <span>已认领</span>
                     </div>
-                    <div class="thing-item" v-for="thingItem of claimedMessage" :key="thingItem.goodId">
+                    <div class="thing-item" v-for="(thingItem, index) of claimedMessage" :key="index">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
                         <img :src="thingItem.imgSrc" alt="">
                         <div class="position-all">
@@ -245,6 +249,10 @@
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
                                             <span>{{thingItem.retrievContact}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;认领时间:&nbsp;</p>
+                                            <span>{{thingItem.retrievAtWhen}}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -650,7 +658,7 @@
                         <input type="text" placeholder="拾取人联系方式" v-model="enterContactNum">
                     </div>
                     <div class="text-right">
-                        <button class="blue-btn btn claim-btn">确认找回</button>
+                        <button class="blue-btn btn claim-btn" @click="enterRetrieve">确认找回</button>
                     </div>
                 </div>
             </div>
@@ -717,6 +725,7 @@ export default {
             enterContactName: '',
             enterContactNum: '',
             enterGoodId: '',
+            enterGoodIndex: '',
             // 新建物品的信息
             submitInfo: {
                 title: '',
@@ -743,6 +752,9 @@ export default {
             retrievedMessage: [],
             // 已认领信息
             claimedMessage: [],
+            // 输入错误信息提示
+            showError: false,
+            errorMessage: '',
             // element
             page: 1,
             current: 1
@@ -785,9 +797,11 @@ export default {
         getGoodsInfo(currentPage, sort, status){
             this.$axios
                 .get(prefix.api + lostAndFoundApi.getGoodsInfo, {
-                    page: currentPage,
-                    sort,
-                    status
+                    params: {
+                        page: currentPage,
+                        sort,
+                        status
+                    }
                 })
                 .then(response => {
                     if(sort && !status){
@@ -819,9 +833,9 @@ export default {
                                 info: thingItem.name,
                                 isManagedByCollage: thingItem.host,
                                 title: thingItem.title,
-                                // retrieveAtWhere: thingItem.place,
-                                // retrieveBy: thingItem.contact_name,
-                                // retrieveAtWhen: thingItem.time,
+                                // retrieveContach:
+                                // retrieveBy:
+                                // retrieveAtWhen:
                                 foundAtWhere: thingItem.place,
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
@@ -860,9 +874,9 @@ export default {
                                 info: thingItem.name,
                                 isManagedByCollage: thingItem.host,
                                 title: thingItem.title,
-                                // foundAtWhere: thingItem.place,
-                                // foundBy: thingItem.contact_name,
-                                // foundAtWhen: thingItem.time,
+                                // foundContact:
+                                // foundBy:
+                                // foundAtWhen:
                                 retrieveAtWhere: thingItem.place,
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
@@ -910,15 +924,19 @@ export default {
                                 Message.error('修改信息失败的说,请稍后再试一次哦')
                                 return null
                             }
+                            goodsInfo.foundAtWhere = where
+                            goodsInfo.foundAtWhen = time
+                            goodsInfo.foundBy = name
+                            goodsInfo.contact = contact
                         })
                 }
             }else{
                 // 编辑待找回信息
                 let pendingRetrieveEle = document.getElementsByClassName('pending-retrieve')[index]
-                let where = pendingRetrieveEle.getElementsByClassName('r-where')[0]
-                let time = pendingRetrieveEle.getElementsByClassName('r-time')[0]
-                let name = pendingRetrieveEle.getElementsByClassName('r-name')[0]
-                let contact = pendingRetrieveEle.getElementsByClassName('r-contact')[0]
+                let where = pendingRetrieveEle.getElementsByClassName('r-where')[0].value
+                let time = pendingRetrieveEle.getElementsByClassName('r-time')[0].value
+                let name = pendingRetrieveEle.getElementsByClassName('r-name')[0].value
+                let contact = pendingRetrieveEle.getElementsByClassName('r-contact')[0].value
                 if((where === goodsInfo.foundAtWhere) &&
                    (time === goodsInfo.foundAtWhen) &&
                    (name === goodsInfo.foundBy) &&
@@ -941,6 +959,10 @@ export default {
                                 Message.error('修改信息失败的说,请稍后再试一次哦')
                                 return null
                             }
+                            goodsInfo.foundAtWhere = where
+                            goodsInfo.foundAtWhen = time
+                            goodsInfo.foundBy = name
+                            goodsInfo.contact = contact
                         })
                 }
             }
@@ -1020,11 +1042,78 @@ export default {
         },
         // 确认认领,告诉后端认领人,认领人联系方式
         enterClaim(){
-
+            if(this.enterContactName === ''){
+                this.showError = true
+                this.errorMessage = '认领人姓名尚未填写哦'
+                return null
+            }
+            if(this.enterContactNum === ''){
+                this.showError = true
+                this.errorMessage = '认领人联系方式尚未填写哦'
+                return null
+            }
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.enterGoods, {
+                    good_id: this.enterGoodId,
+                    found_name: this.enterContactName,
+                    found_num: this.enterContactNum,
+                    sort: 1
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error('确认认领失败啦,请再试一次嗯')
+                        return null
+                    }
+                    // 暂存数据
+                    let index = parseInt(this.enterGoodIndex)
+                    let pendingClaimInfo = this.pendingclaimMessage[index]
+                    // 将暂存数据给已认领信息
+                    this.pendingclaimMessage.splice(index, 1)
+                    pendingClaimInfo.retrieveBy = this.enterContactName
+                    pendingClaimInfo.retrieveContact = this.enterContactNum
+                    pendingClaimInfo.retrieveTime = this.getNowTime()
+                    this.claimedMessage.pop()
+                    this.claimedMessage.unshift(pendingClaimInfo)
+                    this.hideEnterClaimWrap()
+                })
         },
         // 确认找回,告诉后端找回人,找回人联系方式
         enterRetrieve(){
-
+            if(this.enterContactName === ''){
+                this.showError = true
+                this.errorMessage = '拾取人姓名尚未填写哦'
+                return null
+            }
+            if(this.enterContactNum === ''){
+                this.showError = true
+                this.errorMessage = '拾取人联系方式尚未填写哦'
+                return null
+            }
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.enterGoods, {
+                    good_id: this.enterGoodId,
+                    found_name: this.enterContactName,
+                    found_num: this.enterContactNum,
+                    sort: 0
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error('确认找回失败啦,请再试一次嗯')
+                        return null
+                    }
+                    // 暂存数据
+                    let index = parseInt(this.enterGoodIndex)
+                    console.log(index)
+                    let pendingRetrieveInfo = this.pendingRetrieveMessage[index]
+                    // 将暂存数据给已找回信息
+                    this.pendingRetrieveMessage.splice(index, 1)
+                    pendingRetrieveInfo.retrieveBy = this.enterContactName
+                    pendingRetrieveInfo.retrieveContact = this.enterContactNum
+                    pendingRetrieveInfo.retrieveTime = this.getNowTime()
+                    this.retrievedMessage.pop()
+                    this.retrievedMessage.unshift(pendingRetrieveInfo)
+                    this.hideEnterRetrieveWrap()
+                })
         },
         // 设置显示图片的数量
         setShowImgAmountn(){
@@ -1076,18 +1165,20 @@ export default {
             this.showNewFoundWrap = false
         },
         // 显示确认认领窗口
-        showEnterClaimWrap(id){
+        showEnterClaimWrap(id, index){
             this.showEnterClaim = true
             this.enterGoodId = id
+            this.enterGoodIndex = index
         },
         // 关闭确认认领窗口
         hideEnterClaimWrap(){
             this.showEnterClaim = false
         },
         // 显示确认找回窗口
-        showEnterRetrieveWrap(id){
+        showEnterRetrieveWrap(id, index){
             this.showEnterRetrieve = true
             this.enterGoodId = id
+            this.enterGoodIndex = index
         },
         // 关闭确认找回窗口
         hideEnterRetrieveWrap(){
@@ -1349,6 +1440,32 @@ export default {
         getFile(blob, filename){
             let file = new File([blob], filename)
             return file
+        },
+        // 获取当前时间
+        getNowTime(){
+            let date = new Date()
+            // 获取年-月-日
+            let year = date.getFullYear()
+            let month = date.getMonth()
+            let day = date.getDate()
+            // 获取时-分-秒
+            let hour = date.getHours()
+            let minute = date.getMinutes()
+            let second = date.getSeconds()
+
+            // 如果时-分-秒小于0,则给它们前面补个0
+            if(hour < 10){
+                hour = '0' + hour
+            }
+            if(minute < 10){
+                minute = '0' + minute
+            }
+            if(second < 10){
+                second = '0' + second
+            }
+
+            let nowTime = year + '-' + month + '-' + day + ' ' + hour + '-' + minute + '-' + second
+            return nowTime
         }
     }
 }
@@ -1832,6 +1949,7 @@ export default {
             border-radius: 4px;
             margin-left: 15px;
             transition: all .2s;
+            user-select: none;
         }
 
         .blue-btn{
@@ -1972,7 +2090,6 @@ export default {
 
             .info{
                 z-index: 2;
-                visibility: hidden;
                 transform-style: preserve-3d;
                 transform: translateZ(-100px);
                 opacity: 0;
@@ -2067,7 +2184,6 @@ export default {
         }
 
         .thing-item:hover .info{
-            visibility: visible;
             transform: translateZ(0);
             opacity: 1;
         }
