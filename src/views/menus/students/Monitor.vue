@@ -8,11 +8,11 @@
         <!-- 表格 -->
         <div class="table">
             <el-table :data= "tableData" border style="width: 50%">
-                <el-table-column prop="class" label="班级" width="180"></el-table-column>
-                <el-table-column prop="monitor_name" label="班长" width="180"></el-table-column>
+                <el-table-column prop="class" label="班级" width="175"></el-table-column>
+                <el-table-column prop="monitor_name" label="班长" width="175"></el-table-column>
                 <el-table-column
                     label="操作"
-                    width="191">
+                    width="164">
                     <div>
                         <el-button type="text" size="small" @click="alterClass">修改</el-button>
                         <el-button type="text" size="small" @click="deleteClass">删除</el-button>
@@ -43,7 +43,6 @@ export default {
         studentsMonitor(){
             this.$axios.post(prefix.api + userApi.studentsMonitor, {
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                     Message.error('请求失败')
                 }
@@ -64,7 +63,6 @@ export default {
                 this.$axios.post(prefix.api + userApi.addClass, {
                     account: this.account
                 }).then((response)=>{
-                    console.log(response)
                     if(!responseHandler(response.data, this)){
                         Message.error('请求失败')
                     }
@@ -81,7 +79,6 @@ export default {
                 this.$axios.post(prefix.api + userApi.alterClass, {
                     account: this.account
                 }).then((response)=>{
-                    console.log(response)
                     if(!responseHandler(response.data, this)){
                         Message.error('请求失败')
                     }
@@ -99,7 +96,6 @@ export default {
                 this.$axios.post(prefix.api + userApi.deleteClass, {
                     account: this.account
                 }).then((response)=>{
-                    console.log(response)
                     if(!responseHandler(response.data, this)){
                         Message.error('请求失败')
                     }
@@ -114,7 +110,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="less">
 .monitor{
     height: 100%;
     margin: 0;
