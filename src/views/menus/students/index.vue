@@ -107,7 +107,6 @@
 <script>
 import { userApi, prefix, responseHandler } from '@/api'
 import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog } from 'element-ui'
-// import { type } from 'os'
 export default {
     name: 'Accounts',
     components: {
@@ -138,7 +137,6 @@ export default {
             contact: '',
             class_grade: '',
             dormitory: '',
-            operate: '',
             information: [],
             // 总页数
             pageCount: 1
@@ -163,7 +161,7 @@ export default {
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
-                this.pageCount = response.data.data.pageCount
+                this.pageCount = Number(response.data.data.pageCount)
                 this.information = response.data.data.information
             })
         },
