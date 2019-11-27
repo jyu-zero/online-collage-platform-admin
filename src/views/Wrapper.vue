@@ -2,20 +2,28 @@
     <div class="wrapper">
         <!-- 顶部导航栏 -->
         <header>
-            <h1>线上学院后台管理系统</h1>
-            <a href="http://localhost:8082/">前往官网</a>
-            <el-dropdown @command="logout">
-                <span class="el-dropdown-link">
-                    <div class="get-account-box">
-                        <div>{{this.name}}</div>
-                        <div>{{this.account}}</div>
-                    </div>
-                    <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command>注销</el-dropdown-item>
-                </el-dropdown-menu>
-            </el-dropdown>
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h1>线上学院后台管理系统</h1>
+                </div>
+                <div class="flex-item">
+                    <a href="http://localhost:8082/">前往官网</a>
+                </div>
+                <div class="flex-item">
+                    <el-dropdown @command="logout">
+                        <span class="el-dropdown-link">
+                            <div class="get-account-box">
+                                <div>{{this.name}}</div>
+                                <div>{{this.account}}</div>
+                            </div>
+                            <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command>注销</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
         </header>
         <!-- 顶部导航栏 [完] -->
         <div class="wrapper-body">
@@ -104,13 +112,13 @@ export default {
         // 获取学生学号姓名
         getLoginAccount(){
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
+                console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
                     Message.error('请登录！')
                     this.$router.push({ name: 'Overview' })
                     return
                 }
-                Message.success('请求成功')
+                Message.success('获取学号姓名成功')
                 this.name = response.data.data.name
                 this.account = response.data.data.account
             })
@@ -119,8 +127,7 @@ export default {
         logout(){
             this.$axios.post(prefix.api + userApi.logout).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('注销失败')
                 }
                 Message.success('注销成功')
                 this.$router.push({ name: 'Login' })
@@ -136,9 +143,9 @@ export default {
     height:100%;
     display: flex;
     flex-direction: column;
-
     header{
         display: flex;
+        justify-content: center;
         justify-content: space-between;
         align-items: center;
         height:60px;
@@ -149,11 +156,13 @@ export default {
             margin:0;
             font-size:20px;
         }
-        a{
-            margin-left: 520px;
-        }
     }
-
+    a {
+        display: flex;
+        flex: 1;
+        text-decoration: none;
+        color: white;
+    }
     .wrapper-body{
         flex: 1;
         display: flex;
@@ -180,6 +189,20 @@ export default {
 .get-account-box{
     display: flex;
     flex-direction:column;
+}
+.flex-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.flex-item {
+    margin: 10px;
+}
+
+.flex-item:first-child {
+    margin-right: auto;
 }
 
 </style>

@@ -46,6 +46,7 @@ export default {
         }
     },
     methods: {
+        // 添加账号
         addAccount(){
             this.$axios.post(prefix.api + userApi.addAccount, {
                 account: this.account,
@@ -56,12 +57,12 @@ export default {
             }).then((response)=>{
                 console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('添加账号失败')
                 }
-                Message.success('请求成功')
+                Message.success('添加账号成功')
             })
         },
+        // 取消
         cancel(){
             this.$router.push({ name: 'Accounts' })
         }

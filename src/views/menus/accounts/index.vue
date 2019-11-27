@@ -3,58 +3,51 @@
     <div class="accounts">
         <!-- 添加两个按钮 -->
         <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
-        <el-button type="primary"  value="insert" @click="insertAccount">导入账号</el-button>
+        <el-button type="primary"  value="insert">导入账号</el-button>
 
         <el-table
-        :data="tableData"
+        :data="accountList"
         border
-        style="width: 85%">
+        style="width: 80%">
         <el-table-column
             fixed
             prop="account"
             label="学号"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             prop="accountType"
             label="账号类型"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             prop="name"
             label="姓名"
-            width="120"
             align="center">
         </el-table-column>
         <el-table-column
             prop="sex"
             label="性别"
-            width="108"
             align="center">
         </el-table-column>
         <el-table-column
             prop="contact"
             label="联系方式"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             prop="time"
             label="账号到期时间"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             label="操作"
-            width="186"
             align="center">
             <!-- 在表格组件中嵌套下拉菜单组件 -->
             <!-- <div class="handleCommand" @click="handleCommand">···
             </div> -->
             <template slot-scope="scope">
-                <el-select v-model="scope.row.option" placeholder="请选择" @change="abc(scope)" value-key="scope.row.id">
+                <el-select v-model="scope.row.option" placeholder="请选择" @change="chooseOption(scope)" value-key="scope.row.account">
                     <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -71,7 +64,6 @@
             background
             layout="prev, pager, next"
             @current-change="getAccounts"
-            :page-count="pageCount"
             :total="50">
         </el-pagination>
 
@@ -81,20 +73,23 @@
 <script>
 // import responseHandler from '@/utils/responseHandler'
 import { prefix, responseHandler, userApi } from '@/api'
-import { Button, Table, Select, Pagination, Message } from 'element-ui'
+import { Button, Table, TableColumn, Select, Option, Pagination, Message, Alert } from 'element-ui'
 
 export default {
     name: 'Accounts',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
+        [TableColumn.name]: TableColumn,
         [Select.name]: Select,
+        [Option.name]: Option,
         [Pagination.name]: Pagination,
-        [Message.name]: Message
+        [Message.name]: Message,
+        [Alert.name]: Alert
     },
     data(){
         return{
-            pageCount: 1,
+            admin_role_id: '',
             options: [{
                 value: '1',
                 label: '重置密码'
@@ -109,7 +104,7 @@ export default {
                 label: '删除账号'
             }],
             value: '',
-            tableData: []
+            accountList: []
         }
     },
     created() {
@@ -123,49 +118,68 @@ export default {
                 }
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('获取账号失败')
                 }
-                this.pageCount = response.data.data.pageCount
-                this.tableData = response.data.data.information
-                Message.success('请求成功')
+                this.accountList = response.data.data.information
+                Message.success('获取账号成功')
             })
         },
+        chooseOption(scope){
+            if(scope.row.option === '1'){
+                this.$router.push({ name: 'resetPasswd' })
+            }
+            if(scope.row.option === '2'){
+                this.$router.push({ name: 'modifyInfo' })
+            }
+            if(scope.row.option === '3'){
+                // this.$alert('确定要降级为学生账号吗？', {
+                //     confirmButtonText: '确定',
+                //     cancelButtonText: '取消'
+                // }).then(() => {
+                //     this.$message({
+                //         type: 'success',
+                //         message: '删除成功!'
+                //     })
+                // }).catch(() => {
+                //     this.$message({
+                //         type: 'info',
+                //         message: '已取消删除'
+                //     })
+                // })
+                this.degrade()
+            }
+            if(scope.row.option === '4'){
+                this.deleteAccount()
+            }
+        },
+        // 添加账号
         addAccount(){
             this.$router.push({ name: 'addAccounts' })
         },
-        insertAccount(){
-
+        // 降级为学生账号
+        degrade(){
+            this.$axios.post(prefix.api + userApi.degrade, {
+                account: this.account
+            }).then((response)=>{
+                // if(response.data.data.admin_role_id === '老师'){
+                //     Message.error('无法降级')
+                // }
+                if(!responseHandler(response.data, this)){
+                    Message.error('降级失败')
+                    return
+                }
+                Message.success('降级成功')
+            })
         },
-        handleCommand(command){
-            this.$message('click on item ' + command)
-        },
-        abc(z){
-            if(z.row.option === '1'){
-                this.$router.push({ name: 'resetPasswd' })
-            }
-            if(z.row.option === '2'){
-                this.$router.push({ name: 'modifyInfo' })
-            }
-            if(z.row.option === '3'){
-                
-            }
-        },
-        open() {
-            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                })
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消删除'
-                })
+        // 删除账号
+        deleteAccount(){
+            this.$axios.post(prefix.api + userApi.deleteAccount, {
+                account: this.account
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('删除失败')
+                }
+                Message.success('删除成功')
             })
         }
     }
@@ -184,25 +198,12 @@ export default {
     .el-table{
         margin-left: 50px;
     }
-    // .table{
-    //     margin: 0 auto;
-    //     display: flex;
-    //     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    //     font-size: 18px;
-    //     .title{
-    //         padding: 10px 10px;
-    //         border: 1px solid black;
-    //         text-align: center;
-    //     }
-    //     div:nth-child(n+2){
-    //         border-left: none;
-    //     }
-    // }
     .el-dropdown-link {
         color: #409EFF;
     }
     .el-pagination{
-        margin: 0 auto;
+        display: flex;
+        justify-content: center;
     }
     .handleCommand{
         display: block;

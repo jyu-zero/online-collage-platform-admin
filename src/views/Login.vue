@@ -41,18 +41,19 @@ export default {
     methods: {
         login() {
             // 登录验证
-            // if(this.formLabelAlign.account.trim() === '') {
-            //     Message.error('请输入账号!')
-            //     return
-            // }
-            // if(this.formLabelAlign.password.trim() === '') {
-            //     Message.error('请输入密码!')
-            //     return
-            // }
+            if(this.formLabelAlign.account.trim() === '') {
+                Message.error('请输入账号!')
+                return
+            }
+            if(this.formLabelAlign.password.trim() === '') {
+                Message.error('请输入密码!')
+                return
+            }
             this.$axios.post(prefix.api + userApi.login, {
                 account: this.formLabelAlign.account,
                 password: this.formLabelAlign.password
             }).then((response) =>{
+                Message.success('登陆成功')
                 this.$router.push({ name: 'Overview' })
             })
         }
@@ -83,6 +84,15 @@ export default {
         margin: 10px 30px;
         width: 300px;
     }
+
+    @media screen and (max-width: 500px){
+        .login {
+            width: 100%;
+        }
+    }
+}
+* {
+    box-sizing: border-box;
 }
 
 </style>

@@ -45,6 +45,7 @@ export default {
         }
     },
     methods: {
+        // 修改信息
         modifyInfo(){
             this.$axios.post(prefix.api + userApi.modifyInfo, {
                 account: this.account,
@@ -56,11 +57,13 @@ export default {
                 console.log(response)
                 if(!responseHandler(response.data, this)){
                 // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('修改失败')
                 }
-                Message.success('请求成功')
+                Message.success('修改成功')
+                this.$router.push({ name: 'Accounts' })
             })
         },
+        // 取消
         cancel(){
             this.$router.push({ name: 'Accounts' })
         }
