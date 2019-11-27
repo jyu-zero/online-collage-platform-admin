@@ -34,7 +34,7 @@
 
         <!-- 查看单双周 -->
         <div id = "btn-single-double">
-            <div class="a">
+            <div>
             <el-button type="primary" icon="el-icon-arrow-left" @click="getSingleWeek">单周</el-button>
             <el-button type="primary"  @click="currentDuty">当前值班</el-button>
             <el-button type="primary"  @click="getDoubleWeek">双周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
