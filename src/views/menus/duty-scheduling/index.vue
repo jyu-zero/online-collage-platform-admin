@@ -65,14 +65,15 @@
                                 v-bind:class="'arrange-table-column_'+col"
                             >
                                 <el-select
-                                    v-model="row[col+'why']"
+                                    v-model="row[col]"
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
                                     ref="selector"
+                                    no-data-text="没有可值日人员"
                                 >
                                     <el-option
-                                        v-for="item in options[row[col] - 1]"
+                                        v-for="item in options[row[0] + col - 2]"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.name"
@@ -119,8 +120,7 @@
 
             <div class='btn-container'>
                 <el-button class='button' @click='cancelFreeCourse'>取消</el-button>
-                <el-button type='primary' class='button' @click='submit'
-                >确定</el-button
+                <el-button type='primary' class='button' @click='submit'>确定</el-button
                 >
             </div>
         </div>
@@ -301,23 +301,18 @@ export default {
         // 开始进行安排时，获取可安排人员列表
         beginToArrange() {
             this.isActive = true
-            // console.log(evevt)
             this.options = []
             this.$axios
                 .get(prefix.api + dutySchedulingApi.getFreeStaffList)
                 .then(
                     response => {
                         if(response.data.code === '0000'){
-                            console.log(response)
                             var courseId = 0
                             var courseArr = []
                             for(let i = 0; i < 40; i++) {
                                 courseId = i
-                                // console.log(courseId)
                                 if(response.data.data[courseId].people !== []){
                                     for(var freeStaff of response.data.data[courseId].people) {
-                                        // console.log(courseArr)
-                                        // console.log(freeStaff)
                                         var freeStaffObj = {
                                             value: freeStaff,
                                             name: freeStaff,
@@ -338,6 +333,13 @@ export default {
         },
         changeWeek(isEven) {
             if(isEven){
+                this.arrangeData.forEach((row)=>{
+                    row[1] = []
+                    row[2] = []
+                    row[3] = []
+                    row[4] = []
+                    row[5] = []
+                })
                 this.options = []
                 this.$axios
                     .get(prefix.api + dutySchedulingApi.getFreeStaffList)
@@ -365,10 +367,17 @@ export default {
                                         courseArr = []
                                     }
                                 }
-                            }
+                            }else{ Message.error('获取可值班人员出现问题:( 请联系管理员') }
                         }
                     )
             }else{
+                this.arrangeData.forEach((row)=>{
+                    row[1] = []
+                    row[2] = []
+                    row[3] = []
+                    row[4] = []
+                    row[5] = []
+                })
                 this.options = []
                 this.$axios
                     .get(prefix.api + dutySchedulingApi.getFreeStaffList)
@@ -396,41 +405,37 @@ export default {
                                         courseArr = []
                                     }
                                 }
-                            }
+                            }else{ Message.error('获取可值班人员出现问题:( 请联系管理员') }
                         }
                     )
             }
         },
         // 提交值日安排表
         submitArrangement() {
+            this.arrange = []
             if(!this.isEvenWeek){
-                for(let i = 0; i < 30; i++){
+                for(let i = 0; i < 40; i++){
+                    let arrangeObj = {}
                     let nameArr = this.$refs.selector[i].$options.propsData.value
-                    if(nameArr !== []){
-                        let arrangeObj = {
-                            courseId: i,
+                    if(nameArr.length === 0){ continue }
+                    arrangeObj = {
+                        courseId: i,
+                        name: nameArr
+                    }
+                    this.arrange.push(arrangeObj)
+                }
+            }else{
+                this.arrange = []
+                for(let i = 0; i < 40; i++){
+                    let arrangeObj = {}
+                    let nameArr = this.$refs.selector[i].$options.propsData.value
+                    if(nameArr.length === 0){ continue }
+                    for(let courseId = 40; courseId < 80; courseId++){
+                        arrangeObj = {
+                            courseId: courseId,
                             name: nameArr
                         }
                         this.arrange.push(arrangeObj)
-                    }else{
-                        break
-                    }
-                }
-            }else{
-                // TODO arrange是否要清空
-                this.arrange = []
-                for(let i = 0; i < 30; i++){
-                    let nameArr = this.$refs.selector[i].$options.propsData.value
-                    for(let courseId = 40; courseId < 80; courseId++){
-                        if(nameArr !== []){
-                            let arrangeObj = {
-                                courseId: courseId,
-                                name: nameArr
-                            }
-                            this.arrange.push(arrangeObj)
-                        }else{
-                            break
-                        }
                     }
                 }
             }
@@ -449,11 +454,26 @@ export default {
                         center: true
                     })
                 })
+            this.arrangeData.forEach((row)=>{
+                row[1] = []
+                row[2] = []
+                row[3] = []
+                row[4] = []
+                row[5] = []
+            })
             this.isActive = false
         },
-        // TODO 取消后清楚所有值日安排
+        // TODO 取消后清除所有值日安排
         toCancelArrange() {
             this.isActive = false
+            console.log(this.options)
+            this.arrangeData.forEach((row)=>{
+                row[1] = []
+                row[2] = []
+                row[3] = []
+                row[4] = []
+                row[5] = []
+            })
         },
         cancelFreeCourse() {
             this.visibility = !this.visibility
@@ -590,69 +610,67 @@ export default {
             ],
             arrangeData: [
                 [
-                    'row_1',
                     1,
-                    2,
-                    3,
-                    4,
-                    5
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_2',
                     6,
-                    7,
-                    8,
-                    9,
-                    10
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_3',
                     11,
-                    12,
-                    13,
-                    14,
-                    15
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_4',
                     16,
-                    17,
-                    18,
-                    19,
-                    20
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_5',
                     21,
-                    22,
-                    23,
-                    24,
-                    25
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_6',
                     26,
-                    27,
-                    28,
-                    29,
-                    30
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
+                ], [
+                    31,
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
+                ], [
+                    36,
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ]
-                // ], [
-                //     'row_7',
-                //     31,
-                //     32,
-                //     33,
-                //     34,
-                //     35
-                // ], [
-                //     'row_8',
-                //     36,
-                //     37,
-                //     38,
-                //     39,
-                //     40
-                // ]
             ],
             arrange: [],
             options: [],
             isEvenWeek: false,
             isActive: false,
-
             visibility: false,
             weekday: ['星期一', '星期二', '星期三', '星期四', '星期五'],
             idArr: [
