@@ -6,7 +6,7 @@
             <el-button class="a1-button" type="primary" @click="dialogVisible = true">
                 添加账号
             </el-button>
-            <el-button class="a1-button" type="primary">导入账号</el-button>
+            <el-button class="a1-button" type="primary" >导入账号</el-button>
             <el-button class="a1-button" type="primary" @click="classManager">班级管理</el-button>
         </div>
         <!-- 表格 -->
@@ -101,6 +101,29 @@
             </span>
         </el-dialog>
         <!-- 学生个人信息表-操作-修改信息【完】 -->
+        <!-- 导入账号-上传 -->
+        
+        <div class="lead-box">
+            <div class="close" v-on:click="check = false">×</div>
+            <div class="lesd-box-title">导入账号</div>
+            <div class="lead-content-box">
+                <el-upload
+                    class="upload-demo"
+                    action=""
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :before-remove="beforeRemove"
+                    :http-request="uploadFile"
+                    multiple
+                    :limit="1"
+                    :on-exceed="handleExceed"
+                    :file-list="fileList">
+                    <el-button size="big" type="primary" @click="handlePreview" class="check">点击上传</el-button>
+                    <div slot="tip" class="el-upload__tip">注意：只能上传Excel文件！</div>
+                </el-upload>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -121,6 +144,8 @@ export default {
     },
     data() {
         return {
+            // 导入账号-上传
+            fileList: [],
             // 是否弹出修改信息的对话框
             alterMassage: false,
             // 是否弹出添加账号对话框
@@ -274,6 +299,19 @@ export default {
                 Message.success('请求成功')
                 this.alterMassage = false
             })
+        },
+        // 导入账号-上传
+        handleRemove(file, fileList) {
+            console.log(file, fileList)
+        },
+        handlePreview(file) {
+            console.log(file)
+        },
+        handleExceed(files, fileList) {
+            this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
+        },
+        beforeRemove(file, fileList) {
+            return this.$confirm(`确定移除 $ { file.name }？`)
         }
 
     }
@@ -324,7 +362,7 @@ li{
 .title-box{
     width: 120*7px;
     height: @boxheight;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     display: flex;
     .title-box-item{
         width: 120px;
@@ -336,7 +374,7 @@ li{
 .content-box{
     height: @boxheight;
     width: 120*7px;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     border-top: none;
     display: flex;
     position: relative;
@@ -357,7 +395,7 @@ li{
 }
 
 .operate-box{
-    border: 1px solid black;
+    border: 1px solid  rgb(189, 189, 189);
     position: absolute;
     padding: 10px;
     right: -85px;
@@ -366,13 +404,7 @@ li{
     display: none;
     cursor: pointer;
 }
-// .operate{
-//     width: 10px !important;
-//     height: 10px !important;
-// }
 .operate-box-item{
-    // width: 100px;
-    // height: 30px;
     background: white;
     cursor: pointer;
     &:hover{
@@ -384,7 +416,7 @@ li{
     padding: 20px;
     width: 300px;
     height: 400px;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     position: absolute;
     left: 50%;
     top: 50%;
@@ -401,10 +433,29 @@ li{
     width: 100px;
 }
 .close{
+    &:hover{
+        display: block;
+        color: #409EFF;
+    }
     float: right;
-    font-size: 20px;
+    font-size: 25px;
     width: 20px;
-    height: 20px;
+    height: 0px;
+    position: flex;
     cursor: pointer;
+}
+.lead-box{
+    border: 1px solid rgb(189, 189, 189);
+    position: absolute;
+    padding: 15px;
+    right: 555px;
+    top: 250px;
+    background: white;
+    width: 300px;
+    height: 200px;
+}
+.lead-content-box{
+    text-align: center;
+    padding: 40px;
 }
 </style>
