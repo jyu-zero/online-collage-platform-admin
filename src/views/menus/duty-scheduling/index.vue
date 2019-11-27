@@ -86,7 +86,7 @@
                 </table>
                 <div class="row-bg">
                     <div class="week-choose-bt">
-                        <el-switch v-model="isEvenWeek" active-text="双周值日安排" inactive-text="单周值日安排" @change="changeWeek"></el-switch>
+                        <el-switch v-model="isEvenWeek" active-text="双周值日安排" inactive-text="单周值日安排" @change="chooseWeekToArrange"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
                         <el-button @click="toCancelArrange()">取消</el-button>
@@ -331,7 +331,8 @@ export default {
                     }
                 )
         },
-        changeWeek(isEven) {
+        // 安排单轴 OR 双周的值日
+        chooseWeekToArrange(isEven) {
             if(isEven){
                 this.arrangeData.forEach((row)=>{
                     row[1] = []
