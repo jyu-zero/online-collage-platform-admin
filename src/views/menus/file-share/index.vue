@@ -6,8 +6,8 @@
               <div class="grid-content ">
                 <el-row>
                   <el-button type="primary" @click="showModal=true">上传资料</el-button>
-                  <el-button type="primary" >置顶 </el-button>
-                  <el-button type="primary" >删除 </el-button>
+                  <el-button type="primary" @click="top">置顶 </el-button>
+                  <el-button type="primary"  @click="deleteFile">删除 </el-button>
                 </el-row>
               </div>
             </el-col>
@@ -36,86 +36,91 @@
                 <p >筛选</p>
               </div>
             </el-col>
-            <el-col :span="2" >
+            <el-col :span="4" >
               <div class="grid-content ">
                 <el-link href="#" >所有</el-link>
               </div>
             </el-col>
-            <el-col :span="2" v-for="item in types" :key="item.index">
+            <el-col :span="4" v-for="item in typesOption" :key="item.id" >
               <div class="grid-content ">
-                <el-link href="#" >{{item.label}}</el-link>
-              </div>
-            </el-col>
-            <el-col :span="4">
-              <div class="grid-content ">
-                <el-dropdown>
-                  <span class="el-dropdown-link">
-                    其他<i class="el-icon-arrow-down el-icon--right"></i>
-                  </span>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>黄金糕</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
+                <el-link  value="item.id" @click="getSpecificTagFile(item.id)">{{item.file_tag}}</el-link>
               </div>
             </el-col>
           </el-row>
-          <el-table :data="document" style="width: 100%;padding-left: 80px ">
-            <el-table-column type="selection" width="55"> </el-table-column>
-            <el-table-column prop="fileName" label="文件名" width="180">
+          <el-table :data="document" ref="multipleTable"  tooltip-effect="dark" style="width: 100%;padding-left: 80px "
+          @selection-change="handleSelectionChange">
+            <el-table-column  type="selection" width="55" >
+            </el-table-column>
+            <el-table-column :prop="document.file_name" label="文件名" width="180">
                 <template slot-scope="scope">
-                  <i class="el-icon-document">{{scope.row.fileName}}</i>
+                  <i class="el-icon-document">{{scope.row.file_name}}</i>
                 </template>
             </el-table-column>
-            <el-table-column prop="time" label="上传时间" width="180"> </el-table-column>
-            <el-table-column prop="uploader" label="上传人"  width="120">  </el-table-column>
-            <el-table-column  prop="view_range" label="可见范围" width="120"> </el-table-column>
-            <el-table-column prop="type" label="标签"  width="150" >
+            <el-table-column :prop="document.create_at" label="上传时间" width="180">
               <template slot-scope="scope">
-                <el-tag>{{scope.row.type}}</el-tag>
+                  {{scope.row.create_at}}
               </template>
             </el-table-column>
-            <el-table-column  label="下载次数" width="150" >
+            <el-table-column :prop="document.user_id" label="上传人"  width="120">
               <template slot-scope="scope">
-                <i class="el-icon-download">{{scope.row.downloadTimes}}</i>
+                  {{scope.row.user_id}}
+              </template>
+            </el-table-column>
+            <el-table-column  :prop="document.file_right_id" label="可见范围" width="120">
+              <template slot-scope="scope">
+                  {{scope.row.file_right_id}}
+              </template>
+            </el-table-column>
+            <el-table-column :prop="document.tag_id" label="标签"  width="150" >
+              <template slot-scope="scope">
+                  <el-tag>{{scope.row.tag_id}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column :prop="document.download_counts" label="下载次数" width="150" >
+              <template slot-scope="scope" style="font-size: 20px;">
+                <i class="el-icon-download">{{scope.row.download_counts}}</i>
               </template>
             </el-table-column>
             <el-table-column label="操作"  width="200" >
                 <template slot-scope="scope">
-                  <el-button @click="handleDelete(scope.row)" type="text" size="small">删除</el-button>
+                  <el-button @click="handleDelete(scope.$index, scope.row)" type="text">删除</el-button>
                   <el-button size="mini"  @click="handleDownload(scope.$index, scope.row)">下载</el-button>
                 </template>
               </el-table-column>
           </el-table>
           <div class="block">
-              <el-pagination layout = "prev,pager,next" :total ="1000"> </el-pagination>
-          </div>
+            <el-pagination
+                layout="prev, pager, next"
+                 @current-change="getAllFile"
+                :page-count="pageCount">
+            </el-pagination>
+
+        </div>
           <!-- 弹出来的 -->
           <div class="mask" v-if="showModal" ></div>
           <div class="pop" v-if="showModal">
               <h1>上传资料</h1>
-              <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/" >
+              <el-upload class="upload-demo" :action=' UploadUrl()' :auto-upload = "false" :limit="1"
+              :on-change="handleSelectFile"
+              :on-exceed="handleExceed">
               <el-button size="small" type="primary">选择文件</el-button>
               </el-upload>
             <div>
               <p>可见范围</p>
-                <el-select v-model="range" multiple>
-                  <el-option  v-for="item in setViewRanges" :key="item.index"
-                  :label="item.label"
-                  :value="item.value">
-                  </el-option>
-              </el-select>
+                <el-select v-model="setRange" multiple>
+                    <el-option  v-for="item in rangesOption" :key="item.id" :label="item.class" :value="item.id">
+                    </el-option>
+                </el-select>
             </div>
             <div>
               <p>分类</p>
-              <el-select v-model="type" >
-                <el-option  v-for="item in types" :key="item.index"
-                  :label="item.label"
-                  :value="item.value">
-                </el-option>
-            </el-select>
+              <el-select v-model="setType" >
+                    <el-option  v-for="item in typesOption" :key="item.id"  :label="item.file_tag" :value="item.id">
+                    </el-option>
+              </el-select>
             </div>
-            <el-button  @click="showModal=false" class="btn" type="primary">确认</el-button>
-            <el-button  @click="showModal=false" class="btn" type="primary">取消</el-button>
+              <el-button  class="btn" type="primary" @click="submitUpload">确认</el-button>
+              <el-button  @click="showModal=false" class="btn" type="primary">取消</el-button>
           </div>
       </el-main>
   </div>
@@ -237,10 +242,10 @@
 }
 </style>
 <script>
-import { Select, Option, Button, Table, TableColumn, Tag, Icon, Upload, Container, Main, Col, Row, Dropdown, DropdownItem, DropdownMenu, Link, Pagination, Input } from'element-ui'
+import { Select, Option, Button, Table, TableColumn, Tag, Icon, Upload, Container, Main, Col, Row, Dropdown, DropdownItem, DropdownMenu, Link, Pagination, Input, Message } from'element-ui'
 
 import 'element-ui/lib/theme-chalk/index.css'
-
+import { prefix, responseHandler, fileApi } from '@/api'
 export default {
     name: 'FileShare',
     components: {
@@ -261,91 +266,165 @@ export default {
         [Pagination.name]: Pagination,
         [Input.name]: Input,
         [DropdownItem.name]: DropdownItem,
-        [DropdownMenu.name]: DropdownMenu
+        [DropdownMenu.name]: DropdownMenu,
+        [Message.name]: Message
     },
     data (){
         return {
             input: '',
-            types: [{
-                value: '选项1',
-                label: '学习资料'
-            }, {
-                value: '选项2',
-                label: '通知文件'
-            }, {
-                value: '选项3',
-                label: '电影动画'
-            }, {
-                value: '选项4',
-                label: '游戏程序'
-            }, {
-                value: '选项5',
-                label: '工具程序'
-            }, {
-                value: '选项6',
-                label: '工具程序'
-            }, {
-                value: '选项7',
-                label: '源程序程序'
-            }],
-            type: '',
-            range: [],
-            setViewRanges: [{
-                value: '选项1',
-                label: '全学院'
-            }, {
-                value: '选项2',
-                label: '1301'
-            }, {
-                value: '选项3',
-                label: '1302'
-            }],
+            typesOption: [],
+            setType: '',
+            setRange: [],
+            rangesOption: [],
             showModal: false,
-            document: [{
-                id: 1,
-                fileName: '啊速度就会幸福大家',
-                time: '2016-05-02',
-                view_range: ' 1518 弄',
-                type: '家',
-                downloadTimes: 5,
-                uploader: '小米'
-            }, {
-                id: 2,
-                fileName: '啊速度就会幸福大家',
-                time: '2016-05-04',
-                view_range: ' 1517 弄',
-                type: '公司',
-                downloadTimes: 5,
-                uploader: '小红'
-            }, {
-                id: 3,
-                fileName: '啊速度就会幸福大家',
-                time: '2016-05-01',
-                view_range: ' 1519 弄',
-                type: '家',
-                downloadTimes: 5,
-                uploader: '小明'
-
-            }, {
-                id: 4,
-                fileName: '啊速度就会幸福大家',
-                time: '2016-05-03',
-                view_range: ' 1516 弄',
-                type: '公司',
-                downloadTimes: 5,
-                uploader: '阿黑'
-            }]
+            document: [],
+            pageCount: 1,
+            fileList: [],
+            multipleSelection: [],
+            currentPage: 1,
+            url: 'http://localhost/online-collage-platform-server/public/'
         }
     },
+    created(){
+        this.getAllFile()
+        this.getAllTag()
+        this.getFileRight()
+    },
     methods: {
-        handleDownload(index, row) {
-            console.log(index, row)
+        getSpecificTagFile(id, page = 1){
+            this.$axios.post(prefix.api + fileApi.getSpecificTagFile, { page, tagId: id }).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                this.currentPage = page
+                this.document = response.data.data.data
+                this.pageCount = parseInt(response.data.data.pageCount)
+            })
         },
-        handleDelete(index, row) {
-            console.log(index, row)
+        handleSelectionChange(val){
+            this.multipleSelection = val
+            // console.log(this.multipleSelection[0].id)
         },
         gotoSetting(path){
             this.$router.push({ path })
+        },
+        handleSelectFile(file){
+            this.fileList = file
+        },
+        submitUpload(){
+            // 完成上传文件接口
+            let fd = new FormData()
+            console.log(this.fileList.raw)
+            if(this.fileList.length === 0){
+                Message.error('你好像还没选择文件')
+                return
+            }
+            if(this.fileList.raw.size / 1024 / 1024 > 8){
+                Message.error('上传文件大于8M')
+                return
+            }
+            if(this.setType === '' || this.setRange.length === 0){
+                Message.error('好像有什么没选')
+                return
+            }
+            fd.append('file', this.fileList.raw)
+            fd.append('type', this.setType)
+            fd.append('range', this.setRange.toString())
+            this.$axios.post(prefix.api + fileApi.upload, fd).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('上传失败')
+                }
+                Message.success(response.data.msg)
+                this.getAllFile(this.currentPage)
+            })
+            this.showModal = false
+            this.setType = ''
+            this.setRange = []
+        },
+        UploadUrl(){
+            return '返回需要上传的地址'
+        },
+        getAllFile(page = 1){
+            this.$axios.post(prefix.api + fileApi.myFile, { page }).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                this.currentPage = page
+                this.document = response.data.data.data
+                this.pageCount = parseInt(response.data.data.pageCount)
+            })
+            // 已完成获取我的文件接口
+        },
+        getAllTag(){
+            this.$axios.post(prefix.api + fileApi.getAllTag).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                this.typesOption = response.data.data
+            })
+            // 已完成获取所有标签接口
+        },
+        getFileRight(){
+            this.$axios.post(prefix.api + fileApi.getAllFileRight).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                this.rangesOption = response.data.data
+            })
+            // 已完成获取文件权限接口
+        },
+        handleDelete(index, row) {
+            // 已完成删除文件接口
+            this.$axios.post(prefix.api + fileApi.deleteFile, {
+                fileId: this.document[index].id
+            }).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                Message.success(response.data.msg)
+                this.getAllFile(this.currentPage)
+            })
+        },
+        deleteFile(){
+            this.$axios.post(prefix.api + fileApi.deleteFile, {
+                fileId: this.multipleSelection[0].id
+            }).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                Message.success(response.data.msg)
+                this.getAllFile(this.currentPage)
+                this.multipleSelection = []
+            })
+        },
+        handleDownload(index, row) {
+            // 完成下载接口
+            this.$axios.post(prefix.api + fileApi.download, {
+                fileId: this.document[index].id
+            }).then(response => {
+                // if(!responseHandler(response.data, this)){
+                //     Message.error(response.data.msg)
+                // }
+                console.log(response.data)
+                window.open(response.data)
+                // this.getAllFile()
+            })
+        },
+        handleExceed(files, fileList){
+            Message.error(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
+            // 提示一次只能上传一个文件
+        },
+        top(){
+            this.$axios.post(prefix.api + fileApi.top, {
+                fileId: this.multipleSelection[0].id
+            }).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error(response.data.msg)
+                }
+                Message.success(response.data.msg)
+                this.getAllFile(this.currentPage)
+                this.multipleSelection = []
+            })
         }
     }
 }

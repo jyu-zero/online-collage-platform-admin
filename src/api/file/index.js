@@ -14,5 +14,11 @@ export default {
     // 添加文件类型
     'addTag': 'admin/file/add-tag',
     // 删除文件类型
-    'deleteTage': 'admin/file/delete-tag'
+    'deleteTag': 'admin/file/delete-tag',
+    // 文件设置
+    'fileSetting': 'admin/file/file-setting',
+    // 根据文件类型获取文件
+    'getSpecificTagFile': '/file/get-specific-tag-file',
+    // 顶置文件
+    'top': '/file/is-top'
 }
