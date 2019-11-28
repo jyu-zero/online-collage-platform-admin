@@ -8,17 +8,18 @@
                         <input type="text" class="search-input" placeholder="搜索物品">
                     </div>
                     <div class="right-core">
-                        <button class="btn blue-btn" title="丢失物品" @click="showSearchLost()">添加寻物启事</button>
-                        <button class="btn red-btn" title="拾取物品" @click="goTo('Found')">新建拾取物</button>
+                        <button class="btn blue-btn" title="丢失物品" @click="showSearchLost">添加寻物启事</button>
+                        <button class="btn red-btn" title="拾取物品" @click="showFoundAt">新建拾取物</button>
                     </div>
                 </div>
-                <div class="pending-claim thing">
+                <!-- 待认领 [开始] -->
+                <div class="thing">
                     <div class="title category">
                         <span>待认领</span>
                     </div>
-                    <div class="thing-item" v-for="thingItem of pendingclaimImgMessage" :key="thingItem.id">
+                    <div class="thing-item" v-for="(thingItem, index) of pendingclaimMessage" :key="index">
                         <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img src="" alt="">
+                        <img :src="thingItem.imgSrc" alt="">
                         <div class="position-all flex-center thing-bg">
                             <p class="title">{{thingItem.info}}</p>
                             <!-- 是否学院托管 -->
@@ -27,79 +28,295 @@
                         <div class="info position-all">
                             <div class="bg-blur position-all">
                                 <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img src="" alt="">
+                                <img :src="thingItem.imgSrc" alt="">
                             </div>
-                            <div class="info-body">
+                            <div class="info-body pending-claim" @mouseleave="reviseGoodsInfo(thingItem, 1, index)">
                                 <div class="body-message">
                                     <div class="thing-message">
-                                        <p class="thing-title">{{thingItem.title}}</p>
+                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhere">
+                                            <input type="text" :value="thingItem.foundAtWhere" class="g-where">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhen">
+                                            <input type="text" :value="thingItem.foundAtWhen" class="g-time">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundBy">
+                                            <input type="text" :value="thingItem.foundBy" class="g-name">
                                         </div>
                                         <div class="content">
                                             <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact">
+                                            <input type="text" :value="thingItem.contact" class="g-contact">
                                         </div>
                                     </div>
-                                    <button class="blue-btn btn claim-btn">确认认领</button>
+                                    <button class="blue-btn btn claim-btn" @click="showEnterClaimWrap(thingItem.goodId, index)">确认认领</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="imgTotal"
+                        @current-change="getPendingClaim"
+                        :total="pendingclaimTotal">
+                    </el-pagination>
                 </div>
+                <!-- 待认领 [结束] -->
+                <!-- 待找回 [开始] -->
+                <div class="thing">
+                    <div class="title category">
+                        <span>待找回</span>
+                    </div>
+                    <div class="thing-item" v-for="(thingItem, index) of pendingRetrieveMessage" :key="index">
+                        <!-- 这里img的地址应写用户上传的失物图片 -->
+                        <img :src="thingItem.imgSrc" alt="">
+                        <div class="position-all flex-center thing-bg">
+                            <p class="title">{{thingItem.info}}</p>
+                            <!-- 是否学院托管 -->
+                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
+                        </div>
+                        <div class="info position-all">
+                            <div class="bg-blur position-all">
+                                <!-- 这里img的地址应写用户上传的失物图片 -->
+                                <img :src="thingItem.imgSrc" alt="">
+                            </div>
+                            <div class="info-body pending-retrieve" @mouseleave="reviseGoodsInfo(thingItem, 0, index)">
+                                <div class="body-message">
+                                    <div class="thing-message">
+                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <div class="content">
+                                            <p class="item">&nbsp;遗失地址:&nbsp;</p>
+                                            <input type="text" :value="thingItem.retrieveAtWhere" class="r-where">
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;遗失时间:&nbsp;</p>
+                                            <input type="text" :value="thingItem.retrieveAtWhen" class="r-time">
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
+                                            <input type="text" :value="thingItem.retrieveBy" class="r-name">
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
+                                            <input type="text" :value="thingItem.contact" class="r-contact">
+                                        </div>
+                                    </div>
+                                    <button class="blue-btn btn claim-btn" @click="showEnterRetrieveWrap(thingItem.goodId, index)">确认找回</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="imgTotal"
+                        @current-change="getPendingRetrieve"
+                        :total="pendingRetrieveTotal">
+                    </el-pagination>
+                </div>
+                <!-- 待找回 [结束] -->
+                <!-- 已找回 [开始] -->
+                <div class="retrieved thing">
+                    <div class="title category">
+                        <span>已找回</span>
+                    </div>
+                    <div class="thing-item" v-for="(thingItem, index) of retrievedMessage" :key="index">
+                        <!-- 这里img的地址应写用户上传的失物图片 -->
+                        <img :src="thingItem.imgSrc" alt="">
+                        <div class="position-all">
+                            <div class="flex-center thing-bg position-all">
+                                <p class="title">{{thingItem.info}}</p>
+                                <!-- 是否学院托管 -->
+                                <span v-if="thingItem.isManagedByCollage">学院托管</span>
+                            </div>
+                            <div class="info already">
+                                <div class="info-body">
+                                    <div class="body-message">
+                                        <div class="thing-message">
+                                            <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                            <div class="content">
+                                                <p class="item">&nbsp;遗失地址:&nbsp;</p>
+                                                <span>{{thingItem.retrieveAtWhere}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;遗失时间:&nbsp;</p>
+                                                <span>{{thingItem.retrieveAtWhen}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
+                                                <span>{{thingItem.retrieveBy}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;联系方式:&nbsp;</p>
+                                                <span>{{thingItem.contact}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info position-all">
+                            <div class="bg-blur position-all">
+                                <!-- 这里img的地址应写用户上传的失物图片 -->
+                                <img :src="thingItem.imgSrc" alt="">
+                            </div>
+                            <div class="info-body">
+                                <div class="body-message" v-if="unetrieved">
+                                    <div class="thing-message">
+                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <div class="content">
+                                            <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
+                                            <span>{{thingItem.foundBy}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
+                                            <span>{{thingItem.foundContact}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;拾取时间:&nbsp;</p>
+                                            <span>{{thingItem.foundAtWhen}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="imgTotal"
+                        @current-change="getRetrieved"
+                        :total="retrievedTotal">
+                    </el-pagination>
+                </div>
+                <!-- 已找回 [结束] -->
+                <!-- 已认领 [开始] -->
+                <div class="unclaimed thing">
+                    <div class="title category">
+                        <span>已认领</span>
+                    </div>
+                    <div class="thing-item" v-for="(thingItem, index) of claimedMessage" :key="index">
+                        <!-- 这里img的地址应写用户上传的失物图片 -->
+                        <img :src="thingItem.imgSrc" alt="">
+                        <div class="position-all">
+                            <div class="flex-center thing-bg position-all">
+                                <p class="title">{{thingItem.info}}</p>
+                                <!-- 是否学院托管 -->
+                                <span v-if="thingItem.isManagedByCollage">学院托管</span>
+                            </div>
+                            <div class="info already">
+                                <div class="info-body">
+                                    <div class="body-message">
+                                        <div class="thing-message">
+                                            <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                            <div class="content">
+                                                <p class="item">&nbsp;拾取地址:&nbsp;</p>
+                                                <span>{{thingItem.foundAtWhere}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;拾取时间:&nbsp;</p>
+                                                <span>{{thingItem.foundAtWhen}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
+                                                <span>{{thingItem.foundBy}}</span>
+                                            </div>
+                                            <div class="content">
+                                                <p class="item">&nbsp;联系方式:&nbsp;</p>
+                                                <span>{{thingItem.foundContact}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info position-all">
+                            <div class="bg-blur position-all">
+                                <!-- 这里img的地址应写用户上传的失物图片 -->
+                                <img :src="thingItem.imgSrc" alt="">
+                            </div>
+                            <div class="info-body">
+                                <div class="body-message" v-if="unclaimed">
+                                    <div class="thing-message">
+                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
+                                        <div class="content">
+                                            <p class="item">&nbsp;认领人:&nbsp;</p>
+                                            <span>{{thingItem.retrieveBy}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
+                                            <span>{{thingItem.retrievContact}}</span>
+                                        </div>
+                                        <div class="content">
+                                            <p class="item">&nbsp;认领时间:&nbsp;</p>
+                                            <span>{{thingItem.retrievAtWhen}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p v-show="!unclaimed">什么都没有哦</p>
+                            </div>
+                        </div>
+                    </div>
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="imgTotal"
+                        @current-change="getClaimed"
+                        :total="claimedTotal">
+                    </el-pagination>
+                </div>
+                <!-- 已认领 [结束] -->
             </div>
             <!-- 新建寻物启事 [开始] -->
             <div class="position-all curtain-black" id="search-lost" v-if="showNewLostWrap">
                 <div class="content">
                     <div class="bar">
-                        <div class="bar-color"></div>
-                        <span class="bar-name">
-                            1
+                        <div class="bar-color bar" :style="{'height': barHeight}"></div>
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[0]}">1
                             <div class="brief"><span>填写基本信息</span></div>
                         </span>
-                        <span class="bar-name">2
-                            <div class="brief"><span>上传拾取物照片</span></div>
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[1]}">2
+                            <div class="brief"><span>上传丢失物照片</span></div>
                         </span>
-                        <span class="bar-name">3
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[2]}">3
                             <div class="brief"><span>完成</span></div>
                         </span>
                     </div>
                     <div class="content-body" v-if="showFirstStep">
+                        <span class="close-content" title="关闭" @click="hideSearchLost">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
                         <!-- 基本信息 [开始] -->
                         <div class="essential-info">
-                            <div class="lost-title">基本信息</div>
-                            <div class="lost-info">
+                            <div class="found-title">基本信息</div>
+                            <div class="found-info">
                                 <div class="info-input">
-                                    <input type="text" placeholder="标题" v-model="submitTitle">
+                                    <input type="text" placeholder="标题" v-model="submitInfo.title">
                                     <label>标题</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="丢了什么物品" v-model="submitGoods">
+                                    <input type="text" placeholder="丢了什么物品" v-model="submitInfo.goods">
                                     <label>丢了什么物品</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="在哪丢的呀" v-model="submitWhere">
+                                    <input type="text" placeholder="在哪丢的呀" v-model="submitInfo.where">
                                     <label>在哪丢的呀</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="遗失时间" v-model="submitTime">
+                                    <input type="text" placeholder="遗失时间" v-model="submitInfo.time">
                                     <label>遗失时间</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="遗失者姓名" v-model="submitName">
+                                    <input type="text" placeholder="遗失者姓名" v-model="submitInfo.name">
                                     <label>遗失者姓名</label>
                                 </div>
                                 <div class="info-input">
-                                    <input type="text" placeholder="联系方式(常用手机号码)" v-model="submitContact">
+                                    <input type="text" placeholder="联系方式(常用手机号码)" v-model="submitInfo.contact">
                                     <label>联系方式(常用手机号码)</label>
                                 </div>
                             </div>
@@ -107,12 +324,192 @@
                                 <button class="gotoNextStep" @click="showStep('second')">下一步>></button>
                             </div>
                         </div>
+                        <!-- 基本信息 [完] -->
                     </div>
                     <div class="content-body" @mousemove="setDivSize" v-if="showSecondStep">
+                        <span class="close-content" title="关闭"  @click="hideSearchLost">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
                         <!-- 上传丢失物图片 [开始]] -->
                         <div class="upload-lost-img">
                             <div class="lost-title">上传丢失物图片</div>
                             <div class="lost-upload" v-if="isUploadImg">
+                                <div class="upload-content"
+                                    :style="{'width': showImgSize.width + 'px','height': showImgSize.height + 'px'}">
+                                    <img :src="uploadImgSrc" alt="">
+                                    <div class="select-size" id="selecting-pre"
+                                        :style="{'width': divSize.width + 'px', 'height': divSize.height + 'px',
+                                                'left': imgPosition.left + 'px', 'top': imgPosition.top + 'px'}">
+                                        <img :src="uploadImgSrc"
+                                                    class="show-bg"
+                                                    alt=""
+                                                    :style="{'width': showImgSize.width + 'px','height': showImgSize.height + 'px',
+                                                    'left': -imgPosition.left + 'px', 'top': -imgPosition.top + 'px'}">
+                                    </div>
+                                    <div class="select-size"
+                                        id="selecting-cover"
+                                        @mousedown="beginMoveImg"
+                                        @mousemove="moveSelectImg"
+                                        :style="{'width': divSize.width + 'px', 'height': divSize.height + 'px',
+                                        'left': imgPosition.left + 'px', 'top': imgPosition.top + 'px'}">
+                                        <span id="top-left-btn" @mousedown="beginSetDivSize($event, 'top-left')"></span>
+                                        <span id="top-right-btn" @mousedown="beginSetDivSize($event, 'top-right')"></span>
+                                        <span id="bottom-left-btn" @mousedown="beginSetDivSize($event, 'bottom-left')"></span>
+                                        <span id="bottom-right-btn" @mousedown="beginSetDivSize($event, 'bottom-right')"></span>
+                                    </div>
+                                </div>
+                                <div class="line"></div>
+                                <div class="show-wrap">
+                                    <div class="upload-content select-size" id="show-selecting"
+                                        :style="{'width': divSize.width + 'px', 'height': divSize.height + 'px'}">
+                                        <img :src="uploadImgSrc"
+                                            :style="{'width': showImgSize.width + 'px','height': showImgSize.height + 'px',
+                                            'left': -imgPosition.left + 'px', 'top': -imgPosition.top + 'px'}"
+                                            alt="">
+                                    </div>
+                                    <p>预览图片</p>
+                                </div>
+                            </div>
+                            <div class="upload-item">
+                                <label for="upload-lost-pic" id="upload-btn">上传图片</label>
+                                <input style="display:none"
+                                        type="file"
+                                        id="upload-lost-pic"
+                                        @change="uploadImg($event)"
+                                        accept="image/gif, image/jpeg, image/jpg, image/png, image/svg"
+                                >
+                            </div>
+                            <div class="gotoStep-btn">
+                                <button class="gotoBackStep" @click="showStep('first')">上一步</button>
+                                <button class="gotoNextStep" @click="showStep('last')">下一步>></button>
+                            </div>
+                        </div>
+                        <!-- 上传丢失物图片 [结束]] -->
+                    </div>
+                    <div class="content-body" v-if="showLastStep">
+                        <span class="close-content" title="关闭"  @click="hideSearchLost">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
+                        <!-- 提交遗失物信息 [开始] -->
+                        <div class="submit-info">
+                            <div class="lost-title">提交</div>
+                            <div class="lost-all-info">
+                                <nav class="nav-info">
+                                    <ul class="submit-ul">
+                                        <li>
+                                            <p>标题&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.title}}</span>
+                                        </li>
+                                        <li>
+                                            <p>遗失物品&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.goods}}</span>
+                                        </li>
+                                        <li>
+                                            <p>遗失地点&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.where}}</span>
+                                        </li>
+                                        <li>
+                                            <p>遗失时间&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.time}}</span>
+                                        </li>
+                                        <li>
+                                            <p>遗失物品者名字&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.name}}</span>
+                                        </li>
+                                        <li>
+                                            <p>遗失者联系方式&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.contact}}</span>
+                                        </li>
+                                        <li>
+                                            <p style="vertical-align: top;">遗失品的图片&nbsp;:&nbsp;</p>
+                                            <img :src="submitInfo.goodsImg" alt="" :title="submitInfo.title">
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <div class="submit-div">
+                                    <button id="submit-btn" class="green-btn btn" @click="newBuildGoodsInfo(0)">提交</button>
+                                </div>
+                                <div class="gotoStep-btn">
+                                    <button class="gotoBackStep" @click="showStep('second')">上一步</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 提交寻物启事信息 [结束] -->
+                    </div>
+                </div>
+            </div>
+            <!-- 新建寻物启事 [结束] -->
+            <!-- 新建拾取物 [开始] -->
+            <div class="position-all curtain-black" id="found-at" v-if="showNewFoundWrap">
+                <div class="content">
+                    <div class="bar">
+                        <div class="bar-color bar" :style="{'height': barHeight}"></div>
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[0]}">
+                            1
+                            <div class="brief"><span>填写基本信息</span></div>
+                        </span>
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[1]}">2
+                            <div class="brief"><span>上传拾取物照片</span></div>
+                        </span>
+                        <span class="bar-name" :class="{'current-bar': currentStepbar[2]}">3
+                            <div class="brief"><span>完成</span></div>
+                        </span>
+                    </div>
+                    <div class="content-body" v-if="showFirstStep">
+                        <span class="close-content" title="关闭" @click="hideFoundAt">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
+                        <!-- 基本信息 [开始] -->
+                        <div class="essential-info">
+                            <div class="found-title">基本信息</div>
+                            <div class="found-info">
+                                <div class="info-input">
+                                    <input type="text" placeholder="标题" v-model="submitInfo.title">
+                                    <label>标题</label>
+                                </div>
+                                <div class="info-input">
+                                    <input type="text" placeholder="捡到了什么物品" v-model="submitInfo.goods">
+                                    <label>捡到了什么物品</label>
+                                </div>
+                                <div class="info-input">
+                                    <input type="text" placeholder="在哪捡的呀" v-model="submitInfo.where">
+                                    <label>在哪捡的呀</label>
+                                </div>
+                                <div class="info-input">
+                                    <input type="text" placeholder="拾取时间" v-model="submitInfo.time">
+                                    <label>拾取时间</label>
+                                </div>
+                                <div class="info-input">
+                                    <input type="text" placeholder="拾取者姓名" v-model="submitInfo.name">
+                                    <label>拾取者姓名</label>
+                                </div>
+                                <div class="info-input">
+                                    <input type="text" placeholder="联系方式(常用手机号码)" v-model="submitInfo.contact">
+                                    <label>联系方式(常用手机号码)</label>
+                                </div>
+                            </div>
+                            <div class="gotoStep-btn">
+                                <button class="gotoNextStep" @click="showStep('second')">下一步>></button>
+                            </div>
+                        </div>
+                        <!-- 基本信息 [完] -->
+                    </div>
+                    <div class="content-body" @mousemove="setDivSize" v-show="showSecondStep">
+                        <span class="close-content" title="关闭"  @click="hideFoundAt">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
+                        <!-- 上传拾取物图片 [开始]] -->
+                        <div class="upload-lost-img">
+                            <div class="lost-title">上传拾取物图片</div>
+                            <div class="found-upload" v-show="isUploadImg">
                                 <div class="upload-content"
                                     :style="{'width': showImgSize.width + 'px','height': showImgSize.height + 'px'}">
                                     <img :src="uploadImgSrc" alt="">
@@ -142,7 +539,6 @@
                                     <div class="upload-content select-size" id="show-selecting"
                                         :style="{'width': divSize.width + 'px', 'height': divSize.height + 'px'}">
                                         <img :src="uploadImgSrc"
-                                            :data-c="showImgSize.width + 'px'"
                                             :style="{'width': showImgSize.width + 'px','height': showImgSize.height + 'px',
                                             'left': -imgPosition.left + 'px', 'top': -imgPosition.top + 'px'}"
                                             alt="">
@@ -151,10 +547,10 @@
                                 </div>
                             </div>
                             <div class="upload-item">
-                                <label for="upload-lost-pic" id="upload-btn">上传图片</label>
+                                <label for="upload-found-pic" id="upload-btn">上传图片</label>
                                 <input style="display:none"
                                         type="file"
-                                        id="upload-lost-pic"
+                                        id="upload-found-pic"
                                         @change="uploadImg($event)"
                                         accept="image/gif, image/jpeg, image/jpg, image/png, image/svg"
                                 >
@@ -164,65 +560,127 @@
                                 <button class="gotoNextStep" @click="showStep('last')">下一步>></button>
                             </div>
                         </div>
+                        <!-- 上传拾取物图片 [结束]] -->
                     </div>
-                    <div class="content-body" v-if="showLastStep">
+                    <div class="content-body" v-show="showLastStep">
+                        <span class="close-content" title="关闭"  @click="hideFoundAt">
+                            <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                            </svg>
+                        </span>
+                        <!-- 提交拾取物信息 [开始] -->
                         <div class="submit-info">
-                            <div class="lost-title">提交</div>
-                            <div class="lost-all-info">
+                            <div class="found-title">提交</div>
+                            <div class="found-all-info">
                                 <nav class="nav-info">
                                     <ul class="submit-ul">
                                         <li>
-                                            <p>标题&nbsp;:</p>
-                                            <span>{{submitTitle}}</span>
+                                            <p>标题&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.title}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失物品&nbsp;:</p>
-                                            <span>{{submitGoods}}</span>
+                                            <p>拾取的物品&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.goods}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失地点&nbsp;:</p>
-                                            <span>{{submitWhere}}</span>
+                                            <p>拾取地点&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.where}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失时间&nbsp;:</p>
-                                            <span>{{submitTime}}</span>
+                                            <p>拾取时间&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.time}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失物品者名字&nbsp;:</p>
-                                            <span>{{submitName}}</span>
+                                            <p>拾取物品者名字&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.name}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失者联系方式&nbsp;:</p>
-                                            <span>{{submitContact}}</span>
+                                            <p>拾取联系方式&nbsp;:&nbsp;</p>
+                                            <span>{{submitInfo.contact}}</span>
                                         </li>
                                         <li>
-                                            <p>遗失品的图片&nbsp;:</p>
-                                            <img :src="submitGoodsImg" alt="">
+                                            <p style="vertical-align: top;">拾取品的图片&nbsp;:&nbsp;</p>
+                                            <img :src="submitInfo.goodsImg" alt="" :title="submitInfo.title">
                                         </li>
                                     </ul>
                                 </nav>
                                 <div class="submit-div">
-                                    <button id="submit-btn" class="green-btn btn">提交</button>
+                                    <button id="submit-btn" class="green-btn btn" @click="newBuildGoodsInfo(1)">提交</button>
                                 </div>
                                 <div class="gotoStep-btn">
                                     <button class="gotoBackStep" @click="showStep('second')">上一步</button>
                                 </div>
                             </div>
                         </div>
+                        <!-- 提交拾取物信息 [结束] -->
                     </div>
                 </div>
             </div>
+            <!-- 新建拾取物 [结束] -->
+            <!-- 确认认领信息[开始] -->
+            <div class="position-all curtain-black" v-if="showEnterClaim">
+                <div class="enter-wrap">
+                    <span class="close-content" title="关闭" @click="hideEnterClaimWrap">
+                        <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                        </svg>
+                    </span>
+                    <div class="enter-content">
+                        <h2>确认认领</h2>
+                    </div>
+                    <div class="info">
+                        <input type="text" placeholder="认领人姓名" v-model="enterContactName">
+                    </div>
+                    <div class="info">
+                        <input type="text" placeholder="认领人联系方式" v-model="enterContactNum">
+                    </div>
+                    <div class="text-right">
+                        <button class="blue-btn btn claim-btn" @click="enterClaim">确认认领</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 确认认领信息[结束] -->
+            <!-- 确认找回信息[开始] -->
+            <div class="position-all curtain-black" v-if="showEnterRetrieve">
+                <div class="enter-wrap">
+                    <span class="close-content" title="关闭" @click="hideEnterRetrieveWrap">
+                        <svg fill="none" stroke="#000" stroke-width="1.5" width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 5 L15 15 M15 5 L5 15"></path>
+                        </svg>
+                    </span>
+                    <div class="enter-content">
+                        <h2>确认找回</h2>
+                    </div>
+                    <div class="info">
+                        <input type="text" placeholder="拾取人姓名" v-model="enterContactName">
+                    </div>
+                    <div class="info">
+                        <input type="text" placeholder="拾取人联系方式" v-model="enterContactNum">
+                    </div>
+                    <div class="text-right">
+                        <button class="blue-btn btn claim-btn" @click="enterRetrieve">确认找回</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 确认找回信息[结束] -->
         </div>
     </div>
 </template>
 
 <script>
-// import { Button, Message } from 'element-ui'
+import { Pagination, Message } from 'element-ui'
+import { prefix, responseHandler, lostAndFoundApi } from '@/api'
+// import { stat } from 'fs'
 export default {
     name: 'LostAndFound',
+    components: {
+        [Pagination.name]: Pagination,
+        [Message.name]: Message
+    },
     data(){
         return {
             /**
+             * currentPage: 当前页数
              * imgTotal: 页面一行能放多少张图片
              * uploadImgSrc: 上传图片的地址
              * isMoveImg: 是否能移动图片
@@ -232,7 +690,10 @@ export default {
              * imgPosition: 图片所处的位置
              * setDivDirection: 图片缩放所在角度位置
              * isUploadImg: 是否显示上传的图片
+             * bar: 步骤条
+             * uploadImgTotal: 是否上传过图片
              */
+            currentPage: 1,
             imgTotal: 4,
             uploadImgSrc: '',
             isMoveImg: false,
@@ -248,54 +709,412 @@ export default {
             divSize: {},
             showImgSize: {},
             isUploadImg: false,
+            bar: ['0', '50%', '100%'],
+            barHeight: '',
+            currentStepbar: [true, false, false],
+            uploadImgTotal: 0,
             // 新建物品的步骤
             showNewLostWrap: false,
+            showNewFoundWrap: false,
             showFirstStep: false,
             showSecondStep: false,
             showLastStep: false,
+            // 确认信息弹窗
+            showEnterClaim: false,
+            showEnterRetrieve: false,
+            enterContactName: '',
+            enterContactNum: '',
+            enterGoodId: '',
+            enterGoodIndex: '',
             // 新建物品的信息
-            submitTitle: '',
-            submitGoods: '',
-            submitWhere: '',
-            submitTime: '',
-            submitName: '',
-            submitContact: '',
-            submitGoodsImg: '',
+            submitInfo: {
+                title: '',
+                goods: '',
+                where: '',
+                time: '',
+                name: '',
+                contact: '',
+                goodsImg: ''
+            },
+            // 无人认领或者无人找回状态
+            unclaimed: true,
+            unetrieved: true,
+            // 待认领,待找回,已认领,已找回的总数
+            pendingclaimTotal: 1,
+            pendingRetrieveTotal: 1,
+            claimedTotal: 1,
+            retrievedTotal: 1,
             // 待认领信息
-            pendingclaimImgMessage: [
-                {
-                    id: 1,
-                    imgSrc: './img/2.jpg',
-                    info: '蓝色U盘',
-                    isManagedByCollage: true,
-                    title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
-                },
-                {
-                    id: 2,
-                    imgSrc: './img/2.jpg',
-                    info: '蓝色U盘',
-                    isManagedByCollage: false,
-                    title: '在美国捡到了原子弹',
-                    contact: '12345678910',
-                    foundAtWhere: '美国',
-                    foundBy: 'ddloo',
-                    foundAtWhen: '1111-11-11'
-                }
-            ]
+            pendingclaimMessage: [],
+            // 待找回信息
+            pendingRetrieveMessage: [],
+            // 已找回信息
+            retrievedMessage: [],
+            // 已认领信息
+            claimedMessage: [],
+            // 输入错误信息提示
+            showError: false,
+            errorMessage: '',
+            // element
+            page: 1,
+            current: 1
         }
     },
-    // components: {
-    //     [Button.name]: Button,
-    //     [Message.name]: Message
-    // },
+    created(){
+        this.getGoodsInfo(1, 1, 0)
+        this.getGoodsInfo(1, 0, 0)
+        this.getGoodsInfo(1, 1, 1)
+        this.getGoodsInfo(1, 0, 1)
+    },
     mounted(){
-        this.setShowImgAmountn()
+        setTimeout(() => {
+            this.setShowImgAmountn()
+        }, 1000)
     },
     methods: {
+        /**
+         * 分页按钮：获取待认领信息
+         * currentPage: 当前页码
+         */
+        getPendingClaim(currentPage){
+            this.getGoodsInfo(currentPage, 1, 0)
+        },
+        getPendingRetrieve(currentPage){
+            this.getGoodsInfo(currentPage, 0, 0)
+        },
+        getClaimed(currentPage){
+            this.getGoodsInfo(currentPage, 1, 1)
+        },
+        getRetrieved(currentPage){
+            this.getGoodsInfo(currentPage, 0, 1)
+        },
+        /**
+         * 获取失物和拾取物信息
+         * currentPage: 当前页码
+         * sort: 分类,是认领呢 还是 找回呢 0是待找回,1是待认领
+         * status: 1是已经完成,0是正在进行,2是放弃
+         */
+        getGoodsInfo(currentPage, sort, status){
+            this.$axios
+                .get(prefix.api + lostAndFoundApi.getGoodsInfo, {
+                    params: {
+                        page: currentPage,
+                        sort,
+                        status
+                    }
+                })
+                .then(response => {
+                    if(sort && !status){
+                        // 待认领
+                        this.pendingclaimMessage.splice(0)
+                        for(let thingItem of response.data.data.rs){
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                foundAtWhere: thingItem.place,
+                                foundBy: thingItem.contact_name,
+                                foundAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: thingItem.image
+                            }
+                            this.pendingclaimMessage.push(good)
+                        }
+                        this.pendingclaimTotal = response.data.data.totalpage
+                    }else if(sort && status === 1){
+                        // 已认领
+                        this.claimedMessage.splice(0)
+                        for(let thingItem of response.data.data.rs){
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                // retrieveContach:
+                                // retrieveBy:
+                                // retrieveAtWhen:
+                                foundAtWhere: thingItem.place,
+                                foundBy: thingItem.contact_name,
+                                foundAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: thingItem.image
+                            }
+                            this.claimedMessage.push(good)
+                        }
+                        this.claimedTotal = response.data.data.totalpage
+                    }else if(!sort && !status){
+                        // 待找回
+                        this.pendingRetrieveMessage.splice(0)
+                        for(let thingItem of response.data.data.rs){
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                retrieveAtWhere: thingItem.place,
+                                retrieveBy: thingItem.contact_name,
+                                retrieveAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: thingItem.image
+                            }
+                            this.pendingRetrieveMessage.push(good)
+                        }
+                        this.pendingRetrieveTotal = response.data.data.totalpage
+                    }else if(!sort && status === 1){
+                        // 已找回
+                        this.retrievedMessage.splice(0)
+                        for(let thingItem of response.data.data.rs){
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                // foundContact:
+                                // foundBy:
+                                // foundAtWhen:
+                                retrieveAtWhere: thingItem.place,
+                                retrieveBy: thingItem.contact_name,
+                                retrieveAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: thingItem.image
+                            }
+                            this.retrievedMessage.push(good)
+                        }
+                        this.retrievedTotal = response.data.data.totalpage
+                    }
+                })
+        },
+        /**
+         * 修改待认领或者待找回信息
+         * goods: 描述物品的信息
+         * sort: 分类,是认领呢 还是 找回呢 1是待认领,0是待找回
+         */
+        reviseGoodsInfo(goodsInfo, sort, index){
+            if(sort){
+                // 编辑待认领信息
+                let pendingClaimEle = document.getElementsByClassName('pending-claim')[index]
+                let where = pendingClaimEle.getElementsByClassName('g-where')[0].value
+                let time = pendingClaimEle.getElementsByClassName('g-time')[0].value
+                let name = pendingClaimEle.getElementsByClassName('g-name')[0].value
+                let contact = pendingClaimEle.getElementsByClassName('g-contact')[0].value
+                if((where === goodsInfo.foundAtWhere) &&
+                   (time === goodsInfo.foundAtWhen) &&
+                   (name === goodsInfo.foundBy) &&
+                   (contact === goodsInfo.contact)){
+                    // 当没有内容改变时,不执行任何操作
+                    return null
+                }else{
+                    // 内容改变时,内容全部返还给后端
+                    this.$axios
+                        .post(prefix.api + lostAndFoundApi.reviseGoodsInfo, {
+                            good_id: goodsInfo.good_id,
+                            sort,
+                            time,
+                            place: where,
+                            contact_name: name,
+                            contact_num: contact
+                        })
+                        .then(response => {
+                            if(!responseHandler(response.data, this)){
+                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                return null
+                            }
+                            goodsInfo.foundAtWhere = where
+                            goodsInfo.foundAtWhen = time
+                            goodsInfo.foundBy = name
+                            goodsInfo.contact = contact
+                        })
+                }
+            }else{
+                // 编辑待找回信息
+                let pendingRetrieveEle = document.getElementsByClassName('pending-retrieve')[index]
+                let where = pendingRetrieveEle.getElementsByClassName('r-where')[0].value
+                let time = pendingRetrieveEle.getElementsByClassName('r-time')[0].value
+                let name = pendingRetrieveEle.getElementsByClassName('r-name')[0].value
+                let contact = pendingRetrieveEle.getElementsByClassName('r-contact')[0].value
+                if((where === goodsInfo.foundAtWhere) &&
+                   (time === goodsInfo.foundAtWhen) &&
+                   (name === goodsInfo.foundBy) &&
+                   (contact === goodsInfo.contact)){
+                    // 当没有内容改变时,不执行任何操作
+                    return null
+                }else{
+                    // 内容改变时,内容全部返还给后端
+                    this.$axios
+                        .post(prefix.api + lostAndFoundApi.reviseGoodsInfo, {
+                            good_id: goodsInfo.good_id,
+                            sort,
+                            time,
+                            place: where,
+                            contact_name: name,
+                            contact_num: contact
+                        })
+                        .then(response => {
+                            if(!responseHandler(response.data, this)){
+                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                return null
+                            }
+                            goodsInfo.foundAtWhere = where
+                            goodsInfo.foundAtWhen = time
+                            goodsInfo.foundBy = name
+                            goodsInfo.contact = contact
+                        })
+                }
+            }
+        },
+        /**
+         * 新建拾取物或者遗失物信息
+         * sort: 分类,是认领呢 还是 找回呢
+         */
+        newBuildGoodsInfo(sort){
+            if(sort){
+                let formData = new FormData()
+                formData.append('title', this.submitInfo.title)
+                formData.append('name', this.submitInfo.goods)
+                formData.append('place', this.submitInfo.where)
+                formData.append('time', this.submitInfo.time)
+                formData.append('image', this.getFile(this.getBlob(this.submitInfo.goodsImg), 'ddloo.jpg'))
+                formData.append('contact_name', this.submitInfo.name)
+                formData.append('contact_num', this.submitInfo.contact)
+                // 新建拾取物
+                this.$axios
+                    .post(prefix.api + lostAndFoundApi.addFoundGoodsInfo, { formData })
+                    .then(response => {
+                        if(response.data.code !== '0000'){
+                            Message.error('新建拾取物失败,请再尝试一次')
+                            return null
+                        }
+                        this.pendingclaimMessage.pop()
+                        let newGoods = {
+                            // userId: thingItem.user_id,
+                            // goodId: thingItem.good_id,
+                            info: this.submitInfo.goods,
+                            isManagedByCollage: true,
+                            title: this.submitInfo.title,
+                            foundAtWhere: this.submitInfo.where,
+                            foundBy: this.submitInfo.name,
+                            foundAtWhen: this.submitInfo.time,
+                            contact: this.submitInfo.contact,
+                            imgSrc: this.submitInfo.goodsImg
+                        }
+                        this.pendingclaimMessage.unshift(newGoods)
+                        this.hideFoundAt()
+                    })
+            }else{
+                // 新建寻物启事
+                let formData = new FormData()
+                formData.append('title', this.submitInfo.title)
+                formData.append('name', this.submitInfo.goods)
+                formData.append('place', this.submitInfo.where)
+                formData.append('time', this.submitInfo.time)
+                formData.append('image', this.getFile(this.getBlob(this.submitInfo.goodsImg), 'ddloo.jpg'))
+                formData.append('contact_name', this.submitInfo.name)
+                formData.append('contact_num', this.submitInfo.contact)
+                this.$axios
+                    .post(prefix.api + lostAndFoundApi.addLostGoodsInfo, { formData })
+                    .then(response => {
+                        if(response.data.code !== '0000'){
+                            Message.error('新建寻物启事失败,请再尝试一下')
+                            return null
+                        }
+                        this.pendingRetrieveMessage.pop()
+                        let newGoods = {
+                            // userId: thingItem.user_id,
+                            // goodId: thingItem.good_id,
+                            info: this.submitInfo.goods,
+                            isManagedByCollage: true,
+                            title: this.submitInfo.title,
+                            retrieveAtWhere: this.submitInfo.where,
+                            retrieveBy: this.submitInfo.name,
+                            retrieveAtWhen: this.submitInfo.time,
+                            contact: this.submitInfo.contact,
+                            imgSrc: this.submitInfo.goodsImg
+                        }
+                        this.pendingRetrieveMessage.unshift(newGoods)
+                        this.hideSearchLost()
+                    })
+            }
+        },
+        // 确认认领,告诉后端认领人,认领人联系方式
+        enterClaim(){
+            if(this.enterContactName === ''){
+                this.showError = true
+                this.errorMessage = '认领人姓名尚未填写哦'
+                return null
+            }
+            if(this.enterContactNum === ''){
+                this.showError = true
+                this.errorMessage = '认领人联系方式尚未填写哦'
+                return null
+            }
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.enterGoods, {
+                    good_id: this.enterGoodId,
+                    found_name: this.enterContactName,
+                    found_num: this.enterContactNum,
+                    sort: 1
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error('确认认领失败啦,请再试一次嗯')
+                        return null
+                    }
+                    // 暂存数据
+                    let index = parseInt(this.enterGoodIndex)
+                    let pendingClaimInfo = this.pendingclaimMessage[index]
+                    // 将暂存数据给已认领信息
+                    this.pendingclaimMessage.splice(index, 1)
+                    pendingClaimInfo.retrieveBy = this.enterContactName
+                    pendingClaimInfo.retrieveContact = this.enterContactNum
+                    pendingClaimInfo.retrieveTime = this.getNowTime()
+                    this.claimedMessage.pop()
+                    this.claimedMessage.unshift(pendingClaimInfo)
+                    this.hideEnterClaimWrap()
+                })
+        },
+        // 确认找回,告诉后端找回人,找回人联系方式
+        enterRetrieve(){
+            if(this.enterContactName === ''){
+                this.showError = true
+                this.errorMessage = '拾取人姓名尚未填写哦'
+                return null
+            }
+            if(this.enterContactNum === ''){
+                this.showError = true
+                this.errorMessage = '拾取人联系方式尚未填写哦'
+                return null
+            }
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.enterGoods, {
+                    good_id: this.enterGoodId,
+                    found_name: this.enterContactName,
+                    found_num: this.enterContactNum,
+                    sort: 0
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error('确认找回失败啦,请再试一次嗯')
+                        return null
+                    }
+                    // 暂存数据
+                    let index = parseInt(this.enterGoodIndex)
+                    console.log(index)
+                    let pendingRetrieveInfo = this.pendingRetrieveMessage[index]
+                    // 将暂存数据给已找回信息
+                    this.pendingRetrieveMessage.splice(index, 1)
+                    pendingRetrieveInfo.retrieveBy = this.enterContactName
+                    pendingRetrieveInfo.retrieveContact = this.enterContactNum
+                    pendingRetrieveInfo.retrieveTime = this.getNowTime()
+                    this.retrievedMessage.pop()
+                    this.retrievedMessage.unshift(pendingRetrieveInfo)
+                    this.hideEnterRetrieveWrap()
+                })
+        },
         // 设置显示图片的数量
         setShowImgAmountn(){
             let divTotalWidth = document.getElementsByClassName('thing')[0].offsetWidth
@@ -310,24 +1129,85 @@ export default {
                 height: divHeight
             }
         },
-        // 去往丢东西或者捡到东西
+        // 初始化丢东西或者捡到东西窗口
+        initContent(){
+            this.uploadImgTotal = 0
+            this.showFirstStep = false
+            this.showSecondStep = false
+            this.showLastStep = false
+            this.barHeight = this.bar[0]
+            this.isUploadImg = false
+            this.currentStepbar = this.currentStepbar.map(item => false)
+            for(let i in this.submitInfo){
+                this.submitInfo[i] = ''
+            }
+        },
+        // 显示丢东西窗口
         showSearchLost(){
+            this.initContent()
             this.showNewLostWrap = true
             this.showFirstStep = true
+            this.currentStepbar[0] = true
         },
+        // 关闭丢东西窗口
+        hideSearchLost(){
+            this.showNewLostWrap = false
+        },
+        // 显示捡东西窗口
+        showFoundAt(){
+            this.initContent()
+            this.showNewFoundWrap = true
+            this.showFirstStep = true
+            this.currentStepbar[0] = true
+        },
+        // 关闭捡到东西窗口
+        hideFoundAt(){
+            this.showNewFoundWrap = false
+        },
+        // 显示确认认领窗口
+        showEnterClaimWrap(id, index){
+            this.showEnterClaim = true
+            this.enterGoodId = id
+            this.enterGoodIndex = index
+        },
+        // 关闭确认认领窗口
+        hideEnterClaimWrap(){
+            this.showEnterClaim = false
+        },
+        // 显示确认找回窗口
+        showEnterRetrieveWrap(id, index){
+            this.showEnterRetrieve = true
+            this.enterGoodId = id
+            this.enterGoodIndex = index
+        },
+        // 关闭确认找回窗口
+        hideEnterRetrieveWrap(){
+            this.showEnterRetrieve = false
+        },
+        // 新建拾取物或者遗失物步骤条
         showStep(step){
             this.showFirstStep = false
             this.showSecondStep = false
             this.showLastStep = false
+            this.currentStepbar = this.currentStepbar.map(item => false)
             switch(step){
                 case 'first':
                     this.showFirstStep = true
+                    this.barHeight = this.bar[0]
+                    this.currentStepbar[0] = true
                     break
                 case 'second':
                     this.showSecondStep = true
+                    this.barHeight = this.bar[1]
+                    this.currentStepbar[1] = true
                     break
                 case 'last':
                     this.showLastStep = true
+                    this.barHeight = this.bar[2]
+                    this.currentStepbar[2] = true
+                    if(this.uploadImgTotal){
+                        this.submitInfo.goodsImg = this.cutOutImg(this.uploadImgSrc, this.divSize.width, this.divSize.height, this.imgPosition.left, this.imgPosition.top, this.showImgSize.width, this.showImgSize.height)
+                    }
                     break
             }
         },
@@ -336,20 +1216,23 @@ export default {
             let file = e.target.files[0]
             // 上传了一个图片时执行
             if (e.target.files.length !== 0) {
+                this.uploadImgTotal++
                 let imgWidth = this.imgSize.width
                 let imgHeight = this.imgSize.height
                 this.setImgSize(file, imgWidth, imgHeight)
+                // console.log(this.imgSize)
             }
         },
         // 设置图片大小
         setImgSize(file, imgWidth, imgHeight){
             let imgProportion = imgHeight / imgWidth
+            // console.log(imgWidth, imgHeight)
             // 显示出来图片的大小
-            let showWidth
+            let showWidth = Math.ceil(imgWidth / imgProportion)
             let showHeight = Math.ceil(imgHeight / imgProportion)
             // 选中的图片大小
-            let selectWidth = Math.ceil(imgWidth / imgProportion / 2)
-            let selectHeight = Math.ceil(imgHeight / imgProportion / 2)
+            let selectWidth = Math.ceil(showWidth / 1.1)
+            let selectHeight = Math.ceil(showHeight / 1.1)
             let vue = this
             let fileReader = new FileReader()
             fileReader.readAsDataURL(file)
@@ -357,7 +1240,12 @@ export default {
                 let img = new Image()
                 img.src = this.result
                 img.onload = function() {
-                    showWidth = Math.ceil((showHeight / img.height) * img.width)
+                    showWidth = Math.ceil(showHeight / img.height * img.width)
+                    // 再次调整选中的图片大小
+                    if(selectWidth > showWidth){
+                        selectHeight = Math.ceil(showWidth / selectWidth * selectHeight)
+                        selectWidth = showWidth
+                    }
                     vue.setUploadImgSrc(img.src)
                     vue.showImgSize = {
                         width: showWidth,
@@ -381,10 +1269,8 @@ export default {
         moveSelectImg(event){
             setTimeout(() => {
                 if(this.isMoveImg){
-                    let selectingPreEle = document.getElementById('selecting-pre')
                     let selectingCoverEle = document.getElementById('selecting-cover')
                     let parentEle = selectingCoverEle.parentElement
-                    let showSelectingimgEle = document.getElementById('show-selecting').firstElementChild
                     let pos = this.getMousePos(event)
                     let posX = pos.x - this.divPos.x
                     let posY = pos.y - this.divPos.y
@@ -414,6 +1300,7 @@ export default {
                 }
             }, 20)
         },
+        // 开始移动上传的图片
         beginMoveImg(event){
             this.isMoveImg = true
             let x = event.pageX
@@ -442,13 +1329,11 @@ export default {
             if(this.isDivImgSize){
                 // event.stopPropagation()
                 setTimeout(() => {
-                    let selectingPreEle = document.getElementById('selecting-pre')
                     let selectingCoverEle = document.getElementById('selecting-cover')
-                    let showSelectingimgEle = document.getElementById('show-selecting')
                     let parentEle = selectingCoverEle.parentElement
                     let pos = this.getMousePos(event)
                     let posX = (pos.x - this.divBtnPos.x)
-                    let posY = (pos.y - this.divBtnPos.y)
+                    // let posY = (pos.y - this.divBtnPos.y)
                     let width = this.divSize.width
                     let height = this.divSize.height
                     let gap = this.getDivPos(selectingCoverEle)
@@ -460,9 +1345,9 @@ export default {
                         case 'top-left':
                             if(gap.left >= 0 && gap.top >= 0){
                                 x = posX + this.imgPosition.left
-                                y = posY + this.imgPosition.top
+                                y = posX + this.imgPosition.top
                                 width = this.divSize.width - posX
-                                height = this.divSize.height - posY
+                                height = this.divSize.height - posX
                                 this.imgPosition = {
                                     left: x,
                                     top: y
@@ -471,9 +1356,9 @@ export default {
                             break
                         case 'top-right':
                             if(gap.top >= 0 && gapWidth >= gap.left){
-                                y = posY + this.imgPosition.top
+                                y = -posX + this.imgPosition.top
                                 width = this.divSize.width + posX
-                                height = this.divSize.height - posY
+                                height = this.divSize.height + posX
                                 this.imgPosition.top = y
                             }
                             break
@@ -481,14 +1366,14 @@ export default {
                             if(gap.left >= 0 && gapHeight >= gap.top){
                                 x = posX + this.imgPosition.left
                                 width = this.divSize.width - posX
-                                height = this.divSize.height + posY
+                                height = this.divSize.height - posX
                                 this.imgPosition.left = x
                             }
                             break
                         case 'bottom-right':
                             if(gapWidth >= gap.left && gapHeight >= gap.top){
                                 width = this.divSize.width + posX
-                                height = this.divSize.height + posY
+                                height = this.divSize.height + posX
                             }
                             break
                     }
@@ -504,7 +1389,7 @@ export default {
         getMousePos(event) {
             let x = event.pageX
             let y = event.pageY
-            return { x: x, y: y }
+            return { x, y }
         },
         getDivPos(div) {
             let left = div.offsetLeft
@@ -512,22 +1397,34 @@ export default {
             return { left, top }
         },
         /**
-         * img: 图源
-         * width: 截取图片的宽度
-         * height: 截取图片的高度
+         * imgSrc: 图源
+         * destWidth: 截取后图片的宽度
+         * destHeight: 截取后图片的高度
          * x: 截取开始的X坐标
          * y: 截取开始的Y坐标
+         * bufferWidth: 原本图片经过缩放后的宽度
+         * bufferHegiht: 原本图片经过缩放后的高度
          */
-        cutOutImg(img, width, height, startX, starty){
+        cutOutImg(imgSrc, destWidth, destHeight, startX, starty, bufferWidth, bufferHeight){
             let destImg = document.createElement('canvas')
-            let destCtx = destImg.getContext('2d')
-            destImg.width = width
-            destImg.height = height
-            destCtx.drawImage(img, startX, starty, width, height, 0, 0, width, height)
+            // let destCtx = destImg.getContext('2d')
+            let originalImg = new Image()
+            let bufferImg = document.createElement('canvas')
+
+            destImg.width = destWidth
+            destImg.height = destHeight
+
+            originalImg.src = imgSrc
+
+            bufferImg.width = bufferWidth
+            bufferImg.height = bufferHeight
+
+            bufferImg.getContext('2d').drawImage(originalImg, 0, 0, originalImg.width, originalImg.height, 0, 0, bufferWidth, bufferHeight)
+            destImg.getContext('2d').drawImage(bufferImg, startX, starty, destWidth, destHeight, 0, 0, destWidth, destHeight)
             // 返回base64图片类型
             return destImg.toDataURL()
         },
-        // 将base64转换为file二进制文件(blob类型)
+        // 将base64转换为blob类型
         getBlob(url){
             let arr = url.split(',')
             let mime = arr[0].match(/:(.*?);/)[1]
@@ -538,6 +1435,37 @@ export default {
                 u8arr[n] = bstr.charCodeAt(n)
             }
             return new Blob([u8arr], { type: mime })
+        },
+        // 将blob转换为file类型
+        getFile(blob, filename){
+            let file = new File([blob], filename)
+            return file
+        },
+        // 获取当前时间
+        getNowTime(){
+            let date = new Date()
+            // 获取年-月-日
+            let year = date.getFullYear()
+            let month = date.getMonth()
+            let day = date.getDate()
+            // 获取时-分-秒
+            let hour = date.getHours()
+            let minute = date.getMinutes()
+            let second = date.getSeconds()
+
+            // 如果时-分-秒小于0,则给它们前面补个0
+            if(hour < 10){
+                hour = '0' + hour
+            }
+            if(minute < 10){
+                minute = '0' + minute
+            }
+            if(second < 10){
+                second = '0' + second
+            }
+
+            let nowTime = year + '-' + month + '-' + day + ' ' + hour + '-' + minute + '-' + second
+            return nowTime
         }
     }
 }
@@ -547,6 +1475,58 @@ export default {
 
     ul{
         list-style-type: none;
+    }
+
+    .text-right{
+        text-align: right;
+    }
+
+    .enter-wrap{
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 0 25px 15px;
+        border-radius: .25em;
+
+        .close-content{
+            cursor: pointer;
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            width: 20px;
+            height: 20px;
+            transition: transform .3s;
+        }
+
+        .close-content:hover{
+            transform: rotate(90deg);
+        }
+
+        .info{
+            margin-bottom: 15px;
+
+            input{
+                border: none;
+                border-bottom: 1px solid #999;
+                padding: 0 15px;
+                width: 250px;
+                height: 45px;
+                font-size: 15px;
+                box-sizing: border-box;
+            }
+
+            input::placeholder{
+                font-size: 12px;
+                transition: all .2s;
+                transform-origin: center top;
+            }
+
+            input:focus::placeholder{
+                transform: translateX(-15px) translateY(-15px) scale(.9)
+            }
+        }
     }
 
     .content-body{
@@ -570,17 +1550,28 @@ export default {
         }
         .submit-div{
             margin: 5px 0 20px;
+            text-align: center;
         }
     }
 
+    .position-all{
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+    }
+
     .curtain-black{
+        position: fixed;
         z-index: 999;
         background-color: rgba(0, 0, 0, .7);
 
         .content{
+            transform: translate(200px, 100px);
             display: flex;
             width: 800px;
-            margin: 150px auto;
+            margin: 80px auto;
 
             .bar{
                 position: absolute;
@@ -590,9 +1581,15 @@ export default {
                 background-color: #fff;
                 font-size: 14px;
 
+                .bar-color{
+                    height: 0;
+                    transition: height .4s;
+                    background-color: #1f6fb5;
+                }
+
                 .bar-name{
                     cursor: pointer;
-                    box-sizing: border-box;
+                    transition: all .4;
                     color: #fff;
                     text-align: center;
                     line-height: 30px;
@@ -603,7 +1600,7 @@ export default {
                     height: 30px;
                     border-radius: 50%;
                     border: 2.5px solid #fff;
-                    background-color: #86b7e7;
+                    background-color: #9dd3fa;
 
                     .brief{
                         font-size: 16px;
@@ -628,6 +1625,13 @@ export default {
                     }
                 }
 
+                .current-bar{
+                    width: 35px;
+                    height: 35px;
+                    background-color: #fb9100;
+                    line-height: 35px;
+                }
+
                 span:hover .brief{
                     visibility: visible;
                     opacity: 1;
@@ -646,12 +1650,27 @@ export default {
             }
 
             .content-body{
+                position: relative;
                 display: inline-block;
                 vertical-align: top;
                 background-color: #fff;
                 padding: 10px 20px;
                 margin: -15px 40px;
                 border-radius: 5px;
+
+                .close-content{
+                    cursor: pointer;
+                    position: absolute;
+                    right: 8px;
+                    top: 8px;
+                    width: 20px;
+                    height: 20px;
+                    transition: transform .3s;
+                }
+
+                .close-content:hover{
+                    transform: rotate(90deg);
+                }
 
                 .upload-lost-img{
                     min-width: 500px;
@@ -669,7 +1688,8 @@ export default {
                     }
                 }
 
-                .lost-upload{
+                .lost-upload,
+                .found-upload{
                     padding: 0 20px;
                     display: flex;
 
@@ -778,7 +1798,8 @@ export default {
                 }
 
                 // 填写遗失信息
-                .lost-title{
+                .lost-title,
+                .found-title{
                     text-align: center;
                     font-size: 24px;
                     padding: 5px 0;
@@ -928,6 +1949,7 @@ export default {
             border-radius: 4px;
             margin-left: 15px;
             transition: all .2s;
+            user-select: none;
         }
 
         .blue-btn{
@@ -935,7 +1957,7 @@ export default {
                                 linear,
                                 left bottom,
                                 left top,
-                                color-stop(0, #2ca0ca),
+                                color-stop(0, #2c9cc5),
                                 color-stop(1, #3eb8e5)
             );
             box-shadow: inset 0px 1px 0px #7fd2f1, 0px 4px 0px #156785;
@@ -1054,7 +2076,7 @@ export default {
                     font-size: 12px;
                     margin: 3px;
                     padding: 1px 8px;
-                    background-color: rgb(255, 232, 129);
+                    background-color: #ffe881;
                     border-radius: 3px;
                 }
             }
@@ -1068,7 +2090,6 @@ export default {
 
             .info{
                 z-index: 2;
-                visibility: hidden;
                 transform-style: preserve-3d;
                 transform: translateZ(-100px);
                 opacity: 0;
@@ -1155,21 +2176,17 @@ export default {
                     }
                 }
             }
+
+            .already{
+                visibility: visible;
+                opacity: 1;
+            }
         }
 
         .thing-item:hover .info{
-            visibility: visible;
             transform: translateZ(0);
             opacity: 1;
         }
-    }
-
-    .position-all{
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
     }
 
     .flex-center{

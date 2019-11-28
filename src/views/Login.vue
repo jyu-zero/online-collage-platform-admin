@@ -6,7 +6,7 @@
             <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign">
                 <!-- <font-awesome-icon icon="user-o"/> -->
                 <el-form-item label="账号：">
-                    <el-input v-model="formLabelAlign.id"></el-input>
+                    <el-input v-model="formLabelAlign.account"></el-input>
                 </el-form-item>
                 <el-form-item label="密码：">
                     <el-input v-model="formLabelAlign.password" show-password></el-input>
@@ -33,7 +33,7 @@ export default {
         return{
             labelPosition: 'right',
             formLabelAlign: {
-                id: '',
+                account: '',
                 password: ''
             }
         }
@@ -41,22 +41,20 @@ export default {
     methods: {
         login() {
             // 登录验证
-            if(this.formLabelAlign.id.trim() === '') {
-                Message.error('请输入账号!')
-                return
-            }
-            if(this.formLabelAlign.password.trim() === '') {
-                Message.error('请输入密码!')
-                return
-            }
-            this.$axios
-                .post(prefix.api + userApi.login, {
-                    id: this.formLabelAlign.id,
-                    password: this.formLabelAlign.password
-                })
-                .then((response) =>{
-                    this.$router.push({ name: 'Overview' })
-                })
+            // if(this.formLabelAlign.account.trim() === '') {
+            //     Message.error('请输入账号!')
+            //     return
+            // }
+            // if(this.formLabelAlign.password.trim() === '') {
+            //     Message.error('请输入密码!')
+            //     return
+            // }
+            this.$axios.post(prefix.api + userApi.login, {
+                account: this.formLabelAlign.account,
+                password: this.formLabelAlign.password
+            }).then((response) =>{
+                this.$router.push({ name: 'Overview' })
+            })
         }
     }
 }

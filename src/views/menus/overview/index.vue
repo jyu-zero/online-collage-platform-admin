@@ -1,7 +1,7 @@
 <template>
     <div class="overview">
         <h2>今日值班</h2>
-        <table class="table">
+        <table class="table" v-if="arrangeList.length">
             <tr>
                 <td v-for="(item,index) in timeList" :key="index">{{item}}</td>
             </tr>
@@ -9,22 +9,25 @@
                 <td v-for="(item,index) in arrangeList" :key="index">{{item}}</td>
             </tr>
         </table>
-
+        <div v-else class="tip">今日无值班人员</div>
+        
         <h2>今日新增内容</h2>
         <h4>新闻</h4>
-        <div class="mar">
-            <div class="work-arrange">
-                <p>新闻标题</p>
+        <div class="mar" v-if="newsList.length">
+            <div class="common-box" v-for="(item,index) in newsList" :key="index">
+                <p>{{item.news_title}} by {{item.author}}</p>
                 <div>
-                    <el-button type="primary" class="but">发布</el-button>
+                    <!-- TODO:这里按钮还没做 -->
+                    <el-button type="primary" class="but" v-if="isTeacher">发布</el-button>
                     <el-button type="primary" class="but">查看</el-button>
                 </div>
             </div>
         </div>
+        <div v-else class="tip distance">今日无新增新闻</div>
 
         <h4>失物招领</h4>
-        <div class="mar">
-            <div class="work-arrange" v-for="(item,index) in lostList" :key="index">
+        <div class="mar" v-if="lostList.length">
+            <div class="common-box" v-for="(item,index) in lostList" :key="index">
                 <div class="left">
                     <p>{{item.title}}</p>
                     <p v-if="item.state" class="gray">已找回</p>
@@ -33,40 +36,47 @@
                 <el-button type="primary" class="but">查看详细</el-button>
             </div>
         </div>
-
-        <h4>在线问答 (12)</h4>
-        <div class="mar">
-            <div class="work-arrange">
+        <div v-else class="tip distance">今日无新增失物</div>
+        
+        <h4>在线问答 ({{questionNum}})</h4>
+        <div class="mar" v-if="questionList.length">
+            <div class="common-box" v-for="(item,index) in questionList" :key="index">
                 <div class="left">
-                    <p>问题内容</p>
+                    <p>{{item.title}}</p>
+                    <p  class="gray" v-if="item.status">已解决</p>
                 </div>
-                <div>
-                    <el-button type="primary" class="but">查看</el-button>
-                </div>
-            </div>
-            <div class="work-arrange">
-                <div class="left">
-                    <p>问题内容</p>
-                    <p  class="gray">已解决</p>
-                </div>
-                <div>
-                    <el-button type="primary" class="but">查看</el-button>
+                <div class="right">
+                    <div><font-awesome-icon icon="eye" />{{item.views}}</div>
+                    <div><font-awesome-icon icon="comment-dots" />{{item.solutionsNum}}</div>
+                    <el-button type="primary" class="but" @click="jumpQuestion(item.questionId)">查看</el-button>
                 </div>
             </div>
         </div>
+        <div v-else class="tip distance">今日无新增问答</div>
+
     </div>
 </template>
 
 <script>
 import { Button, Message } from 'element-ui'
-import { responseHandler, userApi, prefix } from '@/api'
+import { responseHandler, dutySchedulingApi, prefix, userApi, newsApi, questionApi } from '@/api'
 export default {
     name: 'Overview',
     data() {
         return {
+            // 安排列表
             arrangeList: [],
-            timeList: ['上午1,2', '上午3,4', '下午1,2', '下午3,4'],
-            lostList: []
+            timeList: ['第1节', '第2节', '第3节', '第4节', '第5节', '第6节', '第7节', '第8节'],
+            // 失物列表
+            lostList: [],
+            // 新闻列表
+            newsList: [],
+            // 是否为老师
+            isTeacher: 0,
+            // 问题列表
+            questionList: [],
+            // 是否为老师
+            questionNum: 0
         }
     },
     components: {
@@ -76,22 +86,31 @@ export default {
     created () {
         this.getTodayArrange()
         this.getTodayLost()
+        this.getTodayNews()
+        this.isATeacher()
+        this.getQuestions()
     },
     methods: {
         getTodayArrange () {
             let date = new Date()
             let today = date.getDay()
-            today = 1
+            // 获取当前时间的毫秒数
+            let nowTime = new Date().getTime()
+            // 获取开学时间的毫秒数
+            let etime = '2019-09-01 00:00:00'
+            let times = Date.parse(new Date(etime.replace(/-/g, '/')))
+            let timeDiff = nowTime - times
+            let days = Math.ceil(timeDiff / 1000 / 60 / 60 / 24)
+            let week = Math.ceil(days / 7) % 2
             if(today >= 1 && today <= 5) {
-                this.$axios.get(prefix.api + userApi.getTodayArrange, {
+                this.$axios.get(prefix.api + dutySchedulingApi.getTodayArrange, {
                     params: {
-                        week: 1,
+                        week,
                         day: today
                     }
                 }).then(response => {
                     if(!responseHandler(response.data, this)){
-                        // 在这里处理错误
-                        Message.error('请求失败')
+                        Message.error('获取值班信息失败')
                     }
                     this.arrangeList = response.data.data
                 })
@@ -100,11 +119,39 @@ export default {
         getTodayLost () {
             this.$axios.get(prefix.api + userApi.todayAdd).then(response => {
                 if(!responseHandler(response.data, this)){
-                    // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('获取失物信息失败')
                 }
                 this.lostList = response.data.data
             })
+        },
+        getTodayNews () {
+            this.$axios.get(prefix.api + newsApi.showTodayNews).then(response => {
+                if(!responseHandler(response.data, this)){
+                    Message.error('获取新闻信息失败')
+                }
+                this.newsList = response.data.data
+            })
+        },
+        isATeacher () {
+            this.$axios.get(prefix.api + newsApi.isTeacher).then(response => {
+                if(!responseHandler(response.data, this)) {
+                    Message.error('判断身份失败')
+                }
+                this.isTeacher = response.data.data
+            })
+        },
+        getQuestions () {
+            this.$axios.get(prefix.api + questionApi.getHomeQuestions).then(response => {
+                if(!responseHandler(response.data, this)) {
+                    Message.error('获取问题列表失败')
+                }
+
+                this.questionNum = response.data.data.pageCount
+                this.questionList = response.data.data.information
+            })
+        },
+        jumpQuestion (id) {
+            this.$router.push({ path: '/questions/questions-specific/' + id })
         }
     }
 }
@@ -131,11 +178,20 @@ export default {
     .gray {
         background: rgb(235, 238, 245);
     }
+
+    .tip {
+        padding: 0 0 0 20px;
+        box-sizing: border-box;
+        background: rgb(64, 158, 255);
+        border-radius: 5px;
+    }
+    .distance {
+        margin: 20px 0;
+    }
 }
 
 .table {
     border: 1px solid rgb(235, 238, 245);
-    width: 80%;
     height: 96px;
 
     th,td {
@@ -150,7 +206,7 @@ export default {
     box-sizing: border-box;
     margin: 10px 0 20px;
 
-    .work-arrange {
+    .common-box {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -163,10 +219,15 @@ export default {
             border-bottom: 0;
         }
 
-        .left {
+        .left,.right {
             display: flex;
             align-items: center;
             height: 100%;
+        }
+
+        .right {
+            width: 180px;
+            justify-content: space-between;
         }
 
         .but {

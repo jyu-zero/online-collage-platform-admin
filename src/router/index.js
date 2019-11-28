@@ -27,14 +27,61 @@ const routes = [
         }]
     },
     {
-        // 账号管理页面
+        // 学生账号管理页面
+        path: '/students',
+        component: () => import('@/views/Wrapper.vue'),
+        children: [{
+            path: '/',
+            name: 'Students',
+            component: () => import('@/views/menus/students/index.vue')
+        },
+        {
+            path: 'monitor',
+            name: 'Monitor',
+            component: () => import('@/views/menus/students/Monitor.vue')
+        }
+        ]
+    },
+    {
+        // 后台账号管理页面
         path: '/accounts',
         component: () => import('@/views/Wrapper.vue'),
         children: [{
             path: '/',
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
-        }]
+        }, {
+            // 账号管理
+            path: '/',
+            name: 'Accounts',
+            component: () => import('@/views/menus/accounts/index.vue')
+        }, {
+            // 添加账户
+            path: '/addAccounts',
+            name: 'addAccounts',
+            component: () => import('@/views/menus/accounts/addAccounts.vue')
+        }, {
+            // 重置密码
+            path: '/resetPasswd',
+            name: 'resetPasswd',
+            component: () => import('@/views/menus/accounts/resetPasswd.vue')
+        }, {
+            // 修改信息
+            path: '/modifyInfo',
+            name: 'modifyInfo',
+            component: () => import('@/views/menus/accounts/modifyInfo.vue')
+        }, {
+            // 降级为学生账号
+            path: '/degrade',
+            name: 'degrade',
+            component: () => import('@/views/menus/accounts/degrade.vue')
+        }, {
+            // 删除账号
+            path: '/deleteAccount',
+            name: 'deleteAccount',
+            component: () => import('@/views/menus/accounts/deleteAccount.vue')
+        }
+        ]
     },
     // 在线问答组界限 ----------
     {
@@ -102,11 +149,19 @@ const routes = [
         // 值班管理页面
         path: '/duty-scheduling',
         component: () => import('@/views/Wrapper.vue'),
-        children: [{
-            path: '/',
-            name: 'DutyScheduling',
-            component: () => import('@/views/menus/duty-scheduling')
-        }]
+        children: [
+            {
+                path: '/',
+                name: 'DutyScheduling',
+                component: () => import('@/views/menus/duty-scheduling')
+            },
+            {
+                path: 'freeCourse',
+                name: 'freeCourse',
+                component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
+            }
+            
+        ]
     },
     // 值班管理组界限 ---------- [完]
     // 文件分享组界限 ----------
@@ -128,6 +183,7 @@ const routes = [
         ]
     }
     // 文件分享组界限 ---------- [完]
+    
 ]
 
 const router = new VueRouter({

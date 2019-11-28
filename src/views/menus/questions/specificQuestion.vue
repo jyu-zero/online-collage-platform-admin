@@ -14,9 +14,13 @@
                             <i class = "el-icon-s-order"></i><span>{{questionType}}</span>
                         </div>
                     </el-col>
-                    <el-col :span = "8" class="question-title">
-                        <el-button type="danger" @click='delectQuestion(questionId)' style="margin: 0px 17px;">删除问题<i class="el-icon-delete-solid"></i></el-button>
-                        <el-button type="primary" @click="open">添加回答<i class="el-icon-edit"></i></el-button>
+                    <el-col :span = "8" class="question-title" style="
+                    padding-left: 5px;
+                    padding-right: 34px;
+                    display: flex;
+                    flex-direction: row-reverse;">
+                        <el-button type="danger" @click='delectQuestion(questionId)' style="margin: 6px 8px;">删除问题<i class="el-icon-delete-solid"></i></el-button>
+                        <el-button type="primary" @click="open" style="margin: 6px 8px;">添加回答<i class="el-icon-edit"></i></el-button>
                     </el-col>
                 </el-row>
             </el-card>
@@ -74,6 +78,7 @@
                         background
                         layout = " prev, pager, next"
                         :current-page = "currentpage"
+                        :total = "100"
                         :page-size = 3>
                         </el-pagination>
                     </div>
@@ -82,11 +87,6 @@
                     <div class = "grid-content bg-purple"></div>
                 </el-col>
             </el-row>
-    <!-- <el-button type = "primary" @click = "open" class = "setanswer">
-        添加回答<i class = "el-icon-edit"></i>
-    </el-button> -->
-    <Editor style = "display:none;"></Editor>
-    <!-- <router-view/> -->
   </div>
 </template>
 
@@ -118,12 +118,13 @@ export default {
     },
     data(){
         return {
-            allpage: '100', // 总页数
+            allPage: '100', // 总页数
             currentpage: 1, // 当前页数
             submitanswer: '',
+            illegalKeyword: [],
             anonymous: true,
             questionId: this.$route.params.id,
-            questionTitle: '如何进行XXXXXXXXXXXXX？',
+            questionTitle: '如何进行？',
             questionOwer: 'XXXX',
             questionTime: '2019-09-23 12:01:22',
             browseTimes: 12,
@@ -133,11 +134,11 @@ export default {
         }
     },
     mounted(){
-        this.getquestion(this.questionId)
-        this.getanswer()
-        // this.answers.sort();
+        this.getQuestion(this.questionId)// 进入页面时预设我们页面的问题资料
+        this.getAnswer()// 进入页面时预设我们问题相关回答的资料
     },
     methods: {
+        // 处理点踩的逻辑
         dislike(solutionId, index){
             this.answers[index].pointTimes--
             this.$axios.post(prefix.api + questionApi.dislikes, {
@@ -147,6 +148,7 @@ export default {
                 }
             })
         },
+        // 处理点赞的逻辑
         like(solutionId, index){
             this.answers[index].pointTimes++
             this.$axios.post(prefix.api + questionApi.likes, {
@@ -156,6 +158,7 @@ export default {
                 }
             })
         },
+        // 处理采纳为最佳的逻辑
         adoptAsBest(solutionId){
             this.$axios.post(prefix.api + questionApi.adoptAsBest, {
                 solutionId }).then(response => {
@@ -164,6 +167,7 @@ export default {
                 }
             })
         },
+        //  处理删除问题的逻辑
         delectQuestion(id){
             this.$axios.post(prefix.api + questionApi.deleteQuestion, {
                 questionId: id }).then(response => {
@@ -172,10 +176,7 @@ export default {
                 }
             })
         },
-        catchData(value){
-            this.submitanswer = value//  在这里接受子组件传过来的参数，赋值给data里的参数
-            alert(value)
-        },
+        // 点击分页按钮的逻辑
         handleCurrentChange(val){
             this.currentpage = val
             this.$message({
@@ -183,10 +184,11 @@ export default {
                 message: '请求成功!'
             })
             this.answers = [] // 清空页面的回答数据
-            this.getanswer(this.currentpage, this.questionId)
+            this.getAnswer(this.currentpage, this.questionId)
         },
-        getquestion(questionId = 1){
-            this.$axios.get(prefix.api + questionApi.getCheckQuestion, {
+        // 获取问题的逻辑
+        getQuestion(questionId = 1){
+            this.$axios.get(prefix.api + questionApi.getCheckQuestions, {
                 questionId: this.$route.params.id }).then(response => {
                 if (response.data.code === '0000') {
                     this.questionId = response.data.data.questionId
@@ -199,7 +201,8 @@ export default {
                 }
             })
         },
-        getanswer(page = 1, questionsId = 1){
+        // 获取回答的逻辑
+        getAnswer(page = 1, questionsId = 1){
             this.$axios.get(prefix.api + questionApi.getSolutions, {
                 page, questionsId }).then(response => {
                 if (response.data.code === '0000') {
@@ -211,16 +214,13 @@ export default {
                         obj.phone = item.userContact
                         obj.answer = item.userName
                         this.answers.push(obj)
-                        // this.answers[index].content = item.contentPath
-                        // this.answers[index].pointTimes = item.likeNum
-                        // this.answers[index].phone = item.userContact
-                        // this.answers[index].answer = item.userName
                     })
                     this.allpage = response.data.data.pageCount
                 }
             })
         },
-        geteditor(html){
+        // 获取回答框里的内容
+        getEditor(html){
             this.submitanswer = html
         },
         open(){
@@ -237,7 +237,10 @@ export default {
                             input: (html) =>{
                                 this.submitanswer = html
                             }
-                        } }, this.submitanswer)
+                        },
+                        ref: 'myEditor',
+                        refInFor: true
+                    }, this.submitanswer)
                 ]),
                 showCancelButton: true,
                 confirmButtonText: '确定',
@@ -246,6 +249,12 @@ export default {
                     if (action === 'confirm') {
                         instance.confirmButtonLoading = true
                         instance.confirmButtonText = '执行中...'
+                        this.illegalKeyword.forEach((e) => {
+                            let param = e
+                            let reg = new RegExp(param, 'gim') // re为/^\d+bl$/gim
+                            this.submitanswer = this.submitanswer.replace(reg, '*')
+                        })
+                        this.$refs.myEditor[0].clear()
                         let content = this.submitanswer // 问题内容
                         let questionsId = this.questionId // 问题id
                         let anonymous = this.anonymous // 是否匿名
@@ -275,9 +284,6 @@ export default {
                     message: 'action: ' + action
                 })
             })
-            var editor1 = new E('#div4')
-            editor1.customConfig.uploadImgShowBase64 = true
-            editor1.create()
         }
     }
 }
@@ -287,6 +293,7 @@ export default {
     #app{
     height: 100%;
     position: relative;
+    background: #f0f0f0;
         .setanswer{
             position: fixed;
             top: 65%;
@@ -296,6 +303,13 @@ export default {
     main{
         padding: 20px 110px;
         background: #f0f0f0;
+        &>div{
+            padding: 20px 110px;
+            background: #f0f0f0;
+        }
+    }
+    .el-message-box{
+        width: 55%;
     }
     .el-main{
     padding-left:20%;
@@ -328,9 +342,6 @@ export default {
   .answer{
     background: white;
     margin: 10px 0px;
-    div{
-      // margin: 10px 0px;
-    }
 }
   .question-title{
     margin: 10px 0px;
@@ -344,8 +355,12 @@ export default {
     margin: 10px 0;
     padding: 10px;
 }
-    .el-message-box{
-    width: 50%;
+
+</style>+
+
+<style lang="less">
+.el-message-box  {
+    width: 50% !important;
     height: 67%;
     .w-e-text-container{
         height: 359px;
