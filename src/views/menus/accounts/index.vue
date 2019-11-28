@@ -4,7 +4,7 @@
         <!-- 添加两个按钮 -->
         <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
         <el-button type="primary"  value="insert">导入账号</el-button>
-
+        <!-- 插入表格 -->
         <el-table
         :data="accountList"
         border
@@ -43,11 +43,9 @@
         <el-table-column
             label="操作"
             align="center">
-            <!-- 在表格组件中嵌套下拉菜单组件 -->
-            <!-- <div class="handleCommand" @click="handleCommand">···
-            </div> -->
+            <!-- 操作选择项 -->
             <template slot-scope="scope">
-                <el-select v-model="scope.row.option" placeholder="请选择" @change="chooseOption(scope)" value-key="scope.row.account">
+                <el-select v-model="scope.row.option" placeholder="请选择" clearable @change="chooseOption(scope)" value-key="scope.row.account">
                     <el-option
                     v-for="item in options"
                     :key="item.value"
@@ -67,13 +65,38 @@
             :total="50">
         </el-pagination>
 
+        <!-- 降级弹窗 -->
+        <el-dialog
+        title="提示"
+        :visible.sync="dialogVisible1"
+        width="28%"
+        :before-close="handleClose">
+        <span>确定要降级为学生账号吗？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible1 = false">取 消</el-button>
+            <el-button type="primary" @click="degrade">确 定</el-button>
+        </span>
+        </el-dialog>
+        <!-- 删除弹窗 -->
+        <el-dialog
+        title="提示"
+        :visible.sync="dialogVisible2"
+        width="28%"
+        :before-close="handleClose">
+        <span>确定要删除账号吗？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible2 = false">取 消</el-button>
+            <el-button type="primary" @click="deleteAccount">确 定</el-button>
+        </span>
+        </el-dialog>
+
     </div>
 </template>
 
 <script>
 // import responseHandler from '@/utils/responseHandler'
 import { prefix, responseHandler, userApi } from '@/api'
-import { Button, Table, TableColumn, Select, Option, Pagination, Message, Alert } from 'element-ui'
+import { Button, Table, TableColumn, Select, Option, Pagination, Message, Alert, Dialog } from 'element-ui'
 
 export default {
     name: 'Accounts',
@@ -85,10 +108,13 @@ export default {
         [Option.name]: Option,
         [Pagination.name]: Pagination,
         [Message.name]: Message,
-        [Alert.name]: Alert
+        [Alert.name]: Alert,
+        [Dialog.name]: Dialog
     },
     data(){
         return{
+            dialogVisible1: false,
+            dialogVisible2: false,
             admin_role_id: '',
             options: [{
                 value: '1',
@@ -111,6 +137,7 @@ export default {
         this.getAccounts()
     },
     methods: {
+        // 获取账号表格
         getAccounts(page = 1){
             this.$axios.get(prefix.api + userApi.getAccounts, {
                 params: {
@@ -124,6 +151,7 @@ export default {
                 Message.success('获取账号成功')
             })
         },
+        // 处理操作选择项
         chooseOption(scope){
             if(scope.row.option === '1'){
                 this.$router.push({ name: 'resetPasswd' })
@@ -132,24 +160,10 @@ export default {
                 this.$router.push({ name: 'modifyInfo' })
             }
             if(scope.row.option === '3'){
-                // this.$alert('确定要降级为学生账号吗？', {
-                //     confirmButtonText: '确定',
-                //     cancelButtonText: '取消'
-                // }).then(() => {
-                //     this.$message({
-                //         type: 'success',
-                //         message: '删除成功!'
-                //     })
-                // }).catch(() => {
-                //     this.$message({
-                //         type: 'info',
-                //         message: '已取消删除'
-                //     })
-                // })
-                this.degrade()
+                this.dialogVisible1 = true
             }
             if(scope.row.option === '4'){
-                this.deleteAccount()
+                this.dialogVisible2 = true
             }
         },
         // 添加账号
@@ -158,17 +172,25 @@ export default {
         },
         // 降级为学生账号
         degrade(){
-            this.$axios.post(prefix.api + userApi.degrade, {
-                account: this.account
+            this.$axios.post(prefix.api + userApi.login, {
+                data: {
+                    admin_role_id: this.admin_role_id
+                }
             }).then((response)=>{
                 // if(response.data.data.admin_role_id === '老师'){
                 //     Message.error('无法降级')
+                //     return
                 // }
-                if(!responseHandler(response.data, this)){
-                    Message.error('降级失败')
-                    return
+                if(response.data.data.admin_role_id !== '老师'){
+                    this.$axios.post(prefix.api + userApi.degrade, {
+                        account: this.account
+                    }).then((response)=>{
+                        if(!responseHandler(response.data, this)){
+                            Message.error('降级失败')
+                        }
+                        Message.success('降级成功')
+                    })
                 }
-                Message.success('降级成功')
             })
         },
         // 删除账号
@@ -181,6 +203,14 @@ export default {
                 }
                 Message.success('删除成功')
             })
+        },
+        // 关闭处理按钮
+        handleClose(done) {
+            this.$confirm('确认关闭？')
+                .then(_ => {
+                    done()
+                })
+                .catch(_ => {})
         }
     }
 }
@@ -225,5 +255,12 @@ export default {
     top: 35px;
     background: white;
     display: none;
+}
+.el-dialog {
+    width: 100px;
+    height: 36px;
+    title {
+        font-size: 30px;
+    }
 }
 </style>

@@ -187,8 +187,11 @@ export default {
     display: flex;
 }
 .get-account-box{
+    font-size: 15px;
+    color: white;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
+    align-items: center;
 }
 .flex-container {
     display: flex;

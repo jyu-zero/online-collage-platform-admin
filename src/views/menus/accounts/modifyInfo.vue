@@ -2,10 +2,6 @@
     <div class="modifyInfo">
         <h1>修改信息</h1>
             <div class="input-items">
-            <label class="item" for="account">学号：</label>
-                <el-input v-model="account"></el-input>
-            </div>
-            <div class="input-items">
             <label class="item" for="admin_role_id">账号类型：</label>
                 <el-input v-model="admin_role_id"></el-input>
             </div>
@@ -37,11 +33,10 @@ export default {
     },
     data(){
         return {
-            account: '',
-            admin_role_id: '',
-            name: '',
-            sex: '',
-            contact: ''
+            admin_role_id: this.admin_role_id,
+            name: this.name,
+            sex: this.sex,
+            contact: this.contact
         }
     },
     methods: {
@@ -54,9 +49,7 @@ export default {
                 sex: this.sex,
                 contact: this.contact
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
                     Message.error('修改失败')
                 }
                 Message.success('修改成功')

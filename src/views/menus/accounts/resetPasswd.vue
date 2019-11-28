@@ -23,7 +23,7 @@ export default {
     },
     data(){
         return{
-            old_password: '',
+            old_password: this.old_password,
             new_password: '',
             re_password: ''
         }
