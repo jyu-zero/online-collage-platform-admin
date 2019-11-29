@@ -112,7 +112,6 @@ export default {
         // 获取学生学号姓名
         getLoginAccount(){
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
                     Message.error('请登录！')
                     this.$router.push({ name: 'Overview' })
@@ -121,16 +120,22 @@ export default {
                 Message.success('获取学号姓名成功')
                 this.name = response.data.data.name
                 this.account = response.data.data.account
+                console.log(response)
+                // 把账号类型传递给后台账号管理页面登录模块
+                this.$router.push({
+                    query: {
+                        account: response.data.data.account,
+                        admin_role_id: response.data.data.admin_role_id
+                    }
+                })
             })
         },
         // 注销
         logout(){
             this.$axios.post(prefix.api + userApi.logout).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                    Message.error('注销失败')
+                    Message.success('注销成功')
                 }
-                Message.success('注销成功')
-                this.$router.push({ name: 'Login' })
             })
         }
 

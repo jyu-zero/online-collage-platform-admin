@@ -2,7 +2,7 @@
     <!-- 后台账户管理系统 -->
     <div class="accounts">
         <!-- 添加两个按钮 -->
-        <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
+        <el-button type="primary" value="add" @click="addAccount" v-if="isTeacher">添加账号</el-button>
         <el-button type="primary"  value="insert">导入账号</el-button>
         <!-- 插入表格 -->
         <el-table
@@ -16,7 +16,7 @@
             align="center">
         </el-table-column>
         <el-table-column
-            prop="accountType"
+            prop="admin_role_id"
             label="账号类型"
             align="center">
         </el-table-column>
@@ -50,7 +50,8 @@
                     v-for="item in options"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value">
+                    :value="item.value"
+                    :disabled="false">
                     </el-option>
                 </el-select>
             </template>
@@ -66,11 +67,12 @@
         </el-pagination>
 
         <!-- 降级弹窗 -->
-        <el-dialog
+        <el-dialog :disabled="true"
         title="提示"
         :visible.sync="dialogVisible1"
         width="28%"
-        :before-close="handleClose">
+        :before-close="handleClose"
+        v-if="isDegrade">
         <span>确定要降级为学生账号吗？</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible1 = false">取 消</el-button>
@@ -116,6 +118,8 @@ export default {
             dialogVisible1: false,
             dialogVisible2: false,
             admin_role_id: '',
+            isTeacher: false,
+            isDegrade: false,
             options: [{
                 value: '1',
                 label: '重置密码'
@@ -149,6 +153,18 @@ export default {
                 }
                 this.accountList = response.data.data.information
                 Message.success('获取账号成功')
+                this.admin_role_id = this.$route.query.admin_role_id
+                if(this.admin_role_id === '老师'){
+                    this.isTeacher = true
+                    this.isDegrade = true
+                }
+                // this.$route.push({
+                //     params: {
+                //         admin_role_id: response.data.information.admin_role_id
+                //     }
+                // })
+                // this.admin_role_id = response.data.information.admin_role_id
+                // console.log(this.admin_role_id)
             })
         },
         // 处理操作选择项
@@ -172,25 +188,18 @@ export default {
         },
         // 降级为学生账号
         degrade(){
-            this.$axios.post(prefix.api + userApi.login, {
-                data: {
-                    admin_role_id: this.admin_role_id
-                }
+            this.admin_role_id = this.$route.params.admin_role_id
+            if(this.admin_role_id === '老师'){
+                Message.error('无法降级')
+                return
+            }
+            this.$axios.post(prefix.api + userApi.degrade, {
+                account: this.account
             }).then((response)=>{
-                // if(response.data.data.admin_role_id === '老师'){
-                //     Message.error('无法降级')
-                //     return
-                // }
-                if(response.data.data.admin_role_id !== '老师'){
-                    this.$axios.post(prefix.api + userApi.degrade, {
-                        account: this.account
-                    }).then((response)=>{
-                        if(!responseHandler(response.data, this)){
-                            Message.error('降级失败')
-                        }
-                        Message.success('降级成功')
-                    })
+                if(!responseHandler(response.data, this)){
+                    Message.error('降级失败')
                 }
+                Message.success('降级成功')
             })
         },
         // 删除账号

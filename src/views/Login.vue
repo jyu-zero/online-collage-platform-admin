@@ -54,7 +54,7 @@ export default {
                 password: this.formLabelAlign.password
             }).then((response) =>{
                 Message.success('登陆成功')
-                this.$router.push({ name: 'Overview' })
+                this.$router.push({ name: 'Accounts' })
             })
         }
     }

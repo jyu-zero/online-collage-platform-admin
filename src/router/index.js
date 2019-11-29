@@ -7,8 +7,8 @@ const routes = [
     {
         // TODO: 首页应该设置为后台的首页
         path: '/',
-        name: 'Test',
-        component: () => import('@/views/Test.vue')
+        name: 'Login',
+        component: () => import('@/views/Login.vue')
     },
     {
         // 登录页

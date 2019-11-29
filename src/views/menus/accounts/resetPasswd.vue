@@ -47,12 +47,11 @@ export default {
                 new_password: this.new_password,
                 account: this.account
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
                     Message.error('重置失败')
                 }
                 Message.success('重置成功')
+                this.account = this.$route.query.account
                 this.$router.push({ name: 'Accounts' })
             })
         },

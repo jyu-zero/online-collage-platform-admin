@@ -3,19 +3,19 @@
         <h1>修改信息</h1>
             <div class="input-items">
             <label class="item" for="admin_role_id">账号类型：</label>
-                <el-input v-model="admin_role_id"></el-input>
+                <el-input v-model="admin_role_id" :value-key="admin_role_id"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="name">姓名：</label>
-                <el-input v-model="name"></el-input>
+                <el-input v-model="name" :value="name"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="sex">性别：</label>
-                <el-input v-model="sex"></el-input>
+                <el-input v-model="sex" :value="sex"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="contact">联系方式：</label>
-                <el-input v-model="contact"></el-input>
+                <el-input v-model="contact" :value="contact"></el-input>
             </div>
         <el-button type="primary" @click="modifyInfo">确定</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
@@ -35,8 +35,8 @@ export default {
         return {
             admin_role_id: this.admin_role_id,
             name: this.name,
-            sex: this.sex,
-            contact: this.contact
+            sex: '',
+            contact: ''
         }
     },
     methods: {
