@@ -143,6 +143,7 @@ export default {
     },
     data() {
         return {
+            // 老师身份验证-是否有添加账号按钮
             addVisible: false,
             // 是否弹出导入账号对话框
             leadAccounts: false,
@@ -172,6 +173,9 @@ export default {
     },
     created(){
         this.getStudents()
+        if(this.$route.query.admin_role_id === '老师'){
+            this.addVisible = true
+        }
     },
     methods: {
         // 导入账号-获取文件
