@@ -1,44 +1,50 @@
 <template>
     <div class="duty">
-        <div id="btn-set" class="button-group">
-            <div>
-            <!-- TODO:整合金隆安排表 -->
-                <el-button type="primary" @click="beginToArrange">安排人员</el-button>
-                <!-- 清空安排表数据库 -->
-                <el-button type="primary" @click="resetArrange">重置所有安排</el-button>
-                <!-- 自加：清空无课表 -->
-                <el-button type="primary" @click="resetFreelnformation">重置无课表</el-button>
-               
+        <div class="main-container">
+            <div id="btn-set" class="button-groups">
+                <div class="arrange-btns" :class="{showArrangeBtns:hasArrangeRight}">
+                    <!-- 安排人员，储存值日安排表 -->
+                    <el-button type="primary" @click="beginToArrange">安排人员</el-button>
+                    <!-- 清空安排表数据库 -->
+                    <el-button type="primary" @click="resetArrange">重置所有安排</el-button>
+                    <!-- 自加：清空无课表 -->
+                    <el-button type="primary" @click="resetFreelnformation">重置无课表</el-button>
+                
+                </div>
+                <!-- TODO:整合棉伟登记无课表 -->
+                <el-button type='primary' @click='toggle'>登记无课表</el-button>
+                <!-- <el-button type="primary" @click="goToRegister">登记无课表</el-button> -->
             </div>
-            <!-- TODO:整合棉伟登记无课表 -->
-            <el-button type='primary' @click='toggle'>登记无课表</el-button>
-            <!-- <el-button type="primary" @click="goToRegister">登记无课表</el-button> -->
+
+            <!-- 主表格 -->
+            <el-table  :data="tableData" border  style="width: 100%" >
+                <el-table-column  prop="course" label=""  align="center">
+                </el-table-column>
+                <el-table-column  prop="monday"  label="星期一" align="center" >
+                </el-table-column>
+                <el-table-column  prop="tuesday"   label="星期二" align="center">
+                </el-table-column>
+                <el-table-column  prop="wednesday"  label="星期三" align="center">
+                </el-table-column>
+                <el-table-column  prop="thursday"  label="星期四" align="center">
+                </el-table-column>
+                <el-table-column  prop="friday" label="星期五" align="center">
+                </el-table-column>
+            </el-table>
+            <!-- 主表格完 -->
+
+            <!-- 查看单双周 -->
+            <div id = "btn-single-double">
+                <div>
+                <el-button type="primary" icon="el-icon-arrow-left" @click="getSingleWeek">单周</el-button>
+                <el-button type="primary"  @click="currentDuty">当前值班</el-button>
+                <el-button type="primary"  @click="getDoubleWeek">双周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+                </div>
+                <div class="block">
+                    <el-date-picker v-model="value" type="date"  placeholder="请选择开学日期"></el-date-picker>
+                </div>
+            </div>
         </div>
-
-        <!-- 主表格 -->
-        <el-table  :data="tableData" border  style="width: 93%; margin: 0 auto" >
-            <el-table-column  prop="course" label=""  align="center">
-            </el-table-column>
-            <el-table-column  prop="monday"  label="星期一" align="center" >
-            </el-table-column>
-            <el-table-column  prop="tuesday"   label="星期二" align="center">
-            </el-table-column>
-            <el-table-column  prop="wednesday"  label="星期三" align="center">
-            </el-table-column>
-            <el-table-column  prop="thursday"  label="星期四" align="center">
-            </el-table-column>
-            <el-table-column  prop="friday" label="星期五" align="center">
-            </el-table-column>
-        </el-table>
-        <!-- 主表格完 -->
-
-        <!-- 查看单双周 -->
-        <div id = "btn-single-double">
-            <el-button type="primary" icon="el-icon-arrow-left" @click="getSingleWeek">单周</el-button>
-            <el-button type="primary"  @click="currentDuty">当前值班</el-button>
-            <el-button type="primary"  @click="getDoubleWeek">双周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-        </div>
-
         <!-- 这里开始是delon写的 -->
         <div class="arrange-page-screen"  :class="{active:isActive}">
             <div class="arrange-page">
@@ -65,14 +71,15 @@
                                 v-bind:class="'arrange-table-column_'+col"
                             >
                                 <el-select
-                                    v-model="row[col+'why']"
+                                    v-model="row[col]"
                                     multiple
                                     placeholder="请安排同学值日"
                                     size="small"
-                                    @change="checkSelectedOptions"
+                                    ref="selector"
+                                    no-data-text="没有可值日人员"
                                 >
                                     <el-option
-                                        v-for="item in options[row[col] - 1]"
+                                        v-for="item in options[row[0] + col - 2]"
                                         :key="item.value"
                                         :value="item.value"
                                         :label="item.name"
@@ -85,20 +92,19 @@
                 </table>
                 <div class="row-bg">
                     <div class="week-choose-bt">
-                        <el-switch v-model="week" active-text="双周值日安排" inactive-text="单周值日安排"></el-switch>
+                        <el-switch v-model="isEvenWeek" active-text="双周值日安排" inactive-text="单周值日安排" @change="chooseWeekToArrange"></el-switch>
                     </div>
                     <div class="arrange-bts-group">
-                        <el-button @click="cancelArrange()">取消</el-button>
-                        <el-button type="primary">确认</el-button>
+                        <el-button @click="toCancelArrange()">取消</el-button>
+                        <el-button type="primary" @click="submitArrangement()">确认</el-button>
                     </div>
                 </div>
             </div>
         </div>
          <!-- 这里开始是GWolf写的 -->
         <div class='course-container' v-if='visibility'>
-            <h3>登记无课表</h3>
-      
             <div class='record-course'>
+                <h3>登记无课表</h3>
                 <table border='1' cellspacing='0' cellpadding='0'>
                     <tr>
                         <th class='day' v-for='(item, index) in weekday' :key='index'>
@@ -115,13 +121,11 @@
                         </td>
                     </tr>
                 </table>
-            </div>
-
-            <div class='btn-container'>
-                <el-button class='button' @click='cancelFreeCourse'>取消</el-button>
-                <el-button type='primary' class='button' @click='submit'
-                >确定</el-button
-                >
+                <div class='btn-container'>
+                    <el-button class='button' @click='cancelFreeCourse'>取消</el-button>
+                    <el-button type='primary' class='button' @click='submit'>确定</el-button
+                    >
+                </div>
             </div>
         </div>
     </div>
@@ -144,11 +148,9 @@ export default {
         [Message.name]: Message,
         course
     },
-    props: {
-        row: Number,
-        col: Number
-    },
     created(){
+        // 判断是否该显示安排按钮
+        this.showArrangeButtons()
         // 获取当前值班表
         this.currentDuty()
         // 获取双周值班表
@@ -157,6 +159,12 @@ export default {
         this.getSingleWeek()
     },
     methods: {
+        showArrangeButtons() {
+            if(this.$route.dutyScheduling === '老师'){
+                this.hasArrangeRight = true
+                // console.log('我有这个权利')
+            }
+        },
         //   goToArrange(){
         //       this.$router.push({name:''})
         //   },
@@ -186,41 +194,20 @@ export default {
                 })
             })
         },
-        // 获取当前周值班安排 TODO:计算当前时间改变单双周
+        // 获取当前周值班安排
         currentDuty() {
-            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
-                if(!responseHandler(response.data, this)){
-                    Message.error('获取当前值班失败！')
-                }
-                this.message = response.data.data
-                this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
-                this.dutyStaff = this.dutyStaff.slice(0, 40)
-                for(let i = 0; i < this.dutyStaff.length; i++){
-                    let weekday = ''
-                    switch(i % 5){
-                        case 0:
-                            weekday = 'monday'
-                            break
-                        case 1:
-                            weekday = 'tuesday'
-                            break
-                        case 2:
-                            weekday = 'wednesday'
-                            break
-                        case 3:
-                            weekday = 'thursday'
-                            break
-                        case 4:
-                            weekday = 'friday'
-                            break
-                    }
-                    let names = this.dutyStaff[i].name
-                    if(Array.isArray(names)){
-                        names = names.join(',')
-                    }
-                    this.tableData[Math.floor(i / 5)][weekday] = names
-                }
-            })
+            // 开始时间
+            let startTime = this.value
+            // 当前时间
+            let currentTime = new Date()
+            // 第几周
+            let weeks = Math.ceil(((currentTime.getTime() - new Date(startTime).getTime()) / (24 * 3600 * 1000)) / 7)
+            // 判断单双周
+            if(Number.isInteger(weeks / 2) === true){
+                this.getDoubleWeek()
+                return
+            }
+            this.getSingleWeek()
         },
         // TODO:跳转注册链接
         //   goToRegister(){
@@ -231,6 +218,7 @@ export default {
             this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
                 if(!responseHandler(response.data, this)){
                     Message.error('获取当前单周值班失败！')
+                    return
                 }
                 this.message = response.data.data
                 this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
@@ -267,6 +255,7 @@ export default {
             this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
                 if(!responseHandler(response.data, this)){
                     Message.error('获取当前单周值班失败！')
+                    return
                 }
                 this.message = response.data.data
                 this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
@@ -298,25 +287,21 @@ export default {
                 }
             })
         },
+        // 开始进行安排时，获取可安排人员列表
         beginToArrange() {
             this.isActive = true
-            // console.log(evevt)
             this.options = []
             this.$axios
                 .get(prefix.api + dutySchedulingApi.getFreeStaffList)
                 .then(
                     response => {
                         if(response.data.code === '0000'){
-                            console.log(response)
                             var courseId = 0
                             var courseArr = []
-                            for(let i = 0; i < 32; i++) {
+                            for(let i = 0; i < 40; i++) {
                                 courseId = i
-                                // console.log(courseId)
                                 if(response.data.data[courseId].people !== []){
                                     for(var freeStaff of response.data.data[courseId].people) {
-                                        // console.log(courseArr)
-                                        // console.log(freeStaff)
                                         var freeStaffObj = {
                                             value: freeStaff,
                                             name: freeStaff,
@@ -331,20 +316,154 @@ export default {
                                     courseArr = []
                                 }
                             }
-                            console.log(this.options)
                         }
                     }
                 )
         },
-        checkSelectedOptions(selections) {
-            console.log(selections)
+        // 安排单周 OR 双周的值日
+        chooseWeekToArrange(isEven) {
+            if(isEven){
+                this.arrangeData.forEach((row)=>{
+                    row[1] = []
+                    row[2] = []
+                    row[3] = []
+                    row[4] = []
+                    row[5] = []
+                })
+                this.options = []
+                this.$axios
+                    .get(prefix.api + dutySchedulingApi.getFreeStaffList)
+                    .then(
+                        response => {
+                            if(response.data.code === '0000'){
+                                console.log('开始双周的安排')
+                                var courseId = 0
+                                var courseArr = []
+                                for(let i = 40; i < 80; i++) {
+                                    courseId = i
+                                    if(response.data.data[courseId].people !== []){
+                                        for(var freeStaff of response.data.data[courseId].people) {
+                                            var freeStaffObj = {
+                                                value: freeStaff,
+                                                name: freeStaff,
+                                                disabled: false
+                                            }
+                                            courseArr.push(freeStaffObj)
+                                        }
+                                        this.options.push(courseArr)
+                                        courseArr = []
+                                    }else{
+                                        this.options.push([])
+                                        courseArr = []
+                                    }
+                                }
+                            }else{ Message.error('获取可值班人员出现问题:( 请联系管理员') }
+                        }
+                    )
+            }else{
+                this.arrangeData.forEach((row)=>{
+                    row[1] = []
+                    row[2] = []
+                    row[3] = []
+                    row[4] = []
+                    row[5] = []
+                })
+                this.options = []
+                this.$axios
+                    .get(prefix.api + dutySchedulingApi.getFreeStaffList)
+                    .then(
+                        response => {
+                            if(response.data.code === '0000'){
+                                console.log('开始单周的安排')
+                                var courseId = 0
+                                var courseArr = []
+                                for(let i = 0; i < 40; i++) {
+                                    courseId = i
+                                    if(response.data.data[courseId].people !== []){
+                                        for(var freeStaff of response.data.data[courseId].people) {
+                                            var freeStaffObj = {
+                                                value: freeStaff,
+                                                name: freeStaff,
+                                                disabled: false
+                                            }
+                                            courseArr.push(freeStaffObj)
+                                        }
+                                        this.options.push(courseArr)
+                                        courseArr = []
+                                    }else{
+                                        this.options.push([])
+                                        courseArr = []
+                                    }
+                                }
+                            }else{ Message.error('获取可值班人员出现问题:( 请联系管理员') }
+                        }
+                    )
+            }
         },
-        // TODO
-        clearFreeStaffList() {
-
-        },
-        cancelArrange() {
+        // 提交值日安排表
+        submitArrangement() {
+            this.arrange = []
+            if(!this.isEvenWeek){
+                for(let i = 0; i < 40; i++){
+                    let arrangeObj = {}
+                    let nameArr = this.$refs.selector[i].$options.propsData.value
+                    if(nameArr.length === 0){ continue }
+                    arrangeObj = {
+                        courseId: i,
+                        name: nameArr
+                    }
+                    this.arrange.push(arrangeObj)
+                }
+            }else{
+                this.arrange = []
+                for(let i = 0; i < 40; i++){
+                    let arrangeObj = {}
+                    let nameArr = this.$refs.selector[i].$options.propsData.value
+                    if(nameArr.length === 0){ continue }
+                    for(let courseId = 40; courseId < 80; courseId++){
+                        arrangeObj = {
+                            courseId: courseId,
+                            name: nameArr
+                        }
+                        this.arrange.push(arrangeObj)
+                    }
+                }
+            }
+            console.log(this.arrange)
+            this.$axios
+                .post(prefix.api + dutySchedulingApi.submitArrange, {
+                    arrange: this.arrange
+                })
+                .then(response=>{
+                    if(!responseHandler(response.data, this)){
+                        Message.error('提交是出现未知错误:( 请联系管理员')
+                    }
+                    Message.success({
+                        message: response.data.msg,
+                        type: 'success',
+                        center: true
+                    })
+                })
+            this.arrangeData.forEach((row)=>{
+                row[1] = []
+                row[2] = []
+                row[3] = []
+                row[4] = []
+                row[5] = []
+            })
             this.isActive = false
+        },
+        // TODO 取消后清除所有值日安排
+        toCancelArrange() {
+            this.isActive = false
+            console.log(this.options)
+            this.arrangeData.forEach((row)=>{
+                row[1] = []
+                row[2] = []
+                row[3] = []
+                row[4] = []
+                row[5] = []
+            })
         },
         cancelFreeCourse() {
             this.visibility = !this.visibility
@@ -394,7 +513,7 @@ export default {
         },
         // 提交id数组
         submit() {
-            this.axios
+            this.$axios
                 .post(prefix.api + dutySchedulingApi.submitFreeInformation, {
                     freeCourseList: this.saveIdArr
                 })
@@ -408,6 +527,31 @@ export default {
     },
     data() {
         return {
+            // 返回开学时间
+            pickerOptions: {
+                shortcuts: [{
+                    text: '今天',
+                    onClick(picker) {
+                        picker.$emit('pick', new Date())
+                    }
+                }, {
+                    text: '昨天',
+                    onClick(picker) {
+                        const date = new Date()
+                        date.setTime(date.getTime() - 3600 * 1000 * 24)
+                        picker.$emit('pick', date)
+                    }
+                }, {
+                    text: '一周前',
+                    onClick(picker) {
+                        const date = new Date()
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+                        picker.$emit('pick', date)
+                    }
+                }]
+            },
+            // 开学的时间
+            value: '',
             // 返回的值班安排数组中的姓名
             dutyStaff: [],
             // 返回的值班安排
@@ -481,70 +625,69 @@ export default {
             ],
             arrangeData: [
                 [
-                    'row_1',
                     1,
-                    2,
-                    3,
-                    4,
-                    5
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_2',
                     6,
-                    7,
-                    8,
-                    9,
-                    10
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_3',
                     11,
-                    12,
-                    13,
-                    14,
-                    15
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_4',
                     16,
-                    17,
-                    18,
-                    19,
-                    20
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_5',
                     21,
-                    22,
-                    23,
-                    24,
-                    25
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ], [
-                    'row_6',
                     26,
-                    27,
-                    28,
-                    29,
-                    30
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
+                ], [
+                    31,
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
+                ], [
+                    36,
+                    [],
+                    [],
+                    [],
+                    [],
+                    []
                 ]
-                // ], [
-                //     'row_7',
-                //     31,
-                //     32,
-                //     33,
-                //     34,
-                //     35
-                // ], [
-                //     'row_8',
-                //     36,
-                //     37,
-                //     38,
-                //     39,
-                //     40
-                // ]
             ],
-            options: [],
             arrange: [],
-            week: false,
+            options: [],
+            isEvenWeek: false,
             isActive: false,
-
             visibility: false,
+            hasArrangeRight: false,
             weekday: ['星期一', '星期二', '星期三', '星期四', '星期五'],
             idArr: [
                 ['1', '2', '3', '4', '5'],
@@ -557,6 +700,7 @@ export default {
                 ['36', '37', '38', '39', '40']
             ],
             saveIdArr: [],
+
             id: 0
         }
     }
@@ -565,51 +709,58 @@ export default {
 
 <style lang="less" scoped>
 @width: 100px;
-.duty {
+.duty{
+    width:100%;
     position: relative;
     height: 100%;
+}
+.main-container {
+    position: relative;
+    height: 100% auto;
     display: flex;
     flex-direction: column;
+    padding: 2% 3%;
 }
-.button-group{
-    width: 100%;
-    margin-top: 2%;
+.button-groups{
     margin-bottom: 2%;
-    padding-left: 2%;
-    padding-right: 4%;
     display: flex;
     justify-content: space-between;
-    & button{
+    &:first-child button{
         width:120px;
         display: inline-block;
         margin-left: 30px;
     }
+    &:first-child :first-child{
+        margin-left: 0px;
+    }
 }
 .arrange-page-screen {
     width: 100%;
-    min-height: 100%;
+    height: 100%;
     background:rgba(96, 98, 102,.3);
-    display: flex;
+    top:0;
     align-items: center;
     position: absolute;
     z-index: 1;
     display: none;
-    transition: .5s;
-    -moz-transition: .5s;
-    -webkit-transition: .5s;
 }
 .arrange-page {
     width: 90%;
     padding: 10px 15px;
-    background: #fff;
+    background:#fff;
     margin: auto;
-    z-index: 99;
     border-radius: 2px;
+}
+.arrange-btns{
+    margin-top:-999999px
+}
+.showArrangeBtns{
+    margin-top: 0;
 }
 .active{
     display: flex;
 }
-h2 {
+h2,h3,th{
     color: #595b5f;
 }
 ul {
@@ -665,57 +816,81 @@ a {
     padding: 10px;
     background-color: #f9fafc;
     height: 60px;
-    // position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 #btn-single-double{
     text-align: center;
-    margin-top: 20px;
-}
-// .arrange-bts-group,.week-choose-bt{
-//     display: inline-block;
-// }
-// .arrange-bts-group{
-//     align-self: flex-end;
-// }
-
-h3 {
-  margin: 0;
-  margin-bottom: 10px;
+    height: auto;
+    position: relative;
+    margin-top: 40px;
+    // display: inline-block;
 }
 .course-container {
-  box-sizing: border-box;
-  width: @width*5+47px;
-  padding: 20px;
-  position: fixed;
-  top:25%;
-  left:40%;
-  border: 1px solid black;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 2;
+    top:0;
+    display: flex;
+    justify-content: center;
+    //   width: @width*5+47px;
+    //   padding: 20px;
+    position: absolute;
+    //   top:25%;
+    //   left:40%;
+    //   border: 1px solid black;
+    background:rgba(96, 98, 102,.3);
+    & .record-course{
+        width: 600px;
+        box-sizing: border-box;
+        background: #fff;
+        margin: auto;
+        padding:12px 20px;
+        border-radius: 2px;
+        & h3{
+            margin-left: 30px;
+        }
+        & table{
+            margin: auto;
+            border: 1px solid rgba(96, 98, 102,.3);
+            & tr th,& tr td{
+                border: 1px solid rgba(96, 98, 102,.3);
+            }
+        }
+    }
 }
-.record-course {
-  width: @width*5+7px;
-  box-sizing: border-box;
-}
+// .record-course {
+// }
 
 table {
-  border-collapse: collapse;
-  table-layout: fixed;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 td {
-  width: @width;
-  height: 32px;
+    width: @width;
+    height: 32px;
 }
 .day {
-  line-height: 40px;
-  text-align: center;
+    line-height: 40px;
+    text-align: center;
 }
 .btn-container {
-  display: flex;
-  justify-content: flex-end;
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 30px;
 }
 .button {
-  margin-top: 15px;
+    margin-top: 15px;
+}
+.block{
+    // display: inline-block;
+    // float: right;
+    position: absolute;
+    right: 0;
+    top: 0;
+    // margin-right: 3.5%;
 }
 </style>

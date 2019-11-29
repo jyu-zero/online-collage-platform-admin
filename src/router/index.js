@@ -154,11 +154,6 @@ const routes = [
                 path: '/',
                 name: 'DutyScheduling',
                 component: () => import('@/views/menus/duty-scheduling')
-            },
-            {
-                path: 'freeCourse',
-                name: 'freeCourse',
-                component: () => import('@/views/menus/duty-scheduling/freeCourse.vue')
             }
             
         ]
