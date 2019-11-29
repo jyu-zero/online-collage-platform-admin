@@ -1,9 +1,9 @@
 <template>
     <div class="duty">
         <div class="main-container">
-            <div id="btn-set" class="button-group">
-                <div>
-                <!-- TODO:整合金隆安排表 -->
+            <div id="btn-set" class="button-groups">
+                <div class="arrange-btns" :class="{showArrangeBtns:hasArrangeRight}">
+                    <!-- 安排人员，储存值日安排表 -->
                     <el-button type="primary" @click="beginToArrange">安排人员</el-button>
                     <!-- 清空安排表数据库 -->
                     <el-button type="primary" @click="resetArrange">重置所有安排</el-button>
@@ -148,11 +148,9 @@ export default {
         [Message.name]: Message,
         course
     },
-    props: {
-        row: Number,
-        col: Number
-    },
     created(){
+        // 判断是否该显示安排按钮
+        this.showArrangeButtons()
         // 获取当前值班表
         this.currentDuty()
         // 获取双周值班表
@@ -161,6 +159,12 @@ export default {
         this.getSingleWeek()
     },
     methods: {
+        showArrangeButtons() {
+            if(this.$route.dutyScheduling === '老师'){
+                this.hasArrangeRight = true
+                // console.log('我有这个权利')
+            }
+        },
         //   goToArrange(){
         //       this.$router.push({name:''})
         //   },
@@ -683,6 +687,7 @@ export default {
             isEvenWeek: false,
             isActive: false,
             visibility: false,
+            hasArrangeRight: false,
             weekday: ['星期一', '星期二', '星期三', '星期四', '星期五'],
             idArr: [
                 ['1', '2', '3', '4', '5'],
@@ -716,7 +721,7 @@ export default {
     flex-direction: column;
     padding: 2% 3%;
 }
-.button-group{
+.button-groups{
     margin-bottom: 2%;
     display: flex;
     justify-content: space-between;
@@ -745,6 +750,12 @@ export default {
     background:#fff;
     margin: auto;
     border-radius: 2px;
+}
+.arrange-btns{
+    margin-top:-999999px
+}
+.showArrangeBtns{
+    margin-top: 0;
 }
 .active{
     display: flex;

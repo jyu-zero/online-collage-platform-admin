@@ -53,7 +53,11 @@ export default {
                 account: this.formLabelAlign.account,
                 password: this.formLabelAlign.password
             }).then((response) =>{
-                this.$router.push({ name: 'Overview' })
+                this.$router.push({ name: 'Overview',
+                    params: {
+                        dutyScheduling: response.data.data.admin_role_id
+                    }
+                })
             })
         }
     }

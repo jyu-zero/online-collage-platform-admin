@@ -3,7 +3,7 @@
         <h2>今日值班</h2>
         <table class="table" v-if="arrangeList.length">
             <tr>
-                <td v-for="(item,index) in timeList" :key="index">{{item}}</td>
+                <th v-for="(item,index) in timeList" :key="index">{{item}}</th>
             </tr>
             <tr>
                 <td v-for="(item,index) in arrangeList" :key="index"><span v-for="(name,index) in item" :key="index">{{name}} </span></td>
@@ -193,8 +193,17 @@ export default {
 .table {
     border: 1px solid rgb(235, 238, 245);
     height: 96px;
-
-    th,td {
+    border-collapse: collapse;
+    
+    th {
+        font-weight: 600;
+        color:rgb(109, 118, 141);
+        text-align: center;
+        border: 1px solid rgb(235, 238, 245);
+        width: 5%;
+    }
+    td {
+        color: rgb(137, 148, 175);
         border: 1px solid rgb(235, 238, 245);
         text-align: center;
     }
