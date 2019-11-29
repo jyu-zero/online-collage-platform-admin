@@ -10,5 +10,11 @@ export default {
     // 确认认领和确认找回
     enterGoods: '/admin/goods/claimed',
     // 今日新增
-    todayAdd: '/admin/goods/today-add'
+    todayAdd: '/admin/goods/today-add',
+    // 删除物品
+    deleteGoods: '/admin/goods/delete-laf',
+    // 设置学院托管
+    setManagedByCollage: '/admin/goods/set-host',
+    // 设置无人认领或无人拾取
+    setPersonOperation: '/admin/goods/unclaimed'
 }
