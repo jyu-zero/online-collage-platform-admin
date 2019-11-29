@@ -6,7 +6,7 @@
             <el-button class="a1-button" type="primary" @click="dialogVisible = true">
                 添加账号
             </el-button>
-            <el-button class="a1-button" type="primary" >导入账号</el-button>
+            <el-button class="a1-button" type="primary" @click="leadAccounts = true">导入账号</el-button>
             <el-button class="a1-button" type="primary" @click="classManager">班级管理</el-button>
         </div>
         <!-- 表格 -->
@@ -102,24 +102,22 @@
         </el-dialog>
         <!-- 学生个人信息表-操作-修改信息【完】 -->
         <!-- 导入账号-上传 -->
-        
-        <div class="lead-box">
-            <div class="close" v-on:click="check = false">×</div>
+        <div class="lead-box" v-if="leadAccounts">
+            <div class="close" v-on:click="leadAccounts = false">×</div>
             <div class="lesd-box-title">导入账号</div>
             <div class="lead-content-box">
                 <el-upload
                     class="upload-demo"
-                    action=""
-                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove"
-                    :before-remove="beforeRemove"
-                    :http-request="uploadFile"
+                    ref="upload"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :on-change="hangdChange"
+                    :file-list="fileList"
                     multiple
-                    :limit="1"
-                    :on-exceed="handleExceed"
-                    :file-list="fileList">
-                    <el-button size="big" type="primary" @click="handlePreview" class="check">点击上传</el-button>
+                    :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button style="margin-left: 10px;" size="small" type="success"
+                        @click="submitUpload">上传
+                    </el-button>
                     <div slot="tip" class="el-upload__tip">注意：只能上传Excel文件！</div>
                 </el-upload>
             </div>
@@ -129,9 +127,9 @@
 
 <script>
 import { userApi, prefix, responseHandler } from '@/api'
-import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog } from 'element-ui'
+import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog, Upload } from 'element-ui'
 export default {
-    name: 'Accounts',
+    name: 'Students',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
@@ -140,10 +138,13 @@ export default {
         [Dialog.name]: Dialog,
         [Pagination.name]: Pagination,
         [Select.name]: Select,
-        [Dropdown.name]: Dropdown
+        [Dropdown.name]: Dropdown,
+        [Upload.name]: Upload
     },
     data() {
         return {
+            // 是否弹出导入账号对话框
+            leadAccounts: false,
             // 导入账号-上传
             fileList: [],
             // 是否弹出修改信息的对话框
@@ -164,13 +165,18 @@ export default {
             dormitory: '',
             information: [],
             // 总页数
-            pageCount: 1
+            pageCount: 1,
+            file: ''
         }
     },
     created(){
         this.getStudents()
     },
     methods: {
+        // 导入账号-获取文件
+        hangdChange(file, fileList){
+            this.fileList = fileList
+        },
         // 跳转班级管理
         classManager(){
             this.$router.push({ name: 'Monitor' })
@@ -301,17 +307,38 @@ export default {
             })
         },
         // 导入账号-上传
-        handleRemove(file, fileList) {
-            console.log(file, fileList)
+        // 提交
+        submitUpload() {
+            if(this.fileList === ''){
+                this.leadAccounts = false
+                return
+            }
+            let formData = new FormData()
+            for(let i in this.fileList){
+                formData.append('students_file[]', this.fileList[i].raw)
+            }
+            this.$axios
+                .post(prefix.api + userApi.studentsUpload, formData)
+                .then((response)=>{
+                    if(!responseHandler(response.data, this)){
+                        Message.error('请求失败')
+                    }
+                    Message.success('请求成功')
+                    this.fileList = ''
+                    this.leadAccounts = false
+                })
         },
-        handlePreview(file) {
-            console.log(file)
-        },
-        handleExceed(files, fileList) {
-            this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-        },
-        beforeRemove(file, fileList) {
-            return this.$confirm(`确定移除 $ { file.name }？`)
+        studentsUpload(event) {
+            this.file = event.target.files[0]
+            let formData = new FormData()
+            formData.append('photofile', this.file)
+            console.log(formData.getAll('photofile'))
+            console.log(this.file)
+            this.$axios
+                .post(prefix.api + userApi.studentsUpload, formData)
+                .then(response => {
+                    this.getPic()
+                })
         }
 
     }
@@ -452,10 +479,9 @@ li{
     top: 250px;
     background: white;
     width: 300px;
-    height: 200px;
 }
 .lead-content-box{
     text-align: center;
-    padding: 40px;
+    padding: 20px;
 }
 </style>
