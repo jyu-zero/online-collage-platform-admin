@@ -63,20 +63,6 @@
                     </el-option>
                 </el-select>
             </template>
-                <!-- <template slot-scope="scope">
-                    <el-dropdown @command="handleCommand">
-                    <span class="el-dropdown-link">
-                        ···<i class="el-icon--left"></i>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="resetPasswd" @change="abc(scope)">重置密码</el-dropdown-item>
-                        <el-dropdown-item command="modifyInfo">修改信息</el-dropdown-item>
-                        <el-dropdown-item command="degrade">降级为学生账号</el-dropdown-item>
-                        <el-dropdown-item command="deleteId">删除账号</el-dropdown-item>
-                    </el-dropdown-menu>
-                    </el-dropdown>
-                </template> -->
-
         </el-table-column>
         </el-table>
         <div class="delete-box" v-if="isDelete">
@@ -99,25 +85,21 @@
 
 <script>
 // import responseHandler from '@/utils/responseHandler'
-import { Button, Table, TableColumn, Select, Option, Pagination, Dropdown, DropdownMenu, DropdownItem, Popover, Message } from 'element-ui'
-import { prefix, userApi } from '@/api'
+import { prefix, responseHandler, userApi } from '@/api'
+import { Button, Table, Select, Pagination, Message } from 'element-ui'
+
 export default {
     name: 'Accounts',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
-        [TableColumn.name]: TableColumn,
         [Select.name]: Select,
-        [Option.name]: Option,
         [Pagination.name]: Pagination,
-        [Dropdown.name]: Dropdown,
-        [DropdownMenu.name]: DropdownMenu,
-        [DropdownItem.name]: DropdownItem,
-        [Popover.name]: Popover,
         [Message.name]: Message
     },
     data(){
         return{
+            pageCount: 1,
             options: [{
                 value: '1',
                 label: '重置密码'
@@ -137,7 +119,6 @@ export default {
     },
     created() {
         this.getAccounts()
-        this.logout()
     },
     methods: {
         getAccounts(page = 1){
@@ -152,7 +133,6 @@ export default {
                 }
                 this.pageCount = response.data.data.pageCount
                 this.tableData = response.data.data.information
-                console.log(this.tableData)
                 Message.success('请求成功')
             })
         },
@@ -165,17 +145,7 @@ export default {
         handleCommand(command){
             this.$message('click on item ' + command)
         },
-        logout(){
-            this.$axios.post(prefix.api + userApi.logout).then((response)=>{
-                if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
-                }
-                Message.success('请求成功')
-            })
-        },
         abc(z){
-            console.log(z)
             if(z.row.option === '1'){
                 this.$router.push({ name: 'resetPasswd' })
             }
@@ -208,6 +178,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+@boxheight:50px;
 .accounts{
     height: 100%;
     // display: flex;
@@ -234,9 +205,6 @@ export default {
     // }
     .el-dropdown-link {
         color: #409EFF;
-        &:hover {
-            cursor: pointer;
-        }
     }
     .el-pagination{
         margin: 0 auto;
@@ -263,4 +231,13 @@ export default {
     margin-top: -50px;
 }
 
+.operate-box{
+    border: 1px solid black;
+    position: absolute;
+    padding: 10px;
+    right: 0;
+    top: 35px;
+    background: white;
+    display: none;
+}
 </style>

@@ -3,14 +3,17 @@
         <!-- 顶部导航栏 -->
         <header>
             <h1>线上学院后台管理系统</h1>
-            <el-dropdown @command="handleProfileOperation">
+            <a href="http://localhost:8082/">前往官网</a>
+            <el-dropdown @command="logout">
                 <span class="el-dropdown-link">
-                    {{name}}
-                    {{account}}
-                    <i class="el-icon-arrow-down el-icon--right"></i>
+                    <div class="get-account-box">
+                        <span>{{name}}</span>
+                        <span>{{account}}</span>
+                    </div>
+                    <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                    <el-dropdown-item command>注销</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </header>
@@ -34,15 +37,16 @@
 </template>
 
 <script>
-import { prefix, userApi } from '@/api'
-import { Menu, MenuItem, Dropdown, DropdownMenu, DropdownItem } from 'element-ui'
+import { prefix, responseHandler, userApi } from '@/api'
+import { Menu, MenuItem, Dropdown, DropdownMenu, DropdownItem, Message } from 'element-ui'
 export default {
     components: {
         [Menu.name]: Menu,
         [MenuItem.name]: MenuItem,
         [Dropdown.name]: Dropdown,
         [DropdownMenu.name]: DropdownMenu,
-        [DropdownItem.name]: DropdownItem
+        [DropdownItem.name]: DropdownItem,
+        [Message.name]: Message
     },
     name: 'Wrapper',
     computed: {
@@ -60,16 +64,12 @@ export default {
                     routeName: 'Overview'
                 },
                 {
+                    title: '学生账号管理',
+                    routeName: 'Students'
+                },
+                {
                     title: '后台账号管理',
                     routeName: 'Accounts'
-                },
-                {
-                    title: '问答页面',
-                    routeName: 'Question'
-                },
-                {
-                    title: '新闻管理',
-                    routeName: 'News'
                 },
                 {
                     title: '新闻管理',
@@ -91,7 +91,6 @@ export default {
                     title: '资料共享',
                     routeName: 'FileShare'
                 }
-
             ]
         }
     },
@@ -99,21 +98,24 @@ export default {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
         },
-        gotoMainPage(){
-            this.$router.push({ name: 'overview' })
-        },
-        handleProfileOperation(command){
-            switch(command){
-                case 'login':
-                    this.login()
-                    break
-                default:
-                    break
-            }
+        getLoginAccount(){
+            this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
+                console.log(response)
+                if(!responseHandler(response.data, this)){
+                // 在这里处理错误
+                    Message.error('请求失败')
+                }
+                Message.success('请求成功')
+            })
         },
         logout(){
             this.$axios.post(prefix.api + userApi.logout).then((response)=>{
-                this.$route.push({ name: 'Login' })
+                if(!responseHandler(response.data, this)){
+                // 在这里处理错误
+                    Message.error('请求失败')
+                }
+                Message.success('请求成功')
+                this.$router.push({ name: 'Login' })
             })
         }
 
@@ -135,10 +137,12 @@ export default {
         padding: 0 20px;
         background:#5e91fa;
         color:#fff;
-
         h1{
             margin:0;
             font-size:20px;
+        }
+        a{
+            margin-left: 520px;
         }
     }
 
@@ -162,4 +166,12 @@ export default {
         }
     }
 }
+.el-dropdown-link{
+    display: flex;
+}
+.get-account-box{
+    display: flex;
+    flex-direction:column;
+}
+
 </style>
