@@ -6,5 +6,9 @@ export default {
     // 添加拾取物
     addFoundGoodsInfo: '/admin/goods/add-pick',
     // 编辑物品信息
-    reviseGoodsInfo: '/admin/goods/edit-laf'
+    reviseGoodsInfo: '/admin/goods/edit-laf',
+    // 确认认领和确认找回
+    enterGoods: '/admin/goods/claimed',
+    // 今日新增
+    todayAdd: '/admin/goods/today-add'
 }
