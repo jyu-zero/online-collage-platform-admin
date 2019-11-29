@@ -3,7 +3,7 @@
     <div class="accounts">
         <!-- 按钮 -->
         <div class="a-button">
-            <el-button class="a1-button" type="primary" @click="dialogVisible = true">
+            <el-button class="a1-button" type="primary" @click="dialogVisible = true" v-if="addVisible">
                 添加账号
             </el-button>
             <el-button class="a1-button" type="primary" @click="leadAccounts = true">导入账号</el-button>
@@ -143,6 +143,7 @@ export default {
     },
     data() {
         return {
+            addVisible: false,
             // 是否弹出导入账号对话框
             leadAccounts: false,
             // 导入账号-上传
