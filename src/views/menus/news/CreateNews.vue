@@ -19,7 +19,7 @@
         <el-input
             id="input"
             type="text"
-            placeholder="请输入标题"
+            placeholder="请输入标题(不少于两个字)"
             v-model="text1"
             maxlength="10"
             show-word-limit>
@@ -39,40 +39,27 @@
         <div class="editor">
             <editor v-model="editorContent" :inputName="name"></editor>
         </div>
-        <!-- <el-upload
+        <el-upload
             class="upload-demo"
             ref="upload"
             action="uploadfile"
             :on-change="handleChange"
             :on-remove="handleRemove"
-            :before-remove="beforeRemove"
             multiple
             :limit="3"
             :auto-upload="false"
             :on-exceed="handleExceed">
             <el-button slot="trigger" size="small" type="primary" >选取文件</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-        </el-upload> -->
-        <el-upload
-        class="upload-demo"
-        action=""
-        multiple
-        :limit="3"
-        :auto-upload="false"
-        :on-remove="handleRemove"
-        :on-change="handleChange">
-            <el-button size="small" type="primary">点击上传</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            <div slot="tip" class="el-upload__tip">上传文件不超过500kb</div>
         </el-upload>
     </div>
   </div>
 </template>
 
 <script>
-import { prefix, responseHandler, newsApi, testApi } from '@/api'
+import { prefix, responseHandler, newsApi } from '@/api'
 import { Button, Input, Checkbox, Upload, Dialog } from 'element-ui'
 import Editor from '@/components/news/Editorbox'
-import E from 'wangeditor'
 
 export default {
     name: 'CreateNews',
@@ -91,27 +78,14 @@ export default {
             dialog: false,
             checked: false,
             fileList: [],
-            isClear: false,
-            detail: '',
             fileFormData: null, // 将要上传的formdata数据
-            percentage: 0, // 存放上传百分比
+            // percentage: 0, // 存放上传百分比
             name: [],
             editorContent: ''
         }
     },
     methods: {
-        // 保存
-        // save() {
-        //     let fileFormData = new FormData()
-        //     fileFormData.append('newsTitle', this.text1)
-        //     for(let file of this.files){
-        //         fileFormData.append('file[]', file)
-        //     }
-        //     this.$axios
-        //         .post(prefix.api + newsApi.save, fileFormData)
-        //         .then(response => {
-        //         })
-        // },
+        // 保存按钮
         save() {
             let fileFormData = new FormData()
             fileFormData.append('newsTitle', this.text1)
@@ -121,18 +95,18 @@ export default {
             for(let file of this.fileList){
                 fileFormData.append('file[]', file.raw)
             }
-            console.log(fileFormData)
             this.$axios
                 .post(prefix.api + newsApi.save, fileFormData)
                 .then(response => {
-                    console.log(this.text1)
-                    console.log(this.text2)
-                    console.log(this.editorContent)
-                    console.log(this.checked)
-                    console.log(fileFormData)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.$router.push({ name: 'News' })
+                    }
                 })
         },
-        // 存为草稿
+        // 草稿按钮
         draft(){
             let fileFormData = new FormData()
             fileFormData.append('newsTitle', this.text1)
@@ -145,14 +119,15 @@ export default {
             this.$axios
                 .post(prefix.api + newsApi.draft, fileFormData)
                 .then(response => {
-                    console.log(this.text1)
-                    console.log(this.text2)
-                    console.log(this.editorContent)
-                    console.log(this.checked)
-                    console.log(fileFormData)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.$router.push({ name: 'News' })
+                    }
                 })
         },
-        // 取消
+        // 取消按钮
         cancle(){
             if(this.text1 === '' & this.text2 === ''){
                 this.submit()
@@ -168,36 +143,15 @@ export default {
         },
         getEditContent(data){
             this.content = data
-            console.log(this.content)
         },
         handleRemove(file, fileList) {
-            console.log(file, fileList)
             this.fileList = fileList
         },
         handleChange(file, fileList) {
             this.fileList = fileList
-            console.log(file)
-            console.log(fileList)
         },
-        // handleChange(e, a){
-        //     this.files.push(e.raw)
-        // },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择3个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-        },
-        // beforeRemove(file, fileList) {
-        //     return this.$confirm(`确定移除 ${file.name} ?`)
-        // },
-        // 限制类型大小
-        beforeAvatarUpload(file){
-            var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
-            const isLt2M = file.size / 1024 / 1024 < 10
-            if(!isLt2M){
-                this.$message({
-                    message: '上传文件不能超过10MB',
-                    type: 'warning'
-                })
-            }
         }
     }
 }

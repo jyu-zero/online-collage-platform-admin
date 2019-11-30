@@ -7,13 +7,13 @@
             <el-button id="button" type="primary" @click="top">置顶</el-button>
             <el-button id="button" type="primary" @click="untop">取消置顶</el-button>
             <div class="search">
-                <el-input placeholder="请输入内容" v-model="keyWords" class="input-with-select">
+                <el-input placeholder="请输入内容(只显示前六条)" v-model="keyWords" class="input-with-select">
                     <el-select v-model="select" slot="prepend" placeholder="请选择">
                         <el-option label="新闻标题" value="1"></el-option>
                         <el-option label="撰稿人" value="2"></el-option>
                         <el-option label="创建时间" value="3"></el-option>
                     </el-select>
-                    <el-button slot="append" icon="el-icon-search" @click="search(1)"></el-button>
+                    <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
             </div>
         </el-menu>
@@ -23,19 +23,17 @@
         <div class="main">
             <el-checkbox-group id="main" v-model="checked">
                 <div class="news-item" v-for="newsItem of newsList" :key="newsItem.title">
-                    <!-- 勾选框还需修改 -->
                     <el-checkbox class="my-checkbox" :label="newsItem.news_id"></el-checkbox>
                     <p class="title">{{newsItem.news_title}}</p>
-                    <p class="top">{{newsItem.is_pinned}}</p>
-                    <p class="draft">{{newsItem.is_draft}}</p>
+                    <p class="top" v-if="newsItem.isShowTop">{{newsItem.is_pinned}}</p>
+                    <p class="draft" v-if="newsItem.isShowDra">{{newsItem.is_draft}}</p>
                     <p class="time">{{newsItem.created_at}}</p>
                     <p class="writer">撰稿人：{{newsItem.author}}</p>
-                    <p class="reviewer" v-show="isShow">审稿人：{{newsItem.publisher}}</p>
-                    <!-- <p class="publish">{{newsItem.is_published}}</p> -->
+                    <p class="reviewer" v-if="newsItem.isShowRe">审稿人：{{newsItem.publisher}}</p>
                     <font-awesome-icon class="eye" icon="eye" />
                     <p class="views">{{newsItem.views}}</p>
                     <div class="editer">
-                        <el-button id="button" type="primary" v-show="newsItem.isShow1" @click="publish(newsItem.news_id)">{{newsItem.is_published}}</el-button>
+                        <el-button id="button" type="primary" v-if="newsItem.isTeacher&&!newsItem.isDraft" @click="publish(newsItem.news_id)">{{newsItem.is_published}}</el-button>
                         <el-tooltip class="item" effect="dark" content="编辑" placement="bottom">
                             <el-button id="edit" type="text" icon="el-icon-edit" @click="edit(newsItem.news_id, newsItem.news_title, newsItem.created_at)"></el-button>
                         </el-tooltip>
@@ -49,13 +47,13 @@
             </el-checkbox-group>
         </div>
         <!-- 新闻列表 【完】-->
-    
-        <!-- TODO -->
+
         <div class="page">
             <el-pagination
-                :hide-on-single-page="true"
+                :hide-on-single-page="false"
                 :page-count="pageCount"
                 @current-change="getNewsList"
+                :current-page="currentPage"
                 layout="prev, pager, next">
             </el-pagination>
         </div>
@@ -82,18 +80,20 @@ export default {
     },
     data(){
         return {
-            input: '',
             keyWords: '',
             select: '',
             checked: [],
-            isShow: false,
-            isShow1: true,
+            isShowRe: false,
+            isShowPub: false,
+            isShowTop: true,
+            isShowDra: false,
+            isTeacher: true,
+            isDraft: false,
             newsList: [],
-            newsLists: [],
             pageCount: 1,
-            active1: true,
-            newsId: '', // 新闻id
-            newsIds: [] // 单独删除新闻的id
+            currentPage: 1, // 当前页数
+            newsId: '', // 右边编辑区的发布按钮、编辑的新闻id
+            newsIds: [] // 删除和单独删除新闻的id
         }
     },
     created(){
@@ -103,29 +103,47 @@ export default {
         gotoCreateNews(){
             this.$router.push({ name: 'CreateNews' })
         },
+        account(){
+            this.$axios
+                .get(prefix.api + newsApi.account, {
+                })
+                .then(response => {
+                    if(response.data.data === 0){
+                        // 老师
+                        this.$message(response.data.msg)
+                        for(let i = 0; i <= (this.newsList.length - 1); i++){
+                            this.$set(this.newsList[i], 'isTeacher', true)
+                        }
+                    }else{
+                        // 学生
+                        this.$message(response.data.msg)
+                        for(let i = 0; i <= (this.newsList.length - 1); i++){
+                            this.$set(this.newsList[i], 'isTeacher', false)
+                        }
+                    }
+                })
+        },
         // 搜索框
-        // TODO
-        search(page = 1){
+        search(){
             this.$axios
                 .get(prefix.api + newsApi.search, {
                     params: {
-                        page,
                         select: this.select,
                         keyWords: this.keyWords
                     }
                 })
                 .then(response => {
-                    this.newsList = ''
-                    this.newsList = response.data.data.news
-                    this.pageCount = response.data.data.pageCount
+                    if(responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                        this.newsList = []
+                        this.newsList = response.data.data.news
+                    }
                     this.isPublish()
                     this.isPinned()
-                    this.isDraft()
-                    console.log(this.select)
-                    console.log(this.keyWords)
+                    this.isDraftBox()
                 })
         },
-        // 置顶新闻
+        // 置顶按钮
         top(){
             console.log(this.checked)
             this.$axios
@@ -133,29 +151,39 @@ export default {
                     newsId: this.checked
                 })
                 .then(response => {
-                    this.getNewsList(1)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.getNewsList(1)
+                    }
                 })
         },
-        // 取消置顶
+        // 取消置顶按钮
         untop(){
             this.$axios
                 .post(prefix.api + newsApi.untop, {
                     newsId: this.checked
                 })
                 .then(response => {
-                    this.getNewsList(1)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.getNewsList(1)
+                    }
                 })
         },
 
         // 判断是否发布
-        isPublish: function() {
+        isPublish() {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_published === 1) {
                     this.newsList[i].is_published = '取消发布'
-                    this.newsList[i].isShow = true
+                    this.$set(this.newsList[i], 'isShowRe', true)
                 }else{
                     this.newsList[i].is_published = '发布'
-                    this.newsList[i].isShow = false
+                    this.$set(this.newsList[i], 'isShowRe', false)
                 }
             }
         },
@@ -164,21 +192,23 @@ export default {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_pinned === 1) {
                     this.newsList[i].is_pinned = '(置顶)'
+                    this.$set(this.newsList[i], 'isShowTop', true)
                 }else{
-                    this.newsList[i].is_pinned = ''
+                    this.$set(this.newsList[i], 'isShowTop', false)
                 }
             }
         },
         // 判断是否草稿
-        isDraft() {
+        isDraftBox() {
             for(let i = 0; i <= (this.newsList.length - 1); i++){
                 if(this.newsList[i].is_draft === 1) {
                     this.newsList[i].is_draft = '(草稿)'
-                    this.$set(this.newsList[i], 'isShow1', false)
-                    // console.log(this.newsList[i].isShow1)
+                    this.$set(this.newsList[i], 'isDraft', true)
+                    this.$set(this.newsList[i], 'isShowRe', false)
+                    this.$set(this.newsList[i], 'isShowDra', true)
                 }else{
-                    this.newsList[i].is_draft = ''
-                    this.$set(this.newsList[i], 'isShow1', true)
+                    this.$set(this.newsList[i], 'isShowDra', false)
+                    this.$set(this.newsList[i], 'isDraft', false)
                 }
             }
         },
@@ -190,7 +220,12 @@ export default {
                     newsId: this.checked
                 })
                 .then(response => {
-                    this.getNewsList(1)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.getNewsList(1)
+                    }
                 })
         },
         // 单独删除新闻
@@ -201,10 +236,15 @@ export default {
                     newsId: this.newsIds
                 })
                 .then(response => {
-                    this.getNewsList(1)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.getNewsList(1)
+                    }
                 })
         },
-        // TODO
+
         // 获取新闻列表
         getNewsList(page = 1){
             this.$axios
@@ -214,15 +254,15 @@ export default {
                     }
                 })
                 .then(response => {
-                    if(!responseHandler(response.data, this)){
-                        // TODO: 在这里处理错误
-                        return {}
+                    this.account()
+                    if(responseHandler(response.data, this)){
+                        this.newsList = response.data.data.news
+                        this.pageCount = response.data.data.pageCount
+                        this.currentPage = page
+                        this.isPublish()
+                        this.isPinned()
+                        this.isDraftBox()
                     }
-                    this.newsList = response.data.data.news
-                    this.pageCount = response.data.data.pageCount
-                    this.isPublish()
-                    this.isPinned()
-                    this.isDraft()
                 })
         },
         // 发布新闻
@@ -232,7 +272,12 @@ export default {
                     newsId: newsId
                 })
                 .then(response => {
-                    this.getNewsList(1)
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.getNewsList(1)
+                    }
                 })
         },
 
@@ -247,7 +292,6 @@ export default {
         },
 
         // 单独删除一条新闻
-        // TODO
         open(){
             this.$confirm('此操作将永久删除该条新闻，是否继续？', '提示', {
                 confirmButtonText: '确定',

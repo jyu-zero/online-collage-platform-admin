@@ -45,7 +45,6 @@
             action="uploadfile"
             :on-change="handleChange"
             :on-remove="handleRemove"
-            :before-remove="beforeRemove"
             multiple
             :limit="3"
             :auto-upload="false"
@@ -59,7 +58,7 @@
 </template>
 
 <script>
-import { prefix, newsApi } from '@/api'
+import { prefix, responseHandler, newsApi } from '@/api'
 import { Button, Input, Checkbox, Upload, Dialog } from 'element-ui'
 import Editor from '@/components/news/Editorbox'
 
@@ -82,7 +81,7 @@ export default {
             fileList: [],
             newUpload: [], // 存放新增附件
             deleteUpload: [], // 存放删除的附件的id
-            fileId: [],
+            fileId: [], // 存放从后端获取到的附件id
             isClear: false,
             detail: '',
             fileFormData: null, // 将要上传的formdata数据
@@ -96,10 +95,8 @@ export default {
         this.getEdit()
     },
     methods: {
-        // TODO
         // 获取新闻内容
         Content(){
-            // console.log(this.id)
             this.$axios
                 .get(prefix.api + newsApi.editNews, {
                     params: {
@@ -116,27 +113,16 @@ export default {
                     for(let i = 0; i < this.fileList.length; i++){
                         this.fileId.push(this.fileList[i].file_id)
                     }
-                    if(this.fileList.length === 2){
-                        this.fileId.push('')
-                    }
-                    if(this.fileList.length === 1){
-                        this.fileId.push('', '')
-                    }
-                    console.log(this.fileId)
-                    console.log(this.fileList)
-                    // console.log(this.file)
                 })
         },
         getEdit(){
-            // this.editorContent = data
             console.log(this.editorContent)
         },
         getEditContent(data){
             this.content = data
-            console.log(this.content)
         },
 
-        // 取消
+        // 取消按钮
         cancle(){
             this.dialog = true
         },
@@ -146,7 +132,8 @@ export default {
         dialogFormVisible(){
             this.dialog = false
         },
-        // 保存
+
+        // 保存按钮
         saveNews() {
             let fileFormData = new FormData()
             fileFormData.append('newsTitle', this.text1)
@@ -154,20 +141,26 @@ export default {
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
             fileFormData.append('newsId', this.id)
+            fileFormData.append('is_draft', '0')
             for(let file of this.deleteUpload){
                 fileFormData.append('deleteUpload[]', file.file_id)
             }
             for(let file of this.newUpload){
                 fileFormData.append('newUpload[]', file.raw)
             }
-            console.log(fileFormData.getAll('deleteUpload[]'))
-            console.log(fileFormData.getAll('newUpload[]'))
             this.$axios
-                .post(prefix.api + newsApi.saveNews, fileFormData)
+                .post(prefix.api + newsApi.editSave, fileFormData)
                 .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.$router.push({ name: 'News' })
+                    }
                 })
         },
-        // 存为草稿
+
+        // 草稿按钮
         saveDraft(){
             let fileFormData = new FormData()
             fileFormData.append('newsTitle', this.text1)
@@ -175,43 +168,39 @@ export default {
             fileFormData.append('newsContent', this.editorContent)
             fileFormData.append('isInformed', Number(this.checked))
             fileFormData.append('newsId', this.id)
+            fileFormData.append('is_draft', '1')
             for(let file of this.deleteUpload){
-                fileFormData.append('deleteUpload', file.file_id)
+                fileFormData.append('deleteUpload[]', file.file_id)
             }
             for(let file of this.newUpload){
-                fileFormData.append('newUpload', file.raw)
+                fileFormData.append('newUpload[]', file.raw)
             }
             this.$axios
-                .post(prefix.api + newsApi.saveDraft, fileFormData)
+                .post(prefix.api + newsApi.editSave, fileFormData)
                 .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        this.$message(response.data.msg)
+                    }else{
+                        this.$message(response.data.msg)
+                        this.$router.push({ name: 'News' })
+                    }
                 })
         },
 
-        // TODO
         // 移除附件
         handleRemove(file, fileList) {
-            this.deleteUpload.push(file)
-        },
-        beforeRemove(file, fileList) {
-            // return this.$confirm(`确定移除 ${file.name} ?`)
+            if(file.file_id !== undefined){
+                this.deleteUpload.push(file)
+            }else{
+                let index = this.newUpload.indexOf(file)
+                this.newUpload.splice(index, 1)
+            }
         },
         handleChange(file, fileList) {
             this.newUpload.push(file)
-            console.log(file)
         },
         handleExceed(files, fileList) {
             this.$message.warning(`当前限制选择3个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`)
-        },
-        // 限制类型大小
-        beforeAvatarUpload(file){
-            var testmsg = file.name.substring(file.name.lastIndexOf('.') + 1)
-            const isLt2M = file.size / 1024 / 1024 < 10
-            if(!isLt2M){
-                this.$message({
-                    message: '上传文件不能超过10MB',
-                    type: 'warning'
-                })
-            }
         }
     }
 }
