@@ -40,5 +40,7 @@ export default {
     // 学生账号管理-班级管理-修改班长
     'alterClass': '/admin/students/monitor/alter',
     // 学生账号管理-班级管理-删除班长
-    'deleteClass': '/admin/students/monitor/delete'
+    'deleteClass': '/admin/students/monitor/delete',
+    // 学生账号管理-导入账号
+    'studentsUpload': '/admin/students/upload'
 }
