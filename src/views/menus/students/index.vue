@@ -3,10 +3,10 @@
     <div class="accounts">
         <!-- 按钮 -->
         <div class="a-button">
-            <el-button class="a1-button" type="primary" @click="dialogVisible = true">
+            <el-button class="a1-button" type="primary" @click="dialogVisible = true" v-if="addVisible">
                 添加账号
             </el-button>
-            <el-button class="a1-button" type="primary">导入账号</el-button>
+            <el-button class="a1-button" type="primary" @click="leadAccounts = true">导入账号</el-button>
             <el-button class="a1-button" type="primary" @click="classManager">班级管理</el-button>
         </div>
         <!-- 表格 -->
@@ -52,7 +52,8 @@
         <el-pagination
           small
           layout="prev, pager, next"
-          :total="50">
+          @current-change="handleCurrentChange"
+          :page-count="pageCount">
         </el-pagination>
         <!-- 出现添加账号对话框 -->
         <el-dialog
@@ -100,15 +101,35 @@
             </span>
         </el-dialog>
         <!-- 学生个人信息表-操作-修改信息【完】 -->
+        <!-- 导入账号-上传 -->
+        <div class="lead-box" v-if="leadAccounts">
+            <div class="close" v-on:click="leadAccounts = false">×</div>
+            <div class="lesd-box-title">导入账号</div>
+            <div class="lead-content-box">
+                <el-upload
+                    class="upload-demo"
+                    ref="upload"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :on-change="hangdChange"
+                    :file-list="fileList"
+                    multiple
+                    :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <el-button style="margin-left: 10px;" size="small" type="success"
+                        @click="submitUpload">上传
+                    </el-button>
+                    <div slot="tip" class="el-upload__tip">注意：只能上传Excel文件！</div>
+                </el-upload>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import { userApi, prefix, responseHandler } from '@/api'
-import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog } from 'element-ui'
-// import { type } from 'os'
+import { Button, Table, Input, Message, Pagination, Dropdown, Select, Dialog, Upload } from 'element-ui'
 export default {
-    name: 'Accounts',
+    name: 'Students',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
@@ -117,10 +138,17 @@ export default {
         [Dialog.name]: Dialog,
         [Pagination.name]: Pagination,
         [Select.name]: Select,
-        [Dropdown.name]: Dropdown
+        [Dropdown.name]: Dropdown,
+        [Upload.name]: Upload
     },
     data() {
         return {
+            // 老师身份验证-是否有添加账号按钮
+            addVisible: false,
+            // 是否弹出导入账号对话框
+            leadAccounts: false,
+            // 导入账号-上传
+            fileList: [],
             // 是否弹出修改信息的对话框
             alterMassage: false,
             // 是否弹出添加账号对话框
@@ -137,14 +165,23 @@ export default {
             contact: '',
             class_grade: '',
             dormitory: '',
-            operate: '',
-            information: []
+            information: [],
+            // 总页数
+            pageCount: 1,
+            file: ''
         }
     },
     created(){
         this.getStudents()
+        if(this.$route.query.admin_role_id === '老师'){
+            this.addVisible = true
+        }
     },
     methods: {
+        // 导入账号-获取文件
+        hangdChange(file, fileList){
+            this.fileList = fileList
+        },
         // 跳转班级管理
         classManager(){
             this.$router.push({ name: 'Monitor' })
@@ -160,8 +197,14 @@ export default {
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
+                this.pageCount = Number(response.data.data.pageCount)
                 this.information = response.data.data.information
             })
+        },
+        // 分页
+        handleCurrentChange(val){
+            this.getStudents(val)
+            this.page = val
         },
         // 获取添加账号中的内容
         addAccount(){
@@ -267,6 +310,40 @@ export default {
                 Message.success('请求成功')
                 this.alterMassage = false
             })
+        },
+        // 导入账号-上传
+        // 提交
+        submitUpload() {
+            if(this.fileList === ''){
+                this.leadAccounts = false
+                return
+            }
+            let formData = new FormData()
+            for(let i in this.fileList){
+                formData.append('students_file[]', this.fileList[i].raw)
+            }
+            this.$axios
+                .post(prefix.api + userApi.studentsUpload, formData)
+                .then((response)=>{
+                    if(!responseHandler(response.data, this)){
+                        Message.error('请求失败')
+                    }
+                    Message.success('请求成功')
+                    this.fileList = ''
+                    this.leadAccounts = false
+                })
+        },
+        studentsUpload(event) {
+            this.file = event.target.files[0]
+            let formData = new FormData()
+            formData.append('photofile', this.file)
+            console.log(formData.getAll('photofile'))
+            console.log(this.file)
+            this.$axios
+                .post(prefix.api + userApi.studentsUpload, formData)
+                .then(response => {
+                    this.getPic()
+                })
         }
 
     }
@@ -317,7 +394,7 @@ li{
 .title-box{
     width: 120*7px;
     height: @boxheight;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     display: flex;
     .title-box-item{
         width: 120px;
@@ -329,7 +406,7 @@ li{
 .content-box{
     height: @boxheight;
     width: 120*7px;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     border-top: none;
     display: flex;
     position: relative;
@@ -350,7 +427,7 @@ li{
 }
 
 .operate-box{
-    border: 1px solid black;
+    border: 1px solid  rgb(189, 189, 189);
     position: absolute;
     padding: 10px;
     right: -85px;
@@ -359,13 +436,7 @@ li{
     display: none;
     cursor: pointer;
 }
-// .operate{
-//     width: 10px !important;
-//     height: 10px !important;
-// }
 .operate-box-item{
-    // width: 100px;
-    // height: 30px;
     background: white;
     cursor: pointer;
     &:hover{
@@ -377,7 +448,7 @@ li{
     padding: 20px;
     width: 300px;
     height: 400px;
-    border: 1px solid black;
+    border: 1px solid rgb(189, 189, 189);
     position: absolute;
     left: 50%;
     top: 50%;
@@ -394,10 +465,28 @@ li{
     width: 100px;
 }
 .close{
+    &:hover{
+        display: block;
+        color: #409EFF;
+    }
     float: right;
-    font-size: 20px;
+    font-size: 25px;
     width: 20px;
-    height: 20px;
+    height: 0px;
+    position: flex;
     cursor: pointer;
+}
+.lead-box{
+    border: 1px solid rgb(189, 189, 189);
+    position: absolute;
+    padding: 15px;
+    right: 555px;
+    top: 250px;
+    background: white;
+    width: 300px;
+}
+.lead-content-box{
+    text-align: center;
+    padding: 20px;
 }
 </style>
