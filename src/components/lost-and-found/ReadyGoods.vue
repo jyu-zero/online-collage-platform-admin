@@ -1,5 +1,5 @@
 <template>
-  <div class="thing-item">
+  <div class="thing-item fade-slide">
         <!-- 这里img的地址应写用户上传的失物图片 -->
         <img :src="imgSrc" alt="">
         <div class="position-all">
@@ -40,7 +40,7 @@
                 <img :src="imgSrc" alt="">
             </div>
             <div class="info-body">
-                <div class="body-message" v-if="unetrieved">
+                <div class="body-message" v-if="statusCode">
                     <div class="thing-message">
                         <p class="thing-title" :title="title">{{title}}</p>
                         <div class="content">
@@ -58,7 +58,7 @@
                     </div>
                     <button class="red-btn btn claim-btn" @click="deteleGoods">删除</button>
                 </div>
-                <p v-show="!unetrieved">什么都没有哦</p>
+                <p class="error unable-handle" v-if="!statusCode">无法{{explainName}}</p>
             </div>
         </div>
     </div>
@@ -74,6 +74,20 @@ export default {
                 return '遗失'
             }else{
                 return '拾取'
+            }
+        },
+        explainName(){
+            if(this.actionStr === '拾取'){
+                return '认领'
+            }else{
+                return'找回'
+            }
+        },
+        statusCode(){
+            if(this.status === 2){
+                return false
+            }else{
+                return true
             }
         }
     },
@@ -170,7 +184,33 @@ export default {
 </script>
 
 <style>
+    .fade-slide{
+        animation: slide .6s
+    }
+
+    @keyframes slide {
+        0%{
+            opacity: 0;
+            transform: translateX(-100px)
+        }
+        100%{
+            opacity: 1;
+            transform: translateX(0)
+        }
+    }
+
     button{
         outline: none;
+    }
+
+    .error{
+        color: rgb(247, 53, 53);
+        font-size: 18px;
+        font-weight: 500;
+    }
+
+    .unable-handle{
+        text-align: center;
+        margin-top: 100px !important;
     }
 </style>

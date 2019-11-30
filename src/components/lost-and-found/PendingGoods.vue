@@ -1,14 +1,14 @@
 <template>
-    <div class="thing-item">
+    <div class="thing-item fade-slide">
         <div class="set-btn" v-show="isShow">
             <el-dropdown @command="handleOperation">
                 <span class="el-dropdown-link set-icon">
                     <font-awesome-icon icon="ellipsis-h"/>
                 </span>
                 <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="deleteGoods" style="text-align: center">删除</el-dropdown-item>
-                    <el-dropdown-item command="setPersonOperation" style="text-align: center">{{setBtnNaem}}</el-dropdown-item>
-                    <el-dropdown-item command="setCollage">
+                    <el-dropdown-item command="deleteGoods" title="删除物品" style="text-align: center">删除</el-dropdown-item>
+                    <el-dropdown-item command="setPersonOperation" :title="'是否' + setBtnNaem" style="text-align: center">{{setBtnNaem}}</el-dropdown-item>
+                    <el-dropdown-item command="setCollage" title="是否学院托管">
                         <el-switch
                             v-model="isCollage"
                             :active-value="isManagedByCollage ? false : true"
@@ -170,9 +170,9 @@ export default {
         },
         handleOperation(operation){
             switch (operation){
-                // 删除操作
                 case 'deleteGoods':
-                    this.$confirm('将删除该物品, 是否继续?', '提示', {
+                    // 删除操作
+                    this.$confirm('将删除该物品, 是否继续?', '删除物品', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
@@ -197,19 +197,54 @@ export default {
                     break
                 case 'setCollage':
                     // 设置是否学院托管
-                    this.$emit('setCollage', {
-                        isCollage: this.isCollage,
-                        goodId: this.goodId,
-                        sort: this.sort,
-                        thingItem: this.thingItem
+                    this.$confirm('该物品将取消/设置为学院托管, 是否继续?', '学院托管', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '设置成功!'
+                        })
+                        this.$emit('setCollage', {
+                            isCollage: this.isCollage,
+                            goodId: this.goodId,
+                            sort: this.sort,
+                            thingItem: this.thingItem
+                        })
+                    }).catch(() => {
+                        this.isCollage = !this.isCollage
+                        this.$message({
+                            type: 'error',
+                            message: '已取消设置'
+                        })
                     })
                     break
                 case 'setPersonOperation':
                     // 设置是否无人认领或无人找回
-                    this.$emit('setPersonOperation', {
-                        personOperation: this.personOperation,
-                        goodId: this.goodId,
-                        sort: this.sort
+                    this.$confirm('该物品将无法追溯, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '设置成功!'
+                        })
+                        this.$emit('setPersonOperation', {
+                            personOperation: this.personOperation,
+                            goodId: this.goodId,
+                            sort: this.sort,
+                            index: this.index,
+                            status: this.status,
+                            isSearch: this.isSearch,
+                            thingItem: this.thingItem
+                        })
+                    }).catch(() => {
+                        this.$message({
+                            type: 'error',
+                            message: '已取消设置'
+                        })
                     })
                     break
             }
@@ -222,6 +257,11 @@ export default {
 
 input{
     outline: none;
+}
+
+.bg-blur{
+    filter: blur(2px) brightness(.5);
+    box-shadow: inset 0 0 12px 4px #000;
 }
 
 .btn{
@@ -320,7 +360,7 @@ input{
     }
 
     img{
-        filter: brightness(.85);
+        filter: brightness(.8);
         width: 100%;
         height: 100%;
     }

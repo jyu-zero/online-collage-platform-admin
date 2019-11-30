@@ -6,6 +6,9 @@
                 <div class="wrap-head">
                     <div class="left-core">
                         <input type="text" class="search-input" placeholder="搜索物品" v-model="searchKeyword" @keyup.enter="getSearch">
+                        <div class="search-i" title="搜索" @click="getSearch">
+                            <font-awesome-icon icon="search"/>
+                        </div>
                     </div>
                     <div class="right-core">
                         <button class="btn blue-btn" title="丢失物品" @click="showSearchLost">添加寻物启事</button>
@@ -18,13 +21,17 @@
                         <span>搜索记录</span>
                     </div>
                     <div style="display: inline-block" v-for="(thingItem, index) of searchMessage" :key="index">
+                        <!-- 搜索到待认领的结果 -->
                         <pending-goods
-                            v-if="thingItem.sort === 1 ? true : false"
+                            v-if="thingItem.handle === 1 ? true : false"
+                            @verify="showEnterClaimWrap"
+                            @revise="reviseGoodsInfo"
+                            @delete="deleteGoods"
+                            @setCollage="setManagedByCollage"
+                            @setPersonOperation="setPersonOperation"
                             :thingItem="thingItem"
                             :index="index"
-                            :actionStr="thingItem.handle === 1 ? '拾取' : '遗失'"
-                            @verify="thingItem.handle === 1 ? showEnterClaimWrap($event) : showEnterRetrieveWrap($event)"
-                            @revise="reviseGoodsInfo"
+                            :actionStr="'拾取'"
                             :goodId="thingItem.goodId"
                             :isSearch="thingItem.isSearch"
                             :title="thingItem.title"
@@ -35,15 +42,85 @@
                             :place="thingItem.foundAtWhere"
                             :contact="thingItem.contact"
                             :sort="thingItem.sort"
+                            :status="thingItem.status"
                             :isManagedByCollage="thingItem.isManagedByCollage">
                         </pending-goods>
-                        <ready-goods v-if="thingItem.sort === 0 ? true : false" :thingItem="thingItem" :index="index"></ready-goods>
+                        <!-- 搜索到待找回的结果 -->
+                        <pending-goods
+                            v-if="thingItem.handle === 3 ? true : false"
+                            @verify="showEnterRetrieveWrap"
+                            @revise="reviseGoodsInfo"
+                            @delete="deleteGoods"
+                            @setCollage="setManagedByCollage"
+                            @setPersonOperation="setPersonOperation"
+                            :thingItem="thingItem"
+                            :index="index"
+                            :actionStr="'遗失'"
+                            :goodId="thingItem.goodId"
+                            :isSearch="thingItem.isSearch"
+                            :title="thingItem.title"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.retrieveAtWhen"
+                            :name="thingItem.retrieveBy"
+                            :place="thingItem.retrievedAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isManagedByCollage="thingItem.isManagedByCollage">
+                        </pending-goods>
+                        <!-- 搜索到已找回的信息 -->
+                        <ready-goods
+                            v-if="thingItem.handle === 4 ? true : false"
+                            :index="index"
+                            @delete="deleteGoods"
+                            :thingItem="thingItem"
+                            :actionStr="'遗失'"
+                            :title="thingItem.title"
+                            :goodId="thingItem.goodId"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.retrieveAtWhen"
+                            :name="thingItem.retrieveBy"
+                            :place="thingItem.retrieveAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isSearch="thingItem.isSearch"
+                            :isManagedByCollage="thingItem.isManagedByCollage"
+                            :enterName="thingItem.foundBy"
+                            :enterNum="thingItem.foundContact"
+                            :enterTime="thingItem.foundTime">
+                        </ready-goods>
+                        <!-- 搜索到已认领的信息 -->
+                        <ready-goods
+                            v-if="thingItem.handle === 2 ? true : false"
+                            :index="index"
+                            @delete="deleteGoods"
+                            :thingItem="thingItem"
+                            :actionStr="'拾取'"
+                            :title="thingItem.title"
+                            :goodId="thingItem.goodId"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.foundAtWhen"
+                            :name="thingItem.foundBy"
+                            :place="thingItem.foundAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isSearch="thingItem.isSearch"
+                            :isManagedByCollage="thingItem.isManagedByCollage"
+                            :enterName="thingItem.retrieveBy"
+                            :enterNum="thingItem.retrieveContact"
+                            :enterTime="thingItem.retrieveTime">
+                        </ready-goods>
                     </div>
                     <el-pagination
                         background
                         layout="prev, pager, next"
                         :page-size="imgTotal"
-                        @current-change="getSearch"
+                        @current-change="getSearchPage"
                         :total="searchTotal">
                     </el-pagination>
                 </div>
@@ -107,9 +184,9 @@
                         :title="thingItem.title"
                         :info="thingItem.info"
                         :imgSrc="thingItem.imgSrc"
-                        :time="thingItem.foundAtWhen"
-                        :name="thingItem.foundBy"
-                        :place="thingItem.foundAtWhere"
+                        :time="thingItem.retrieveAtWhen"
+                        :name="thingItem.retrieveBy"
+                        :place="thingItem.retrieveAtWhere"
                         :contact="thingItem.contact"
                         :sort="thingItem.sort"
                         :status="thingItem.status"
@@ -135,7 +212,6 @@
                         :index="index"
                         @delete="deleteGoods"
                         :thingItem="thingItem"
-                        :unetrieved="unetrieved"
                         :actionStr="'遗失'"
                         :title="thingItem.title"
                         :goodId="thingItem.goodId"
@@ -173,7 +249,6 @@
                         :index="index"
                         @delete="deleteGoods"
                         :thingItem="thingItem"
-                        :unetrieved="unetrieved"
                         :actionStr="'拾取'"
                         :title="thingItem.title"
                         :goodId="thingItem.goodId"
@@ -673,8 +748,8 @@ export default {
                 goodsImg: ''
             },
             // 无人认领或者无人找回状态
-            unclaimed: true,
-            unetrieved: true,
+            // unclaimed: true,
+            // unetrieved: true,
             // 待认领,待找回,已认领,已找回的总数
             pendingclaimTotal: 1,
             pendingRetrieveTotal: 1,
@@ -784,13 +859,14 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 isSearch: true,
+                                status: thingItem.status,
                                 sort: 1,
                                 handle: 1
                             }
                             this.searchMessage.push(good)
-                        }else if(thingItem.sort && thingItem.status === 1){
+                        }else if(thingItem.sort && thingItem.status){
                             // 已认领
                             let good = {
                                 userId: thingItem.user_id,
@@ -805,9 +881,11 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 isSearch: true,
-                                sort: 1
+                                status: thingItem.status,
+                                sort: 1,
+                                handle: 2
                             }
                             this.searchMessage.push(good)
                         }else if(!thingItem.sort && !thingItem.status){
@@ -822,13 +900,15 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 isSearch: true,
+                                status: thingItem.status,
                                 sort: 0,
-                                handle: 0
+                                handle: 3
                             }
                             this.searchMessage.push(good)
-                        }else if(!thingItem.sort && thingItem.status === 1){
+                        }else if(!thingItem.sort && thingItem.status){
+                            // 已找回
                             let good = {
                                 userId: thingItem.user_id,
                                 goodId: thingItem.good_id,
@@ -842,9 +922,11 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 isSearch: true,
-                                sort: 0
+                                status: thingItem.status,
+                                sort: 0,
+                                handle: 4
                             }
                             this.searchMessage.push(good)
                         }
@@ -883,9 +965,9 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 sort,
-                                status,
+                                status: thingItem.status,
                                 isSearch: false
                             }
                             this.pendingclaimMessage.push(good)
@@ -908,9 +990,9 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 sort,
-                                status,
+                                status: thingItem.status,
                                 isSearch: false
                             }
                             this.claimedMessage.push(good)
@@ -930,9 +1012,9 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 sort,
-                                status,
+                                status: thingItem.status,
                                 isSearch: false
                             }
                             this.pendingRetrieveMessage.push(good)
@@ -955,9 +1037,9 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image,
+                                imgSrc: prefix.api + thingItem.image,
                                 sort,
-                                status,
+                                status: thingItem.status,
                                 isSearch: false
                             }
                             this.retrievedMessage.push(good)
@@ -1049,18 +1131,7 @@ export default {
                         Message.error('删除失败,请小可爱再试一次')
                         return null
                     }
-                    console.log(payload.status, payload.sort)
-                    if(payload.isSearch){
-                        this.searchMessage.splice(payload.index, 1)
-                    }else if(!payload.status && payload.sort){
-                        this.pendingclaimMessage.splice(payload.index, 1)
-                    }else if(payload.status && payload.sort){
-                        this.claimedMessage.splice(payload.index, 1)
-                    }else if(!payload.status && !payload.sort){
-                        this.pendingRetrieveMessage.splice(payload.index, 1)
-                    }else if(payload.status && !payload.sort){
-                        this.retrievedMessage.splice(payload.index, 1)
-                    }
+                    this.deleteGoodsWrap(payload)
                 })
         },
         // 设置是否学院托管
@@ -1092,6 +1163,15 @@ export default {
                         return null
                     }
                     Message.success('设置成功了哦')
+                    this.deleteGoodsWrap(payload)
+                    payload.thingItem.status = 2
+                    if(payload.sort === 1){
+                        this.claimedMessage.pop()
+                        this.claimedMessage.unshift(payload.thingItem)
+                    }else{
+                        this.retrievedMessage.pop()
+                        this.retrievedMessage.unshift(payload.thingItem)
+                    }
                 })
         },
         /**
@@ -1116,10 +1196,9 @@ export default {
                             Message.error('新建拾取物失败,请再尝试一次')
                             return null
                         }
-                        this.pendingclaimMessage.pop()
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: thingItem.good_id,
+                            // goodId: response.data.data.rs.good_id,
                             info: this.submitInfo.goods,
                             isManagedByCollage: 1,
                             title: this.submitInfo.title,
@@ -1127,7 +1206,13 @@ export default {
                             foundBy: this.submitInfo.name,
                             foundAtWhen: this.submitInfo.time,
                             contact: this.submitInfo.contact,
-                            imgSrc: this.submitInfo.goodsImg
+                            imgSrc: this.submitInfo.goodsImg,
+                            sort: 1,
+                            status: 0,
+                            isSearch: false
+                        }
+                        if(this.pendingclaimMessage.length >= this.imgTotal){
+                            this.pendingclaimMessage.pop()
                         }
                         this.pendingclaimMessage.unshift(newGoods)
                         this.hideFoundAt()
@@ -1149,10 +1234,9 @@ export default {
                             Message.error('新建寻物启事失败,请再尝试一下')
                             return null
                         }
-                        this.pendingRetrieveMessage.pop()
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: thingItem.good_id,
+                            // goodId: response.data.data.rs.good_id,
                             info: this.submitInfo.goods,
                             isManagedByCollage: 1,
                             title: this.submitInfo.title,
@@ -1160,7 +1244,13 @@ export default {
                             retrieveBy: this.submitInfo.name,
                             retrieveAtWhen: this.submitInfo.time,
                             contact: this.submitInfo.contact,
-                            imgSrc: this.submitInfo.goodsImg
+                            imgSrc: this.submitInfo.goodsImg,
+                            sort: 0,
+                            status: 0,
+                            isSearch: false
+                        }
+                        if(this.pendingRetrieveMessage.length >= this.imgTotal){
+                            this.pendingRetrieveMessage.pop()
                         }
                         this.pendingRetrieveMessage.unshift(newGoods)
                         this.hideSearchLost()
@@ -1346,17 +1436,51 @@ export default {
                     this.currentStepbar[0] = true
                     break
                 case 'second':
+                    if(this.submitInfo.goods.trim() === ''){
+                        Message.error('物品名还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.title.trim() === ''){
+                        Message.error('标题还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.time.trim() === ''){
+                        Message.error('时间还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.where.trim() === ''){
+                        Message.error('地名还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.name.trim() === ''){
+                        Message.error('姓名尚没填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.contact.trim() === ''){
+                        Message.error('联系方式还没有填哦＞﹏＜')
+                        this.showStep('first')
+                        break
+                    }
                     this.showSecondStep = true
                     this.barHeight = this.bar[1]
                     this.currentStepbar[1] = true
                     break
                 case 'last':
+                    if(this.uploadImgTotal){
+                        this.submitInfo.goodsImg = this.cutOutImg(this.uploadImgSrc, this.divSize.width, this.divSize.height, this.imgPosition.left, this.imgPosition.top, this.showImgSize.width, this.showImgSize.height)
+                    }else{
+                        Message.error('请上传一张物品图片(oﾟvﾟ)ノ')
+                        this.showStep('second')
+                        break
+                    }
                     this.showLastStep = true
                     this.barHeight = this.bar[2]
                     this.currentStepbar[2] = true
-                    if(this.uploadImgTotal){
-                        this.submitInfo.goodsImg = this.cutOutImg(this.uploadImgSrc, this.divSize.width, this.divSize.height, this.imgPosition.left, this.imgPosition.top, this.showImgSize.width, this.showImgSize.height)
-                    }
                     break
             }
         },
@@ -1615,6 +1739,20 @@ export default {
 
             let nowTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
             return nowTime
+        },
+        // 删除物品(不刷新网页)
+        deleteGoodsWrap(payload){
+            if(payload.isSearch){
+                this.searchMessage.splice(payload.index, 1)
+            }else if(!payload.status && payload.sort){
+                this.pendingclaimMessage.splice(payload.index, 1)
+            }else if(payload.status && payload.sort){
+                this.claimedMessage.splice(payload.index, 1)
+            }else if(!payload.status && !payload.sort){
+                this.pendingRetrieveMessage.splice(payload.index, 1)
+            }else if(payload.status && !payload.sort){
+                this.retrievedMessage.splice(payload.index, 1)
+            }
         }
     }
 }
@@ -2048,12 +2186,7 @@ export default {
         width: 95%;
         margin: 0 auto;
         /* background-color: #3e3e3e; */
-
-        .bg-blur{
-            filter: blur(2px) brightness(.5);
-            box-shadow: inset 0 0 12px 4px #000;
-        }
-
+        
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
@@ -2070,6 +2203,22 @@ export default {
             display: flex;
             justify-content: space-between;
 
+            .left-core{
+                position: relative;
+
+                .search-i{
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    cursor: pointer;
+                    transform: translateY(-50%);
+                }
+
+                .search-i:hover{
+                    color: #2c9cc5;
+                }
+            }
+
             .search-input{
                 display: inline-block;
                 background-color: #ddd;
@@ -2078,6 +2227,7 @@ export default {
                 width: 240px;
                 border-radius: 3px;
                 padding: 3px 15px;
+                padding-right: 35px;
                 border: 1px solid #999;
                 transition: all .2s;
             }
