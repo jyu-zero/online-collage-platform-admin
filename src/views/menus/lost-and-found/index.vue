@@ -674,7 +674,7 @@
 </template>
 
 <script>
-import { Pagination, Message, MessageBox } from 'element-ui'
+import { Pagination, Message } from 'element-ui'
 import { prefix, responseHandler, lostAndFoundApi } from '@/api'
 import PendingGoods from '@/components/lost-and-found/PendingGoods'
 import ReadyGoods from '@/components/lost-and-found/ReadyGoods'
@@ -2186,7 +2186,7 @@ export default {
         width: 95%;
         margin: 0 auto;
         /* background-color: #3e3e3e; */
-        
+
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
