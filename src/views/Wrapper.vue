@@ -94,18 +94,26 @@ export default {
             ]
         }
     },
+    created(){
+        this.getLoginAccount()
+    },
     methods: {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
         },
         getLoginAccount(){
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
-                console.log(response)
+                this.account = response.data.data.account
+                this.name = response.data.data.name
                 if(!responseHandler(response.data, this)){
                 // 在这里处理错误
                     Message.error('请求失败')
                 }
                 Message.success('请求成功')
+                this.$router.push({ query: {
+                    admin_role_id: response.data.data.admin_role_id
+                }
+                })
             })
         },
         logout(){
