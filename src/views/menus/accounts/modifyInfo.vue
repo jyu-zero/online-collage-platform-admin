@@ -33,11 +33,15 @@ export default {
     },
     data(){
         return {
-            admin_role_id: this.admin_role_id,
-            name: this.name,
+            admin_role_id: '',
+            name: '',
             sex: '',
-            contact: ''
+            contact: '',
+            account: ''
         }
+    },
+    created(){
+        this.account = this.$route.params.account
     },
     methods: {
         // 修改信息
@@ -51,6 +55,7 @@ export default {
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     Message.error('修改失败')
+                    return
                 }
                 Message.success('修改成功')
                 this.$router.push({ name: 'Accounts' })

@@ -70,9 +70,7 @@
         <el-dialog :disabled="true"
         title="提示"
         :visible.sync="dialogVisible1"
-        width="28%"
-        :before-close="handleClose"
-        v-if="isDegrade">
+        width="28%">
         <span>确定要降级为学生账号吗？</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible1 = false">取 消</el-button>
@@ -83,8 +81,7 @@
         <el-dialog
         title="提示"
         :visible.sync="dialogVisible2"
-        width="28%"
-        :before-close="handleClose">
+        width="28%">
         <span>确定要删除账号吗？</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="dialogVisible2 = false">取 消</el-button>
@@ -115,6 +112,7 @@ export default {
     },
     data(){
         return{
+            account: '',
             dialogVisible1: false,
             dialogVisible2: false,
             admin_role_id: '',
@@ -137,8 +135,12 @@ export default {
             accountList: []
         }
     },
-    created() {
+    mounted() {
         this.getAccounts()
+        this.admin_role_id = this.$route.query.admin_role_id
+        if(this.admin_role_id === '老师'){
+            this.isTeacher = true
+        }
     },
     methods: {
         // 获取账号表格
@@ -153,11 +155,6 @@ export default {
                 }
                 this.accountList = response.data.data.information
                 Message.success('获取账号成功')
-                this.admin_role_id = this.$route.query.admin_role_id
-                if(this.admin_role_id === '老师'){
-                    this.isTeacher = true
-                    this.isDegrade = true
-                }
                 // this.$route.push({
                 //     params: {
                 //         admin_role_id: response.data.information.admin_role_id
@@ -170,16 +167,26 @@ export default {
         // 处理操作选择项
         chooseOption(scope){
             if(scope.row.option === '1'){
-                this.$router.push({ name: 'resetPasswd' })
+                this.$router.push({ name: 'resetPasswd',
+                    params: {
+                        account: scope.row.account
+                    }
+                })
             }
             if(scope.row.option === '2'){
-                this.$router.push({ name: 'modifyInfo' })
+                this.$router.push({ name: 'modifyInfo',
+                    params: {
+                        account: scope.row.account
+                    }
+                })
             }
             if(scope.row.option === '3'){
                 this.dialogVisible1 = true
+                this.account = scope.row.account
             }
             if(scope.row.option === '4'){
                 this.dialogVisible2 = true
+                this.account = scope.row.account
             }
         },
         // 添加账号
@@ -198,6 +205,7 @@ export default {
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     Message.error('降级失败')
+                    return
                 }
                 Message.success('降级成功')
             })
@@ -209,18 +217,19 @@ export default {
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     Message.error('删除失败')
+                    return
                 }
                 Message.success('删除成功')
             })
-        },
-        // 关闭处理按钮
-        handleClose(done) {
-            this.$confirm('确认关闭？')
-                .then(_ => {
-                    done()
-                })
-                .catch(_ => {})
         }
+        // 关闭处理按钮
+        // handleClose(done) {
+        //     this.$confirm('确认关闭？')
+        //         .then(_ => {
+        //             done()
+        //         })
+        //         .catch(_ => {})
+        // }
     }
 }
 </script>

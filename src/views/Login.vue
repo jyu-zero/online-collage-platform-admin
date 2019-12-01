@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { prefix, userApi } from '@/api'
+import { prefix, userApi, responseHandler } from '@/api'
 import { Form, FormItem, Button, Input, Message } from 'element-ui'
 export default {
     name: 'Login',
@@ -53,8 +53,12 @@ export default {
                 account: this.formLabelAlign.account,
                 password: this.formLabelAlign.password
             }).then((response) =>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('登录失败')
+                    return
+                }
                 Message.success('登陆成功')
-                this.$router.push({ name: 'Accounts' })
+                this.$router.push({ name: 'Overview' })
             })
         }
     }

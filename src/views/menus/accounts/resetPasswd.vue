@@ -23,10 +23,14 @@ export default {
     },
     data(){
         return{
-            old_password: this.old_password,
+            old_password: '',
             new_password: '',
-            re_password: ''
+            re_password: '',
+            account: ''
         }
+    },
+    created(){
+        this.account = this.$route.params.account
     },
     methods: {
         resetPasswd(){
@@ -49,12 +53,14 @@ export default {
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     Message.error('重置失败')
+                    return
                 }
                 Message.success('重置成功')
                 this.account = this.$route.query.account
                 this.$router.push({ name: 'Accounts' })
             })
         },
+        // 取消
         cancel(){
             this.$router.push({ name: 'Accounts' })
         }

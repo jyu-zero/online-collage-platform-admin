@@ -48,9 +48,9 @@ export default {
     methods: {
         // 添加账号
         addAccount(){
-            if(this.response.data.data.admin_role_id === '老师'){
+            // if(this.response.data.data.admin_role_id === '老师'){
 
-            }
+            // }
             this.$axios.post(prefix.api + userApi.addAccount, {
                 account: this.account,
                 admin_role_id: this.admin_role_id,

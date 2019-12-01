@@ -120,11 +120,9 @@ export default {
                 Message.success('获取学号姓名成功')
                 this.name = response.data.data.name
                 this.account = response.data.data.account
-                console.log(response)
                 // 把账号类型传递给后台账号管理页面登录模块
                 this.$router.push({
                     query: {
-                        account: response.data.data.account,
                         admin_role_id: response.data.data.admin_role_id
                     }
                 })
