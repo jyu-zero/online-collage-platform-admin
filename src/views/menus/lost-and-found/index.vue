@@ -63,7 +63,7 @@
                             :imgSrc="thingItem.imgSrc"
                             :time="thingItem.retrieveAtWhen"
                             :name="thingItem.retrieveBy"
-                            :place="thingItem.retrievedAtWhere"
+                            :place="thingItem.retrieveAtWhere"
                             :contact="thingItem.contact"
                             :sort="thingItem.sort"
                             :status="thingItem.status"
@@ -859,7 +859,7 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 isSearch: true,
                                 status: thingItem.status,
                                 sort: 1,
@@ -874,14 +874,13 @@ export default {
                                 info: thingItem.name,
                                 isManagedByCollage: thingItem.host,
                                 title: thingItem.title,
-                                // retrieveContach:
-                                // retrieveBy:
-                                // retrieveAtWhen:
+                                retrieveContact: thingItem.found_num,
+                                retrieveBy: thingItem.found_name,
                                 foundAtWhere: thingItem.place,
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 isSearch: true,
                                 status: thingItem.status,
                                 sort: 1,
@@ -900,7 +899,7 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 isSearch: true,
                                 status: thingItem.status,
                                 sort: 0,
@@ -915,14 +914,14 @@ export default {
                                 info: thingItem.name,
                                 isManagedByCollage: thingItem.host,
                                 title: thingItem.title,
-                                // foundContact:
-                                // foundBy:
+                                foundContact: thingItem.found_num,
+                                foundBy: thingItem.found_name,
                                 // foundAtWhen:
                                 retrieveAtWhere: thingItem.place,
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 isSearch: true,
                                 status: thingItem.status,
                                 sort: 0,
@@ -965,7 +964,7 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 sort,
                                 status: thingItem.status,
                                 isSearch: false
@@ -986,11 +985,13 @@ export default {
                                 // retrieveContach:
                                 // retrieveBy:
                                 // retrieveAtWhen:
+                                retrieveContact: thingItem.found_num,
+                                retrieveBy: thingItem.found_name,
                                 foundAtWhere: thingItem.place,
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 sort,
                                 status: thingItem.status,
                                 isSearch: false
@@ -1012,7 +1013,7 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 sort,
                                 status: thingItem.status,
                                 isSearch: false
@@ -1033,11 +1034,13 @@ export default {
                                 // foundContact:
                                 // foundBy:
                                 // foundAtWhen:
+                                foundContact: thingItem.found_num,
+                                foundBy: thingItem.found_name,
                                 retrieveAtWhere: thingItem.place,
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: prefix.api + thingItem.image,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
                                 sort,
                                 status: thingItem.status,
                                 isSearch: false
@@ -1062,7 +1065,8 @@ export default {
                 if((goods.where === goodsInfo.foundAtWhere) &&
                    (goods.time === goodsInfo.foundAtWhen) &&
                    (goods.name === goodsInfo.foundBy) &&
-                   (goods.contact === goodsInfo.contact)){
+                   (goods.contact === goodsInfo.contact) &&
+                   (goods.title === goodsInfo.title)){
                     // 当没有内容改变时,不执行任何操作
                     return null
                 }else{
@@ -1074,17 +1078,19 @@ export default {
                             time: goods.time,
                             place: goods.where,
                             contact_name: goods.name,
-                            contact_num: goods.contact
+                            contact_num: goods.contact,
+                            title: goods.title
                         })
                         .then(response => {
                             if(!responseHandler(response.data, this)){
-                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                Message.error(response.data.msg)
                                 return null
                             }
                             goodsInfo.foundAtWhere = goods.where
                             goodsInfo.foundAtWhen = goods.time
                             goodsInfo.foundBy = goods.name
                             goodsInfo.contact = goods.contact
+                            goodsInfo.title = goods.title
                         })
                 }
             }else{
@@ -1092,7 +1098,8 @@ export default {
                 if((goods.where === goodsInfo.foundAtWhere) &&
                    (goods.time === goodsInfo.foundAtWhen) &&
                    (goods.name === goodsInfo.foundBy) &&
-                   (goods.contact === goodsInfo.contact)){
+                   (goods.contact === goodsInfo.contact) &&
+                   (goods.title === goodsInfo.title)){
                     // 当没有内容改变时,不执行任何操作
                     return null
                 }else{
@@ -1104,17 +1111,19 @@ export default {
                             time: goods.time,
                             place: goods.where,
                             contact_name: goods.name,
-                            contact_num: goods.contact
+                            contact_num: goods.contact,
+                            title: goods.title
                         })
                         .then(response => {
                             if(!responseHandler(response.data, this)){
-                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                Message.error(response.data.msg)
                                 return null
                             }
                             goodsInfo.foundAtWhere = goods.where
                             goodsInfo.foundAtWhen = goods.time
                             goodsInfo.foundBy = goods.name
                             goodsInfo.contact = goods.contact
+                            goodsInfo.title = goods.title
                         })
                 }
             }
@@ -1128,7 +1137,7 @@ export default {
                 })
                 .then(response => {
                     if(!responseHandler(response.data, this)){
-                        Message.error('删除失败,请小可爱再试一次')
+                        Message.error(response.data.msg)
                         return null
                     }
                     this.deleteGoodsWrap(payload)
@@ -1144,7 +1153,7 @@ export default {
                 })
                 .then(response => {
                     if(!responseHandler(response.data, this)){
-                        Message.error('设置失败啦~')
+                        Message.error(response.data.msg)
                         return null
                     }
                     payload.thingItem.isManagedByCollage = payload.thingItem.isManagedByCollage === 1 ? 0 : 1
@@ -1159,7 +1168,7 @@ export default {
                 })
                 .then(response => {
                     if(!responseHandler(response.data, this)){
-                        Message.error('设置失败啦~')
+                        Message.error(response.data.msg)
                         return null
                     }
                     Message.success('设置成功了哦')
@@ -1193,12 +1202,12 @@ export default {
                     .post(prefix.api + lostAndFoundApi.addFoundGoodsInfo, formData)
                     .then(response => {
                         if(response.data.code !== '0000'){
-                            Message.error('新建拾取物失败,请再尝试一次')
+                            Message.error(response.data.msg)
                             return null
                         }
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: response.data.data.rs.good_id,
+                            goodId: response.data.data.goodId,
                             info: this.submitInfo.goods,
                             isManagedByCollage: 1,
                             title: this.submitInfo.title,
@@ -1231,12 +1240,12 @@ export default {
                     .post(prefix.api + lostAndFoundApi.addLostGoodsInfo, formData)
                     .then(response => {
                         if(response.data.code !== '0000'){
-                            Message.error('新建寻物启事失败,请再尝试一下')
+                            Message.error(response.data.msg)
                             return null
                         }
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: response.data.data.rs.good_id,
+                            goodId: response.data.data.goodId,
                             info: this.submitInfo.goods,
                             isManagedByCollage: 1,
                             title: this.submitInfo.title,
@@ -1278,7 +1287,7 @@ export default {
                 })
                 .then(response => {
                     if(!responseHandler(response.data, this)){
-                        Message.error('确认认领失败啦,请再试一次嗯')
+                        Message.error(response.data.msg)
                         return null
                     }
                     // 暂存数据

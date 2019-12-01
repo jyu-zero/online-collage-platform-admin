@@ -34,22 +34,22 @@
             <div class="info-body pending" @mouseleave="handleRevise(thingItem)">
                 <div class="body-message">
                     <div class="thing-message">
-                        <p class="thing-title" :title="title">{{title}}</p>
+                        <input class="thing-title r-title" type="text" :title="title" v-model="titleData">
                         <div class="content">
                             <p class="item">&nbsp;{{actionStr}}地址:&nbsp;</p>
-                            <input type="text" :value="place" class="r-where">
+                            <input type="text" v-model="placeData" class="r-where">
                         </div>
                         <div class="content">
                             <p class="item">&nbsp;{{actionStr}}时间:&nbsp;</p>
-                            <input type="text" :value="time" class="r-time">
+                            <input type="text" v-model="timeData" class="r-time">
                         </div>
                         <div class="content">
                             <p class="item">&nbsp;{{actionStr}}者姓名:&nbsp;</p>
-                            <input type="text" :value="name" class="r-name">
+                            <input type="text" v-model="nameData" class="r-name">
                         </div>
                         <div class="content">
                             <p class="item">&nbsp;联系方式:&nbsp;</p>
-                            <input type="text" :value="contact" class="r-contact">
+                            <input type="text" v-model="contactData" class="r-contact">
                         </div>
                     </div>
                     <button class="blue-btn btn claim-btn" @click="handleVerify(goodId, isSearch, index)">确认{{btnName}}</button>
@@ -69,7 +69,12 @@ export default {
             // 学院保管
             isCollage: this.isManagedByCollage,
             // 无人认领或无人拾取
-            isPersonOperation: false
+            isPersonOperation: false,
+            placeData: '',
+            timeData: '',
+            nameData: '',
+            contactData: '',
+            titleData: ''
         }
     },
     components: {
@@ -92,6 +97,13 @@ export default {
                 return'无人拾取'
             }
         }
+    },
+    created(){
+        this.placeData = this.place
+        this.timeData = this.time
+        this.nameData = this.name
+        this.contactData = this.contact
+        this.titleData = this.title
     },
     props: {
         thingItem: {
@@ -144,11 +156,12 @@ export default {
     methods: {
         handleRevise(goodsInfo){
             let goods = {}
-            let pendingRetrieveEle = document.getElementsByClassName('pending')[0]
-            goods.where = pendingRetrieveEle.getElementsByClassName('r-where')[0].value
-            goods.time = pendingRetrieveEle.getElementsByClassName('r-time')[0].value
-            goods.name = pendingRetrieveEle.getElementsByClassName('r-name')[0].value
-            goods.contact = pendingRetrieveEle.getElementsByClassName('r-contact')[0].value
+            // let pendingEle = document.getElementsByClassName('pending')[0]
+            goods.where = this.placeData
+            goods.time = this.timeData
+            goods.name = this.nameData
+            goods.contact = this.contactData
+            goods.title = this.titleData
             this.$emit('revise', {
                 goodsInfo,
                 sort: this.sort,
