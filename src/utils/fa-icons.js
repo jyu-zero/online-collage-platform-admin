@@ -1,5 +1,7 @@
 export {
     faUserSecret,
     faEye,
-    faCommentDots
+    faCommentDots,
+    faEllipsisH,
+    faSearch
 } from '@fortawesome/free-solid-svg-icons'
