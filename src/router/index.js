@@ -125,6 +125,12 @@ const routes = [
                 path: 'create',
                 name: 'CreateNews',
                 component: () => import('@/views/menus/news/CreateNews.vue')
+            },
+            {
+                // 编辑新闻页面
+                path: 'editor/:id',
+                name: 'EditorNews',
+                component: () => import('@/views/menus/news/EditorNews.vue')
             }
         ]
     },
