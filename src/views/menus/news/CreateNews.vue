@@ -116,7 +116,7 @@ export default {
                 this.fileFormData.append('file[]', this.fileList[i].raw)
             }
             const formData = this.fileFormData
-            console.log(this.fileFormData.getAll('file[]'))
+            // console.log(this.fileFormData.getAll('file[]'))
             this.$axios
                 .post(prefix.api + newsApi.uploads, formData)
                 .then(response=>{

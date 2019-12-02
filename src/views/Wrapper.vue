@@ -102,7 +102,7 @@ export default {
             ]
         }
     },
-    created() {
+    created(){
         this.getLoginAccount()
     },
     methods: {
@@ -114,7 +114,6 @@ export default {
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
                 if(!responseHandler(response.data, this)){
                     Message.error('请登录！')
-                    this.$router.push({ name: 'Overview' })
                     return
                 }
                 Message.success('获取学号姓名成功')
