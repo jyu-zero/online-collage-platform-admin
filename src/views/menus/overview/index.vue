@@ -6,7 +6,7 @@
                 <td v-for="(item,index) in timeList" :key="index">{{item}}</td>
             </tr>
             <tr>
-                <td v-for="(item,index) in arrangeList" :key="index">{{item}}</td>
+                <td v-for="(item,index) in arrangeList" :key="index"><span v-for="(name,index) in item" :key="index">{{name}} </span></td>
             </tr>
         </table>
         <div v-else class="tip">今日无值班人员</div>
@@ -59,7 +59,7 @@
 
 <script>
 import { Button, Message } from 'element-ui'
-import { responseHandler, dutySchedulingApi, prefix, userApi, newsApi, questionApi } from '@/api'
+import { responseHandler, dutySchedulingApi, prefix, newsApi, questionApi, lostAndFoundApi } from '@/api'
 export default {
     name: 'Overview',
     data() {
@@ -117,7 +117,7 @@ export default {
             }
         },
         getTodayLost () {
-            this.$axios.get(prefix.api + userApi.todayAdd).then(response => {
+            this.$axios.get(prefix.api + lostAndFoundApi.todayAdd).then(response => {
                 if(!responseHandler(response.data, this)){
                     Message.error('获取失物信息失败')
                 }
