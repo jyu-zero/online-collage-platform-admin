@@ -2,64 +2,56 @@
     <!-- 后台账户管理系统 -->
     <div class="accounts">
         <!-- 添加两个按钮 -->
-        <el-button type="primary" value="add" @click="addAccount">添加账号</el-button>
-        <el-button type="primary"  value="insert" @click="insertAccount">导入账号</el-button>
-
+        <el-button type="primary" value="add" @click="addAccount" v-if="isTeacher">添加账号</el-button>
+        <el-button type="primary"  value="insert" @click="uploadAccounts = true">导入账号</el-button>
+        <!-- 插入表格 -->
         <el-table
-        :data="tableData"
+        :data="accountList"
         border
-        style="width: 85%">
+        style="width: 80%">
         <el-table-column
             fixed
             prop="account"
             label="学号"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
-            prop="accountType"
+            prop="admin_role_id"
             label="账号类型"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             prop="name"
             label="姓名"
-            width="120"
             align="center">
         </el-table-column>
         <el-table-column
             prop="sex"
             label="性别"
-            width="108"
             align="center">
         </el-table-column>
         <el-table-column
             prop="contact"
             label="联系方式"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             prop="time"
             label="账号到期时间"
-            width="180"
             align="center">
         </el-table-column>
         <el-table-column
             label="操作"
-            width="186"
             align="center">
-            <!-- 在表格组件中嵌套下拉菜单组件 -->
-            <!-- <div class="handleCommand" @click="handleCommand">···
-            </div> -->
+            <!-- 操作选择项 -->
             <template slot-scope="scope">
-                <el-select v-model="scope.row.option" placeholder="请选择" @change="abc(scope)" value-key="scope.row.id">
+                <el-select v-model="scope.row.option" placeholder="请选择" clearable @change="chooseOption(scope)" value-key="scope.row.account">
                     <el-option
                     v-for="item in options"
                     :key="item.value"
                     :label="item.label"
-                    :value="item.value">
+                    :value="item.value"
+                    :disabled="false">
                     </el-option>
                 </el-select>
             </template>
@@ -67,34 +59,91 @@
         </el-table>
 
         <!-- 添加分页功能 -->
-        <!-- <el-pagination
+        <el-pagination
             background
             layout="prev, pager, next"
-            @current-change="getAccounts"
-            :page-count="pageCount"
-            :total="50">
-        </el-pagination> -->
+            @current-change="getCurrentPage"
+            :page-count="pageCount">
+        </el-pagination>
 
+        <!-- 降级弹窗 -->
+        <el-dialog :disabled="true"
+        title="提示"
+        :visible.sync="degradeMessageBox"
+        width="28%">
+        <span>确定要降级为学生账号吗？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="degradeMessageBox = false">取 消</el-button>
+            <el-button type="primary" @click="degrade">确 定</el-button>
+        </span>
+        </el-dialog>
+        <!-- 删除弹窗 -->
+        <el-dialog
+        title="提示"
+        :visible.sync="delMessageBox"
+        width="28%">
+        <span>确定要删除账号吗？</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="delMessageBox = false">取 消</el-button>
+            <el-button type="primary" @click="deleteAccount">确 定</el-button>
+        </span>
+        </el-dialog>
+        <!-- 导入账号的div弹窗 -->
+        <div class="lead-box" v-if="uploadAccounts">
+            <div class="close" v-on:click="uploadAccounts = false">×</div>
+            <h3 style="margin-top: 8px;">导入账号</h3>
+            <div align="center">
+            <el-upload
+                class="upload-demo"
+                ref="upload"
+                action="https://jsonplaceholder.typicode.com/posts/"
+                :on-change="hangdChange"
+                :file-list="fileList"
+                :auto-upload="false">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button size="small" type="success" @click="submitUpload">上传</el-button>
+                <div class="el-upload__tip">注意：只能上传Excel文件！</div>
+            </el-upload>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-// import responseHandler from '@/utils/responseHandler'
 import { prefix, responseHandler, userApi } from '@/api'
-import { Button, Table, Select, Pagination, Message } from 'element-ui'
+import { Button, Table, TableColumn, Select, Option, Pagination, Message, Alert, Dialog, Upload } from 'element-ui'
 
 export default {
     name: 'Accounts',
     components: {
         [Button.name]: Button,
         [Table.name]: Table,
+        [TableColumn.name]: TableColumn,
         [Select.name]: Select,
+        [Option.name]: Option,
         [Pagination.name]: Pagination,
-        [Message.name]: Message
+        [Message.name]: Message,
+        [Alert.name]: Alert,
+        [Dialog.name]: Dialog,
+        [Upload.name]: Upload
     },
     data(){
         return{
-            pageCount: 1,
+            account: '',
+            admin_role_id: '',
+            accountList: [],
+            // 降级弹窗
+            degradeMessageBox: false,
+            // 删除账号弹窗
+            delMessageBox: false,
+            // 导入账号
+            uploadAccounts: false,
+            // 判断是否是老师
+            isTeacher: false,
+            // 上传文件
+            file: '',
+            fileList: [],
+            // 操作选择项
             options: [{
                 value: '1',
                 label: '重置密码'
@@ -109,13 +158,20 @@ export default {
                 label: '删除账号'
             }],
             value: '',
-            tableData: []
+            // 页数
+            pageCount: 1
         }
     },
-    created() {
+    mounted() {
         this.getAccounts()
+        // 路由传参验证——账户类型
+        this.admin_role_id = this.$route.query.admin_role_id
+        if(this.admin_role_id === '老师'){
+            this.isTeacher = true
+        }
     },
     methods: {
+        // 获取账号表格
         getAccounts(page = 1){
             this.$axios.get(prefix.api + userApi.getAccounts, {
                 params: {
@@ -123,49 +179,106 @@ export default {
                 }
             }).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('获取账号失败')
                 }
-                this.pageCount = response.data.data.pageCount
-                this.tableData = response.data.data.information
-                Message.success('请求成功')
+                this.pageCount = Number(response.data.data.pageCount)
+                this.accountList = response.data.data.information
+                Message.success('获取账号成功')
             })
         },
+        // 分页
+        getCurrentPage(value){
+            this.getAccounts(value)
+            this.page = value
+        },
+        // 处理操作选择项
+        chooseOption(scope){
+            // 重置密码
+            if(scope.row.option === '1'){
+                this.$router.push({ name: 'resetPasswd',
+                    params: {
+                        account: scope.row.account
+                    }
+                })
+            }
+            // 修改信息
+            if(scope.row.option === '2'){
+                this.$router.push({ name: 'modifyInfo',
+                    params: {
+                        account: scope.row.account
+                    }
+                })
+            }
+            // 降级为学生账号
+            if(scope.row.option === '3'){
+                this.degradeMessageBox = true
+                this.account = scope.row.account
+            }
+            // 删除账号
+            if(scope.row.option === '4'){
+                this.delMessageBox = true
+                this.account = scope.row.account
+            }
+        },
+        // 添加账号
         addAccount(){
             this.$router.push({ name: 'addAccounts' })
         },
-        insertAccount(){
-
+        // 导入账号——获取文件
+        hangdChange(file, fileList){
+            this.fileList = fileList
+            // console.log(fileList)
         },
-        handleCommand(command){
-            this.$message('click on item ' + command)
+        // 导入账号——上传文件
+        submitUpload() {
+            if(this.fileList === ''){
+                this.uploadAccount = false
+                return
+            }
+            let formData = new FormData()
+            for(let i in this.fileList){
+                formData.append('accounts_file[]', this.fileList[i].raw)
+            }
+            console.log(formData.getAll('accounts_file[]'))
+            this.$axios.post(prefix.api + userApi.backUpload, {
+                accounts_file: formData
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('导入失败')
+                    return
+                }
+                Message.success('导入成功')
+                this.fileList = ''
+                this.uploadAccount = false
+            })
         },
-        abc(z){
-            if(z.row.option === '1'){
-                this.$router.push({ name: 'resetPasswd' })
+        // 降级为学生账号
+        degrade(){
+            this.admin_role_id = this.$route.params.admin_role_id
+            if(this.admin_role_id === '老师'){
+                Message.error('无法降级')
+                return
             }
-            if(z.row.option === '2'){
-                this.$router.push({ name: 'modifyInfo' })
-            }
-            if(z.row.option === '3'){
-                
-            }
+            this.$axios.post(prefix.api + userApi.degrade, {
+                account: this.account
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('降级失败')
+                    return
+                }
+                Message.success('降级成功')
+            })
         },
-        open() {
-            this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                this.$message({
-                    type: 'success',
-                    message: '删除成功!'
-                })
-            }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消删除'
-                })
+        // 删除账号
+        deleteAccount(){
+            this.$axios.post(prefix.api + userApi.deleteAccount, {
+                account: this.account
+            }).then((response)=>{
+                if(!responseHandler(response.data, this)){
+                    Message.error('删除失败')
+                    return
+                }
+                Message.success('删除成功')
             })
         }
     }
@@ -179,40 +292,17 @@ export default {
     // display: flex;
     // flex-direction: column;
     .el-button{
-        margin: 30px -5px 30px 40px;
+        margin: 30px -15px 30px 40px;
     }
     .el-table{
         margin-left: 50px;
     }
-    // .table{
-    //     margin: 0 auto;
-    //     display: flex;
-    //     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    //     font-size: 18px;
-    //     .title{
-    //         padding: 10px 10px;
-    //         border: 1px solid black;
-    //         text-align: center;
-    //     }
-    //     div:nth-child(n+2){
-    //         border-left: none;
-    //     }
-    // }
     .el-dropdown-link {
         color: #409EFF;
     }
     .el-pagination{
-        margin: 0 auto;
-    }
-    .handleCommand{
-        display: block;
-        color: #409EFF;
-        &:hover{
-            // width: 180px;
-            // height: 200px;
-            // border: 1px solid rgb(155, 155, 155);
-            cursor: pointer;
-        }
+        display: flex;
+        justify-content: center;
     }
 }
 
@@ -225,4 +315,34 @@ export default {
     background: white;
     display: none;
 }
+.el-dialog {
+    width: 100px;
+    height: 36px;
+    title {
+        font-size: 30px;
+    }
+}
+
+.lead-box{
+    position: fixed;
+    top: 250px;
+    left: 600px;
+    padding: 15px;
+    width: 280px;
+    background: white;
+    border: 1px solid rgb(184, 184, 184);
+    .el-button {
+        margin: 10px 5px;
+    }
+    .close {
+        float: right;
+        font-size: 25px;
+        width: 20px;
+        &:hover{
+            color: #409EFF;
+            cursor: pointer;
+        }
+    }
+}
+
 </style>

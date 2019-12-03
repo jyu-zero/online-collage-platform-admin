@@ -7,15 +7,15 @@ export default {
     'getAccounts': '/admin/accounts',
     // 获取后台姓名和学号
     'getLoginAccount': '/admin/get-student-name',
-    // 添加账号
+    // 后台账号管理-添加账号
     'addAccount': '/admin/accounts/create-account',
-    // 重置密码
+    // 后台账号管理-重置密码
     'resetPasswd': '/admin/accounts/resetting',
-    // 修改信息
+    // 后台账号管理-修改信息
     'modifyInfo': '/admin/accounts/modify-info',
-    // 降级为学生账号
+    // 后台账号管理-降级为学生账号
     'degrade': '/admin/accounts/demote',
-    // 删除账号
+    // 后台账号管理-删除账号
     'deleteAccount': '/admin/accounts/delete',
     // 显示今日新增的失物
     'todayAdd': '/admin/goods/today-add',
@@ -42,5 +42,7 @@ export default {
     // 学生账号管理-班级管理-删除班长
     'deleteClass': '/admin/students/monitor/delete',
     // 学生账号管理-导入账号
-    'studentsUpload': '/admin/students/upload'
+    'studentsUpload': '/admin/students/upload',
+    // 后台账号管理-导入账号
+    'backUpload': '/admin/accounts/upload'
 }

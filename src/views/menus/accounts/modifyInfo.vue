@@ -2,24 +2,20 @@
     <div class="modifyInfo">
         <h1>修改信息</h1>
             <div class="input-items">
-            <label class="item" for="account">学号：</label>
-                <el-input v-model="account"></el-input>
-            </div>
-            <div class="input-items">
             <label class="item" for="admin_role_id">账号类型：</label>
-                <el-input v-model="admin_role_id"></el-input>
+                <el-input v-model="admin_role_id" :value-key="admin_role_id"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="name">姓名：</label>
-                <el-input v-model="name"></el-input>
+                <el-input v-model="name" :value="name"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="sex">性别：</label>
-                <el-input v-model="sex"></el-input>
+                <el-input v-model="sex" :value="sex"></el-input>
             </div>
             <div class="input-items">
             <label class="item" for="contact">联系方式：</label>
-                <el-input v-model="contact"></el-input>
+                <el-input v-model="contact" :value="contact"></el-input>
             </div>
         <el-button type="primary" @click="modifyInfo">确定</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
@@ -37,14 +33,18 @@ export default {
     },
     data(){
         return {
-            account: '',
             admin_role_id: '',
             name: '',
             sex: '',
-            contact: ''
+            contact: '',
+            account: ''
         }
     },
+    created(){
+        this.account = this.$route.params.account
+    },
     methods: {
+        // 修改信息
         modifyInfo(){
             this.$axios.post(prefix.api + userApi.modifyInfo, {
                 account: this.account,
@@ -53,14 +53,15 @@ export default {
                 sex: this.sex,
                 contact: this.contact
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('修改失败')
+                    return
                 }
-                Message.success('请求成功')
+                Message.success('修改成功')
+                this.$router.push({ name: 'Accounts' })
             })
         },
+        // 取消
         cancel(){
             this.$router.push({ name: 'Accounts' })
         }

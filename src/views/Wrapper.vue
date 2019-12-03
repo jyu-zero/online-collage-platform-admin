@@ -2,20 +2,28 @@
     <div class="wrapper">
         <!-- 顶部导航栏 -->
         <header>
-            <h1>线上学院后台管理系统</h1>
-            <a href="http://localhost:8082/">前往官网</a>
-            <el-dropdown @command="logout">
-                <span class="el-dropdown-link">
-                    <div class="get-account-box">
-                        <span>{{name}}</span>
-                        <span>{{account}}</span>
-                    </div>
-                    <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command>注销</el-dropdown-item>
-                </el-dropdown-menu>
-            </el-dropdown>
+            <div class="flex-container">
+                <div class="flex-item">
+                    <h1>线上学院后台管理系统</h1>
+                </div>
+                <div class="flex-item">
+                    <a href="http://localhost:8082/">前往官网</a>
+                </div>
+                <div class="flex-item">
+                    <el-dropdown @command="logout">
+                        <span class="el-dropdown-link">
+                            <div class="get-account-box">
+                                <div>{{this.name}}</div>
+                                <div>{{this.account}}</div>
+                            </div>
+                            <i class="el-icon-arrow-down el-icon--right el-dropdown-link"></i>
+                        </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command>注销</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                </div>
+            </div>
         </header>
         <!-- 顶部导航栏 [完] -->
         <div class="wrapper-body">
@@ -101,29 +109,30 @@ export default {
         goToMenu(menuItem) {
             this.$router.push({ name: menuItem.routeName })
         },
+        // 获取学生学号姓名
         getLoginAccount(){
             this.$axios.get(prefix.api + userApi.getLoginAccount).then((response)=>{
-                this.account = response.data.data.account
-                this.name = response.data.data.name
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('请登录！')
+                    return
                 }
-                Message.success('请求成功')
-                this.$router.push({ query: {
-                    admin_role_id: response.data.data.admin_role_id
-                }
+                Message.success('获取学号姓名成功')
+                this.name = response.data.data.name
+                this.account = response.data.data.account
+                // 把账号类型传递给后台账号管理页面登录模块
+                this.$router.push({
+                    query: {
+                        admin_role_id: response.data.data.admin_role_id
+                    }
                 })
             })
         },
+        // 注销
         logout(){
             this.$axios.post(prefix.api + userApi.logout).then((response)=>{
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.success('注销成功')
                 }
-                Message.success('请求成功')
-                this.$router.push({ name: 'Login' })
             })
         }
 
@@ -136,9 +145,9 @@ export default {
     height:100%;
     display: flex;
     flex-direction: column;
-
     header{
         display: flex;
+        justify-content: center;
         justify-content: space-between;
         align-items: center;
         height:60px;
@@ -149,11 +158,13 @@ export default {
             margin:0;
             font-size:20px;
         }
-        a{
-            margin-left: 520px;
-        }
     }
-
+    a {
+        display: flex;
+        flex: 1;
+        text-decoration: none;
+        color: white;
+    }
     .wrapper-body{
         flex: 1;
         display: flex;
@@ -178,8 +189,25 @@ export default {
     display: flex;
 }
 .get-account-box{
+    font-size: 15px;
+    color: white;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
+    align-items: center;
+}
+.flex-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.flex-item {
+    margin: 10px;
+}
+
+.flex-item:first-child {
+    margin-right: auto;
 }
 
 </style>

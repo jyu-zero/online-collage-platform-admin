@@ -7,8 +7,8 @@ const routes = [
     {
         // TODO: 首页应该设置为后台的首页
         path: '/',
-        name: 'Test',
-        component: () => import('@/views/Test.vue')
+        name: 'Overview',
+        component: () => import('@/views/menus/overview/index.vue')
     },
     {
         // 登录页
@@ -47,12 +47,8 @@ const routes = [
         path: '/accounts',
         component: () => import('@/views/Wrapper.vue'),
         children: [{
-            path: '/',
-            name: 'Accounts',
-            component: () => import('@/views/menus/accounts/index.vue')
-        }, {
             // 账号管理
-            path: '/',
+            path: '/accounts',
             name: 'Accounts',
             component: () => import('@/views/menus/accounts/index.vue')
         }, {
@@ -70,18 +66,7 @@ const routes = [
             path: '/modifyInfo',
             name: 'modifyInfo',
             component: () => import('@/views/menus/accounts/modifyInfo.vue')
-        }, {
-            // 降级为学生账号
-            path: '/degrade',
-            name: 'degrade',
-            component: () => import('@/views/menus/accounts/degrade.vue')
-        }, {
-            // 删除账号
-            path: '/deleteAccount',
-            name: 'deleteAccount',
-            component: () => import('@/views/menus/accounts/deleteAccount.vue')
-        }
-        ]
+        }]
     },
     // 在线问答组界限 ----------
     {

@@ -3,8 +3,10 @@
         <h1>重置密码</h1>
         <label for="input">输入旧密码</label>
         <el-input v-model="old_password" show-password></el-input>
-        <label for="re-input">输入新密码</label>
+        <label for="new-input">输入新密码</label>
         <el-input v-model="new_password" show-password></el-input>
+        <label for="re-input">再次输入新密码</label>
+        <el-input v-model="re_password" show-password></el-input>
         <el-button type="primary" @click="resetPasswd">确定</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
     </div>
@@ -22,24 +24,43 @@ export default {
     data(){
         return{
             old_password: '',
-            new_password: ''
+            new_password: '',
+            re_password: '',
+            account: ''
         }
+    },
+    created(){
+        this.account = this.$route.params.account
     },
     methods: {
         resetPasswd(){
+            if(this.old_password.trim() === ''){
+                Message.error('输入密码不能为空')
+                return
+            }
+            if(this.old_password === this.new_password){
+                Message.error('更改密码一致，请重新输入')
+                return
+            }
+            if(this.new_password !== this.re_password){
+                Message.error('两次输入密码不一致，请重新输入')
+                return
+            }
             this.$axios.post(prefix.api + userApi.resetPasswd, {
                 old_password: this.old_password,
                 new_password: this.new_password,
                 account: this.account
             }).then((response)=>{
-                console.log(response)
                 if(!responseHandler(response.data, this)){
-                // 在这里处理错误
-                    Message.error('请求失败')
+                    Message.error('重置失败')
+                    return
                 }
-                Message.success('请求成功')
+                Message.success('重置成功')
+                this.account = this.$route.query.account
+                this.$router.push({ name: 'Accounts' })
             })
         },
+        // 取消
         cancel(){
             this.$router.push({ name: 'Accounts' })
         }

@@ -104,7 +104,7 @@
         <!-- 导入账号-上传 -->
         <div class="lead-box" v-if="leadAccounts">
             <div class="close" v-on:click="leadAccounts = false">×</div>
-            <div class="lesd-box-title">导入账号</div>
+            <div class="lead-box-title">导入账号</div>
             <div class="lead-content-box">
                 <el-upload
                     class="upload-demo"
