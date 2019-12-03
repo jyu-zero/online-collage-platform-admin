@@ -5,57 +5,155 @@
             <div class="head-body">
                 <div class="wrap-head">
                     <div class="left-core">
-                        <input type="text" class="search-input" placeholder="搜索物品">
+                        <input type="text" class="search-input" placeholder="搜索物品" v-model="searchKeyword" @keyup.enter="getSearch">
+                        <div class="search-i" title="搜索" @click="getSearch">
+                            <font-awesome-icon icon="search"/>
+                        </div>
                     </div>
                     <div class="right-core">
                         <button class="btn blue-btn" title="丢失物品" @click="showSearchLost">添加寻物启事</button>
                         <button class="btn red-btn" title="拾取物品" @click="showFoundAt">新建拾取物</button>
                     </div>
                 </div>
+                <!-- 搜索内容 [开始] -->
+                <div class="thing" v-if="showSearch">
+                    <div class="title search category">
+                        <span>搜索记录</span>
+                    </div>
+                    <div style="display: inline-block" v-for="(thingItem, index) of searchMessage" :key="index">
+                        <!-- 搜索到待认领的结果 -->
+                        <pending-goods
+                            v-if="thingItem.handle === 1 ? true : false"
+                            @verify="showEnterClaimWrap"
+                            @revise="reviseGoodsInfo"
+                            @delete="deleteGoods"
+                            @setCollage="setManagedByCollage"
+                            @setPersonOperation="setPersonOperation"
+                            :thingItem="thingItem"
+                            :index="index"
+                            :actionStr="'拾取'"
+                            :goodId="thingItem.goodId"
+                            :isSearch="thingItem.isSearch"
+                            :title="thingItem.title"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.foundAtWhen"
+                            :name="thingItem.foundBy"
+                            :place="thingItem.foundAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isManagedByCollage="thingItem.isManagedByCollage">
+                        </pending-goods>
+                        <!-- 搜索到待找回的结果 -->
+                        <pending-goods
+                            v-if="thingItem.handle === 3 ? true : false"
+                            @verify="showEnterRetrieveWrap"
+                            @revise="reviseGoodsInfo"
+                            @delete="deleteGoods"
+                            @setCollage="setManagedByCollage"
+                            @setPersonOperation="setPersonOperation"
+                            :thingItem="thingItem"
+                            :index="index"
+                            :actionStr="'遗失'"
+                            :goodId="thingItem.goodId"
+                            :isSearch="thingItem.isSearch"
+                            :title="thingItem.title"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.retrieveAtWhen"
+                            :name="thingItem.retrieveBy"
+                            :place="thingItem.retrieveAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isManagedByCollage="thingItem.isManagedByCollage">
+                        </pending-goods>
+                        <!-- 搜索到已找回的信息 -->
+                        <ready-goods
+                            v-if="thingItem.handle === 4 ? true : false"
+                            :index="index"
+                            @delete="deleteGoods"
+                            :thingItem="thingItem"
+                            :actionStr="'遗失'"
+                            :title="thingItem.title"
+                            :goodId="thingItem.goodId"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.retrieveAtWhen"
+                            :name="thingItem.retrieveBy"
+                            :place="thingItem.retrieveAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isSearch="thingItem.isSearch"
+                            :isManagedByCollage="thingItem.isManagedByCollage"
+                            :enterName="thingItem.foundBy"
+                            :enterNum="thingItem.foundContact"
+                            :enterTime="thingItem.foundTime">
+                        </ready-goods>
+                        <!-- 搜索到已认领的信息 -->
+                        <ready-goods
+                            v-if="thingItem.handle === 2 ? true : false"
+                            :index="index"
+                            @delete="deleteGoods"
+                            :thingItem="thingItem"
+                            :actionStr="'拾取'"
+                            :title="thingItem.title"
+                            :goodId="thingItem.goodId"
+                            :info="thingItem.info"
+                            :imgSrc="thingItem.imgSrc"
+                            :time="thingItem.foundAtWhen"
+                            :name="thingItem.foundBy"
+                            :place="thingItem.foundAtWhere"
+                            :contact="thingItem.contact"
+                            :sort="thingItem.sort"
+                            :status="thingItem.status"
+                            :isSearch="thingItem.isSearch"
+                            :isManagedByCollage="thingItem.isManagedByCollage"
+                            :enterName="thingItem.retrieveBy"
+                            :enterNum="thingItem.retrieveContact"
+                            :enterTime="thingItem.retrieveTime">
+                        </ready-goods>
+                    </div>
+                    <el-pagination
+                        background
+                        layout="prev, pager, next"
+                        :page-size="imgTotal"
+                        @current-change="getSearchPage"
+                        :total="searchTotal">
+                    </el-pagination>
+                </div>
+                <!-- 搜索内容 [结束] -->
                 <!-- 待认领 [开始] -->
                 <div class="thing">
                     <div class="title category">
                         <span>待认领</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of pendingclaimMessage" :key="index">
-                        <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img :src="thingItem.imgSrc" alt="">
-                        <div class="position-all flex-center thing-bg">
-                            <p class="title">{{thingItem.info}}</p>
-                            <!-- 是否学院托管 -->
-                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
-                        </div>
-                        <div class="info position-all">
-                            <div class="bg-blur position-all">
-                                <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img :src="thingItem.imgSrc" alt="">
-                            </div>
-                            <div class="info-body pending-claim" @mouseleave="reviseGoodsInfo(thingItem, 1, index)">
-                                <div class="body-message">
-                                    <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                        <div class="content">
-                                            <p class="item">&nbsp;拾取地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhere" class="g-where">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundAtWhen" class="g-time">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.foundBy" class="g-name">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact" class="g-contact">
-                                        </div>
-                                    </div>
-                                    <button class="blue-btn btn claim-btn" @click="showEnterClaimWrap(thingItem.goodId, index)">确认认领</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <pending-goods
+                        :actionStr="'拾取'"
+                        :index="index"
+                        v-for="(thingItem, index) of pendingclaimMessage"
+                        :key="index"
+                        @verify="showEnterClaimWrap"
+                        @revise="reviseGoodsInfo"
+                        @delete="deleteGoods"
+                        @setCollage="setManagedByCollage"
+                        @setPersonOperation="setPersonOperation"
+                        :thingItem="thingItem"
+                        :goodId="thingItem.goodId"
+                        :isSearch="thingItem.isSearch"
+                        :title="thingItem.title"
+                        :info="thingItem.info"
+                        :imgSrc="thingItem.imgSrc"
+                        :time="thingItem.foundAtWhen"
+                        :name="thingItem.foundBy"
+                        :place="thingItem.foundAtWhere"
+                        :contact="thingItem.contact"
+                        :sort="thingItem.sort"
+                        :status="thingItem.status"
+                        :isManagedByCollage="thingItem.isManagedByCollage">
+                    </pending-goods>
                     <el-pagination
                         background
                         layout="prev, pager, next"
@@ -70,45 +168,30 @@
                     <div class="title category">
                         <span>待找回</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of pendingRetrieveMessage" :key="index">
-                        <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img :src="thingItem.imgSrc" alt="">
-                        <div class="position-all flex-center thing-bg">
-                            <p class="title">{{thingItem.info}}</p>
-                            <!-- 是否学院托管 -->
-                            <span v-if="thingItem.isManagedByCollage">学院托管</span>
-                        </div>
-                        <div class="info position-all">
-                            <div class="bg-blur position-all">
-                                <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img :src="thingItem.imgSrc" alt="">
-                            </div>
-                            <div class="info-body pending-retrieve" @mouseleave="reviseGoodsInfo(thingItem, 0, index)">
-                                <div class="body-message">
-                                    <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失地址:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhere" class="r-where">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失时间:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveAtWhen" class="r-time">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
-                                            <input type="text" :value="thingItem.retrieveBy" class="r-name">
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <input type="text" :value="thingItem.contact" class="r-contact">
-                                        </div>
-                                    </div>
-                                    <button class="blue-btn btn claim-btn" @click="showEnterRetrieveWrap(thingItem.goodId, index)">确认找回</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <pending-goods
+                        :actionStr="'遗失'"
+                        :index="index"
+                        v-for="(thingItem, index) of pendingRetrieveMessage"
+                        :key="index"
+                        @verify="showEnterRetrieveWrap"
+                        @revise="reviseGoodsInfo"
+                        @delete="deleteGoods"
+                        @setCollage="setManagedByCollage"
+                        @setPersonOperation="setPersonOperation"
+                        :thingItem="thingItem"
+                        :goodId="thingItem.goodId"
+                        :isSearch="thingItem.isSearch"
+                        :title="thingItem.title"
+                        :info="thingItem.info"
+                        :imgSrc="thingItem.imgSrc"
+                        :time="thingItem.retrieveAtWhen"
+                        :name="thingItem.retrieveBy"
+                        :place="thingItem.retrieveAtWhere"
+                        :contact="thingItem.contact"
+                        :sort="thingItem.sort"
+                        :status="thingItem.status"
+                        :isManagedByCollage="thingItem.isManagedByCollage">
+                    </pending-goods>
                     <el-pagination
                         background
                         layout="prev, pager, next"
@@ -123,67 +206,29 @@
                     <div class="title category">
                         <span>已找回</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of retrievedMessage" :key="index">
-                        <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img :src="thingItem.imgSrc" alt="">
-                        <div class="position-all">
-                            <div class="flex-center thing-bg position-all">
-                                <p class="title">{{thingItem.info}}</p>
-                                <!-- 是否学院托管 -->
-                                <span v-if="thingItem.isManagedByCollage">学院托管</span>
-                            </div>
-                            <div class="info already">
-                                <div class="info-body">
-                                    <div class="body-message">
-                                        <div class="thing-message">
-                                            <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                            <div class="content">
-                                                <p class="item">&nbsp;遗失地址:&nbsp;</p>
-                                                <span>{{thingItem.retrieveAtWhere}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;遗失时间:&nbsp;</p>
-                                                <span>{{thingItem.retrieveAtWhen}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;遗失者姓名:&nbsp;</p>
-                                                <span>{{thingItem.retrieveBy}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                                <span>{{thingItem.contact}}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info position-all">
-                            <div class="bg-blur position-all">
-                                <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img :src="thingItem.imgSrc" alt="">
-                            </div>
-                            <div class="info-body">
-                                <div class="body-message" v-if="unetrieved">
-                                    <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                        <div class="content">
-                                            <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                            <span>{{thingItem.foundBy}}</span>
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <span>{{thingItem.foundContact}}</span>
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                            <span>{{thingItem.foundAtWhen}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <ready-goods
+                        v-for="(thingItem, index) of retrievedMessage"
+                        :key="index"
+                        :index="index"
+                        @delete="deleteGoods"
+                        :thingItem="thingItem"
+                        :actionStr="'遗失'"
+                        :title="thingItem.title"
+                        :goodId="thingItem.goodId"
+                        :info="thingItem.info"
+                        :imgSrc="thingItem.imgSrc"
+                        :time="thingItem.retrieveAtWhen"
+                        :name="thingItem.retrieveBy"
+                        :place="thingItem.retrieveAtWhere"
+                        :contact="thingItem.contact"
+                        :sort="thingItem.sort"
+                        :status="thingItem.status"
+                        :isSearch="thingItem.isSearch"
+                        :isManagedByCollage="thingItem.isManagedByCollage"
+                        :enterName="thingItem.foundBy"
+                        :enterNum="thingItem.foundContact"
+                        :enterTime="thingItem.foundTime">
+                    </ready-goods>
                     <el-pagination
                         background
                         layout="prev, pager, next"
@@ -198,68 +243,29 @@
                     <div class="title category">
                         <span>已认领</span>
                     </div>
-                    <div class="thing-item" v-for="(thingItem, index) of claimedMessage" :key="index">
-                        <!-- 这里img的地址应写用户上传的失物图片 -->
-                        <img :src="thingItem.imgSrc" alt="">
-                        <div class="position-all">
-                            <div class="flex-center thing-bg position-all">
-                                <p class="title">{{thingItem.info}}</p>
-                                <!-- 是否学院托管 -->
-                                <span v-if="thingItem.isManagedByCollage">学院托管</span>
-                            </div>
-                            <div class="info already">
-                                <div class="info-body">
-                                    <div class="body-message">
-                                        <div class="thing-message">
-                                            <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                            <div class="content">
-                                                <p class="item">&nbsp;拾取地址:&nbsp;</p>
-                                                <span>{{thingItem.foundAtWhere}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;拾取时间:&nbsp;</p>
-                                                <span>{{thingItem.foundAtWhen}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;拾取者姓名:&nbsp;</p>
-                                                <span>{{thingItem.foundBy}}</span>
-                                            </div>
-                                            <div class="content">
-                                                <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                                <span>{{thingItem.foundContact}}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info position-all">
-                            <div class="bg-blur position-all">
-                                <!-- 这里img的地址应写用户上传的失物图片 -->
-                                <img :src="thingItem.imgSrc" alt="">
-                            </div>
-                            <div class="info-body">
-                                <div class="body-message" v-if="unclaimed">
-                                    <div class="thing-message">
-                                        <p class="thing-title" :title="thingItem.title">{{thingItem.title}}</p>
-                                        <div class="content">
-                                            <p class="item">&nbsp;认领人:&nbsp;</p>
-                                            <span>{{thingItem.retrieveBy}}</span>
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;联系方式:&nbsp;</p>
-                                            <span>{{thingItem.retrievContact}}</span>
-                                        </div>
-                                        <div class="content">
-                                            <p class="item">&nbsp;认领时间:&nbsp;</p>
-                                            <span>{{thingItem.retrievAtWhen}}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p v-show="!unclaimed">什么都没有哦</p>
-                            </div>
-                        </div>
-                    </div>
+                    <ready-goods
+                        v-for="(thingItem, index) of claimedMessage"
+                        :key="index"
+                        :index="index"
+                        @delete="deleteGoods"
+                        :thingItem="thingItem"
+                        :actionStr="'拾取'"
+                        :title="thingItem.title"
+                        :goodId="thingItem.goodId"
+                        :info="thingItem.info"
+                        :imgSrc="thingItem.imgSrc"
+                        :time="thingItem.foundAtWhen"
+                        :name="thingItem.foundBy"
+                        :place="thingItem.foundAtWhere"
+                        :contact="thingItem.contact"
+                        :sort="thingItem.sort"
+                        :status="thingItem.status"
+                        :isSearch="thingItem.isSearch"
+                        :isManagedByCollage="thingItem.isManagedByCollage"
+                        :enterName="thingItem.retrieveBy"
+                        :enterNum="thingItem.retrieveContact"
+                        :enterTime="thingItem.retrieveTime">
+                    </ready-goods>
                     <el-pagination
                         background
                         layout="prev, pager, next"
@@ -670,12 +676,17 @@
 <script>
 import { Pagination, Message } from 'element-ui'
 import { prefix, responseHandler, lostAndFoundApi } from '@/api'
+import PendingGoods from '@/components/lost-and-found/PendingGoods'
+import ReadyGoods from '@/components/lost-and-found/ReadyGoods'
 // import { stat } from 'fs'
 export default {
     name: 'LostAndFound',
     components: {
         [Pagination.name]: Pagination,
-        [Message.name]: Message
+        [Message.name]: Message,
+        [PendingGoods.name]: PendingGoods,
+        [ReadyGoods.name]: ReadyGoods
+        // [Claimed.name]: Claimed
     },
     data(){
         return {
@@ -737,21 +748,42 @@ export default {
                 goodsImg: ''
             },
             // 无人认领或者无人找回状态
-            unclaimed: true,
-            unetrieved: true,
+            // unclaimed: true,
+            // unetrieved: true,
             // 待认领,待找回,已认领,已找回的总数
             pendingclaimTotal: 1,
             pendingRetrieveTotal: 1,
             claimedTotal: 1,
             retrievedTotal: 1,
             // 待认领信息
-            pendingclaimMessage: [],
+            pendingclaimMessage: [
+                // {
+                //     userId: 1,
+                //     goodId: 1,
+                //     info: 'hhh',
+                //     isManagedByCollage: true,
+                //     title: 'dddd',
+                //     foundAtWhere: '中山',
+                //     foundBy: 'ddloo',
+                //     foundAtWhen: '11-11',
+                //     contact: '123456',
+                //     imgSrc: '',
+                //     isSearch: false
+                // }
+            ],
             // 待找回信息
             pendingRetrieveMessage: [],
             // 已找回信息
             retrievedMessage: [],
             // 已认领信息
             claimedMessage: [],
+            // 搜索信息
+            showSearch: false,
+            searchKeyword: '',
+            searchMessage: [],
+            searchTotal: 1,
+            // 确认认领物品或者确认找回是否是属于搜索内容
+            isSearch: false,
             // 输入错误信息提示
             showError: false,
             errorMessage: '',
@@ -788,19 +820,133 @@ export default {
         getRetrieved(currentPage){
             this.getGoodsInfo(currentPage, 0, 1)
         },
+        // 搜索分页按钮
+        getSearchPage(currentPage){
+            this.getGoodsInfo(currentPage, 0, 1, this.searchKeyword)
+        },
+        // 键盘按下搜索时
+        getSearch(){
+            if(this.searchKeyword.trim() === ''){
+                return null
+            }else{
+                this.getSearchInfo()
+                if(this.searchMessage.length > 0){
+                    this.showSearch = true
+                }
+            }
+        },
+        // 搜索内容
+        getSearchInfo(){
+            this.$axios
+                .get(prefix.api + lostAndFoundApi.getGoodsInfo, {
+                    params: {
+                        currentPage: 1,
+                        search: this.searchKeyword
+                    }
+                })
+                .then(response => {
+                    this.searchMessage.splice(0)
+                    for(let thingItem of response.data.data.rs){
+                        if(thingItem.sort && !thingItem.status){
+                            // 待认领
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                foundAtWhere: thingItem.place,
+                                foundBy: thingItem.contact_name,
+                                foundAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                isSearch: true,
+                                status: thingItem.status,
+                                sort: 1,
+                                handle: 1
+                            }
+                            this.searchMessage.push(good)
+                        }else if(thingItem.sort && thingItem.status){
+                            // 已认领
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                retrieveContact: thingItem.found_num,
+                                retrieveBy: thingItem.found_name,
+                                foundAtWhere: thingItem.place,
+                                foundBy: thingItem.contact_name,
+                                foundAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                isSearch: true,
+                                status: thingItem.status,
+                                sort: 1,
+                                handle: 2
+                            }
+                            this.searchMessage.push(good)
+                        }else if(!thingItem.sort && !thingItem.status){
+                            // 待找回
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                retrieveAtWhere: thingItem.place,
+                                retrieveBy: thingItem.contact_name,
+                                retrieveAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                isSearch: true,
+                                status: thingItem.status,
+                                sort: 0,
+                                handle: 3
+                            }
+                            this.searchMessage.push(good)
+                        }else if(!thingItem.sort && thingItem.status){
+                            // 已找回
+                            let good = {
+                                userId: thingItem.user_id,
+                                goodId: thingItem.good_id,
+                                info: thingItem.name,
+                                isManagedByCollage: thingItem.host,
+                                title: thingItem.title,
+                                foundContact: thingItem.found_num,
+                                foundBy: thingItem.found_name,
+                                // foundAtWhen:
+                                retrieveAtWhere: thingItem.place,
+                                retrieveBy: thingItem.contact_name,
+                                retrieveAtWhen: thingItem.time,
+                                contact: thingItem.contact_num,
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                isSearch: true,
+                                status: thingItem.status,
+                                sort: 0,
+                                handle: 4
+                            }
+                            this.searchMessage.push(good)
+                        }
+                    }
+                    this.searchTotal = response.data.data.totalpage
+                })
+        },
         /**
          * 获取失物和拾取物信息
          * currentPage: 当前页码
          * sort: 分类,是认领呢 还是 找回呢 0是待找回,1是待认领
          * status: 1是已经完成,0是正在进行,2是放弃
          */
-        getGoodsInfo(currentPage, sort, status){
+        getGoodsInfo(currentPage, sort, status, keyword = null){
             this.$axios
                 .get(prefix.api + lostAndFoundApi.getGoodsInfo, {
                     params: {
                         page: currentPage,
                         sort,
-                        status
+                        status,
+                        search: keyword
                     }
                 })
                 .then(response => {
@@ -818,7 +964,10 @@ export default {
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                sort,
+                                status: thingItem.status,
+                                isSearch: false
                             }
                             this.pendingclaimMessage.push(good)
                         }
@@ -836,11 +985,16 @@ export default {
                                 // retrieveContach:
                                 // retrieveBy:
                                 // retrieveAtWhen:
+                                retrieveContact: thingItem.found_num,
+                                retrieveBy: thingItem.found_name,
                                 foundAtWhere: thingItem.place,
                                 foundBy: thingItem.contact_name,
                                 foundAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                sort,
+                                status: thingItem.status,
+                                isSearch: false
                             }
                             this.claimedMessage.push(good)
                         }
@@ -859,7 +1013,10 @@ export default {
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                sort,
+                                status: thingItem.status,
+                                isSearch: false
                             }
                             this.pendingRetrieveMessage.push(good)
                         }
@@ -877,11 +1034,16 @@ export default {
                                 // foundContact:
                                 // foundBy:
                                 // foundAtWhen:
+                                foundContact: thingItem.found_num,
+                                foundBy: thingItem.found_name,
                                 retrieveAtWhere: thingItem.place,
                                 retrieveBy: thingItem.contact_name,
                                 retrieveAtWhen: thingItem.time,
                                 contact: thingItem.contact_num,
-                                imgSrc: thingItem.image
+                                imgSrc: prefix.api + '/img/' + thingItem.image,
+                                sort,
+                                status: thingItem.status,
+                                isSearch: false
                             }
                             this.retrievedMessage.push(good)
                         }
@@ -894,18 +1056,17 @@ export default {
          * goods: 描述物品的信息
          * sort: 分类,是认领呢 还是 找回呢 1是待认领,0是待找回
          */
-        reviseGoodsInfo(goodsInfo, sort, index){
+        reviseGoodsInfo(payload){
+            let goods = payload.goods
+            let goodsInfo = payload.goodsInfo
+            let sort = payload.sort
             if(sort){
                 // 编辑待认领信息
-                let pendingClaimEle = document.getElementsByClassName('pending-claim')[index]
-                let where = pendingClaimEle.getElementsByClassName('g-where')[0].value
-                let time = pendingClaimEle.getElementsByClassName('g-time')[0].value
-                let name = pendingClaimEle.getElementsByClassName('g-name')[0].value
-                let contact = pendingClaimEle.getElementsByClassName('g-contact')[0].value
-                if((where === goodsInfo.foundAtWhere) &&
-                   (time === goodsInfo.foundAtWhen) &&
-                   (name === goodsInfo.foundBy) &&
-                   (contact === goodsInfo.contact)){
+                if((goods.where === goodsInfo.foundAtWhere) &&
+                   (goods.time === goodsInfo.foundAtWhen) &&
+                   (goods.name === goodsInfo.foundBy) &&
+                   (goods.contact === goodsInfo.contact) &&
+                   (goods.title === goodsInfo.title)){
                     // 当没有内容改变时,不执行任何操作
                     return null
                 }else{
@@ -914,33 +1075,31 @@ export default {
                         .post(prefix.api + lostAndFoundApi.reviseGoodsInfo, {
                             good_id: goodsInfo.good_id,
                             sort,
-                            time,
-                            place: where,
-                            contact_name: name,
-                            contact_num: contact
+                            time: goods.time,
+                            place: goods.where,
+                            contact_name: goods.name,
+                            contact_num: goods.contact,
+                            title: goods.title
                         })
                         .then(response => {
                             if(!responseHandler(response.data, this)){
-                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                Message.error(response.data.msg)
                                 return null
                             }
-                            goodsInfo.foundAtWhere = where
-                            goodsInfo.foundAtWhen = time
-                            goodsInfo.foundBy = name
-                            goodsInfo.contact = contact
+                            goodsInfo.foundAtWhere = goods.where
+                            goodsInfo.foundAtWhen = goods.time
+                            goodsInfo.foundBy = goods.name
+                            goodsInfo.contact = goods.contact
+                            goodsInfo.title = goods.title
                         })
                 }
             }else{
                 // 编辑待找回信息
-                let pendingRetrieveEle = document.getElementsByClassName('pending-retrieve')[index]
-                let where = pendingRetrieveEle.getElementsByClassName('r-where')[0].value
-                let time = pendingRetrieveEle.getElementsByClassName('r-time')[0].value
-                let name = pendingRetrieveEle.getElementsByClassName('r-name')[0].value
-                let contact = pendingRetrieveEle.getElementsByClassName('r-contact')[0].value
-                if((where === goodsInfo.foundAtWhere) &&
-                   (time === goodsInfo.foundAtWhen) &&
-                   (name === goodsInfo.foundBy) &&
-                   (contact === goodsInfo.contact)){
+                if((goods.where === goodsInfo.foundAtWhere) &&
+                   (goods.time === goodsInfo.foundAtWhen) &&
+                   (goods.name === goodsInfo.foundBy) &&
+                   (goods.contact === goodsInfo.contact) &&
+                   (goods.title === goodsInfo.title)){
                     // 当没有内容改变时,不执行任何操作
                     return null
                 }else{
@@ -949,23 +1108,80 @@ export default {
                         .post(prefix.api + lostAndFoundApi.reviseGoodsInfo, {
                             good_id: goodsInfo.good_id,
                             sort,
-                            time,
-                            place: where,
-                            contact_name: name,
-                            contact_num: contact
+                            time: goods.time,
+                            place: goods.where,
+                            contact_name: goods.name,
+                            contact_num: goods.contact,
+                            title: goods.title
                         })
                         .then(response => {
                             if(!responseHandler(response.data, this)){
-                                Message.error('修改信息失败的说,请稍后再试一次哦')
+                                Message.error(response.data.msg)
                                 return null
                             }
-                            goodsInfo.foundAtWhere = where
-                            goodsInfo.foundAtWhen = time
-                            goodsInfo.foundBy = name
-                            goodsInfo.contact = contact
+                            goodsInfo.foundAtWhere = goods.where
+                            goodsInfo.foundAtWhen = goods.time
+                            goodsInfo.foundBy = goods.name
+                            goodsInfo.contact = goods.contact
+                            goodsInfo.title = goods.title
                         })
                 }
             }
+        },
+        // 删除物品
+        deleteGoods(payload){
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.deleteGoods, {
+                    sort: payload.sort,
+                    good_id: payload.goodId
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error(response.data.msg)
+                        return null
+                    }
+                    this.deleteGoodsWrap(payload)
+                })
+        },
+        // 设置是否学院托管
+        setManagedByCollage(payload){
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.setManagedByCollage, {
+                    sort: payload.sort,
+                    good_id: payload.goodId,
+                    isCollage: payload.isCollage
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error(response.data.msg)
+                        return null
+                    }
+                    payload.thingItem.isManagedByCollage = payload.thingItem.isManagedByCollage === 1 ? 0 : 1
+                })
+        },
+        // 设置是否无人认领或无人找回
+        setPersonOperation(payload){
+            this.$axios
+                .post(prefix.api + lostAndFoundApi.setPersonOperation, {
+                    sort: payload.sort,
+                    good_id: payload.goodId
+                })
+                .then(response => {
+                    if(!responseHandler(response.data, this)){
+                        Message.error(response.data.msg)
+                        return null
+                    }
+                    Message.success('设置成功了哦')
+                    this.deleteGoodsWrap(payload)
+                    payload.thingItem.status = 2
+                    if(payload.sort === 1){
+                        this.claimedMessage.pop()
+                        this.claimedMessage.unshift(payload.thingItem)
+                    }else{
+                        this.retrievedMessage.pop()
+                        this.retrievedMessage.unshift(payload.thingItem)
+                    }
+                })
         },
         /**
          * 新建拾取物或者遗失物信息
@@ -983,24 +1199,29 @@ export default {
                 formData.append('contact_num', this.submitInfo.contact)
                 // 新建拾取物
                 this.$axios
-                    .post(prefix.api + lostAndFoundApi.addFoundGoodsInfo, { formData })
+                    .post(prefix.api + lostAndFoundApi.addFoundGoodsInfo, formData)
                     .then(response => {
                         if(response.data.code !== '0000'){
-                            Message.error('新建拾取物失败,请再尝试一次')
+                            Message.error(response.data.msg)
                             return null
                         }
-                        this.pendingclaimMessage.pop()
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: thingItem.good_id,
+                            goodId: response.data.data.goodId,
                             info: this.submitInfo.goods,
-                            isManagedByCollage: true,
+                            isManagedByCollage: 1,
                             title: this.submitInfo.title,
                             foundAtWhere: this.submitInfo.where,
                             foundBy: this.submitInfo.name,
                             foundAtWhen: this.submitInfo.time,
                             contact: this.submitInfo.contact,
-                            imgSrc: this.submitInfo.goodsImg
+                            imgSrc: this.submitInfo.goodsImg,
+                            sort: 1,
+                            status: 0,
+                            isSearch: false
+                        }
+                        if(this.pendingclaimMessage.length >= this.imgTotal){
+                            this.pendingclaimMessage.pop()
                         }
                         this.pendingclaimMessage.unshift(newGoods)
                         this.hideFoundAt()
@@ -1016,24 +1237,29 @@ export default {
                 formData.append('contact_name', this.submitInfo.name)
                 formData.append('contact_num', this.submitInfo.contact)
                 this.$axios
-                    .post(prefix.api + lostAndFoundApi.addLostGoodsInfo, { formData })
+                    .post(prefix.api + lostAndFoundApi.addLostGoodsInfo, formData)
                     .then(response => {
                         if(response.data.code !== '0000'){
-                            Message.error('新建寻物启事失败,请再尝试一下')
+                            Message.error(response.data.msg)
                             return null
                         }
-                        this.pendingRetrieveMessage.pop()
                         let newGoods = {
                             // userId: thingItem.user_id,
-                            // goodId: thingItem.good_id,
+                            goodId: response.data.data.goodId,
                             info: this.submitInfo.goods,
-                            isManagedByCollage: true,
+                            isManagedByCollage: 1,
                             title: this.submitInfo.title,
                             retrieveAtWhere: this.submitInfo.where,
                             retrieveBy: this.submitInfo.name,
                             retrieveAtWhen: this.submitInfo.time,
                             contact: this.submitInfo.contact,
-                            imgSrc: this.submitInfo.goodsImg
+                            imgSrc: this.submitInfo.goodsImg,
+                            sort: 0,
+                            status: 0,
+                            isSearch: false
+                        }
+                        if(this.pendingRetrieveMessage.length >= this.imgTotal){
+                            this.pendingRetrieveMessage.pop()
                         }
                         this.pendingRetrieveMessage.unshift(newGoods)
                         this.hideSearchLost()
@@ -1061,17 +1287,22 @@ export default {
                 })
                 .then(response => {
                     if(!responseHandler(response.data, this)){
-                        Message.error('确认认领失败啦,请再试一次嗯')
+                        Message.error(response.data.msg)
                         return null
                     }
                     // 暂存数据
                     let index = parseInt(this.enterGoodIndex)
-                    let pendingClaimInfo = this.pendingclaimMessage[index]
+                    let pendingClaimInfo = {}
+                    if(this.isSearch){
+                        pendingClaimInfo = this.searchMessage[index]
+                    }else{
+                        pendingClaimInfo = this.pendingclaimMessage[index]
+                    }
                     // 将暂存数据给已认领信息
                     this.pendingclaimMessage.splice(index, 1)
                     pendingClaimInfo.retrieveBy = this.enterContactName
                     pendingClaimInfo.retrieveContact = this.enterContactNum
-                    pendingClaimInfo.retrieveTime = this.getNowTime()
+                    pendingClaimInfo.retrieveAtWhen = this.getNowTime()
                     this.claimedMessage.pop()
                     this.claimedMessage.unshift(pendingClaimInfo)
                     this.hideEnterClaimWrap()
@@ -1103,13 +1334,18 @@ export default {
                     }
                     // 暂存数据
                     let index = parseInt(this.enterGoodIndex)
-                    console.log(index)
-                    let pendingRetrieveInfo = this.pendingRetrieveMessage[index]
+                    let pendingRetrieveInfo = {}
+                    if(this.isSearch){
+                        pendingRetrieveInfo = this.searchMessage[index]
+                    }else{
+                        pendingRetrieveInfo = this.pendingRetrieveMessage[index]
+                    }
                     // 将暂存数据给已找回信息
                     this.pendingRetrieveMessage.splice(index, 1)
-                    pendingRetrieveInfo.retrieveBy = this.enterContactName
-                    pendingRetrieveInfo.retrieveContact = this.enterContactNum
-                    pendingRetrieveInfo.retrieveTime = this.getNowTime()
+                    console.log(this.enterGoodIndex)
+                    pendingRetrieveInfo.foundBy = this.enterContactName
+                    pendingRetrieveInfo.foundContact = this.enterContactNum
+                    pendingRetrieveInfo.foundAtWhen = this.getNowTime()
                     this.retrievedMessage.pop()
                     this.retrievedMessage.unshift(pendingRetrieveInfo)
                     this.hideEnterRetrieveWrap()
@@ -1164,24 +1400,36 @@ export default {
         hideFoundAt(){
             this.showNewFoundWrap = false
         },
+        // 初始化确认窗口
+        initEnterWrap(){
+            this.enterContactName = ''
+            this.enterContactNum = ''
+            this.enterGoodId = ''
+            this.enterGoodIndex = ''
+        },
         // 显示确认认领窗口
-        showEnterClaimWrap(id, index){
+        showEnterClaimWrap(payload){
             this.showEnterClaim = true
-            this.enterGoodId = id
-            this.enterGoodIndex = index
+            this.enterGoodId = payload.goodId
+            this.enterGoodIndex = payload.index
+            this.isSearch = payload.isSearch
+            console.log(payload)
         },
         // 关闭确认认领窗口
         hideEnterClaimWrap(){
+            this.initEnterWrap()
             this.showEnterClaim = false
         },
         // 显示确认找回窗口
-        showEnterRetrieveWrap(id, index){
+        showEnterRetrieveWrap(payload){
+            this.enterGoodId = payload.goodId
+            this.isSearch = payload.isSearch
+            this.enterGoodIndex = payload.index
             this.showEnterRetrieve = true
-            this.enterGoodId = id
-            this.enterGoodIndex = index
         },
         // 关闭确认找回窗口
         hideEnterRetrieveWrap(){
+            this.initEnterWrap()
             this.showEnterRetrieve = false
         },
         // 新建拾取物或者遗失物步骤条
@@ -1197,17 +1445,51 @@ export default {
                     this.currentStepbar[0] = true
                     break
                 case 'second':
+                    if(this.submitInfo.goods.trim() === ''){
+                        Message.error('物品名还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.title.trim() === ''){
+                        Message.error('标题还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.time.trim() === ''){
+                        Message.error('时间还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.where.trim() === ''){
+                        Message.error('地名还没有填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.name.trim() === ''){
+                        Message.error('姓名尚没填哦(+_+)?')
+                        this.showStep('first')
+                        break
+                    }
+                    if(this.submitInfo.contact.trim() === ''){
+                        Message.error('联系方式还没有填哦＞﹏＜')
+                        this.showStep('first')
+                        break
+                    }
                     this.showSecondStep = true
                     this.barHeight = this.bar[1]
                     this.currentStepbar[1] = true
                     break
                 case 'last':
+                    if(this.uploadImgTotal){
+                        this.submitInfo.goodsImg = this.cutOutImg(this.uploadImgSrc, this.divSize.width, this.divSize.height, this.imgPosition.left, this.imgPosition.top, this.showImgSize.width, this.showImgSize.height)
+                    }else{
+                        Message.error('请上传一张物品图片(oﾟvﾟ)ノ')
+                        this.showStep('second')
+                        break
+                    }
                     this.showLastStep = true
                     this.barHeight = this.bar[2]
                     this.currentStepbar[2] = true
-                    if(this.uploadImgTotal){
-                        this.submitInfo.goodsImg = this.cutOutImg(this.uploadImgSrc, this.divSize.width, this.divSize.height, this.imgPosition.left, this.imgPosition.top, this.showImgSize.width, this.showImgSize.height)
-                    }
                     break
             }
         },
@@ -1446,7 +1728,7 @@ export default {
             let date = new Date()
             // 获取年-月-日
             let year = date.getFullYear()
-            let month = date.getMonth()
+            let month = date.getMonth() + 1
             let day = date.getDate()
             // 获取时-分-秒
             let hour = date.getHours()
@@ -1464,8 +1746,22 @@ export default {
                 second = '0' + second
             }
 
-            let nowTime = year + '-' + month + '-' + day + ' ' + hour + '-' + minute + '-' + second
+            let nowTime = year + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second
             return nowTime
+        },
+        // 删除物品(不刷新网页)
+        deleteGoodsWrap(payload){
+            if(payload.isSearch){
+                this.searchMessage.splice(payload.index, 1)
+            }else if(!payload.status && payload.sort){
+                this.pendingclaimMessage.splice(payload.index, 1)
+            }else if(payload.status && payload.sort){
+                this.claimedMessage.splice(payload.index, 1)
+            }else if(!payload.status && !payload.sort){
+                this.pendingRetrieveMessage.splice(payload.index, 1)
+            }else if(payload.status && !payload.sort){
+                this.retrievedMessage.splice(payload.index, 1)
+            }
         }
     }
 }
@@ -1900,11 +2196,6 @@ export default {
         margin: 0 auto;
         /* background-color: #3e3e3e; */
 
-        .bg-blur{
-            filter: blur(2px) brightness(.5);
-            box-shadow: inset 0 0 12px 4px #000;
-        }
-
         .title{
             text-shadow: 0 0 1px #000;
             // display: inline-block;
@@ -1921,6 +2212,22 @@ export default {
             display: flex;
             justify-content: space-between;
 
+            .left-core{
+                position: relative;
+
+                .search-i{
+                    position: absolute;
+                    right: 10px;
+                    top: 50%;
+                    cursor: pointer;
+                    transform: translateY(-50%);
+                }
+
+                .search-i:hover{
+                    color: #2c9cc5;
+                }
+            }
+
             .search-input{
                 display: inline-block;
                 background-color: #ddd;
@@ -1929,6 +2236,7 @@ export default {
                 width: 240px;
                 border-radius: 3px;
                 padding: 3px 15px;
+                padding-right: 35px;
                 border: 1px solid #999;
                 transition: all .2s;
             }
@@ -2034,6 +2342,7 @@ export default {
                     margin-left: 15px;
                 }
             }
+
             .category::after{
                 content: '';
                 z-index: -1;
@@ -2044,148 +2353,10 @@ export default {
                 height: 1.5px;
                 background-color: #1e1e1e;
             }
-        }
 
-        .thing-item{
-            display: inline-block;
-            margin-right: 30px;
-            position: relative;
-            width: 220px;
-            height: 260px;
-            background-color: black;
-            overflow: hidden;
-
-            img{
-                filter: brightness(.85);
-                width: 100%;
-                height: 100%;
+            .search::after{
+                width: 149px;
             }
-
-            p{
-                text-shadow: 0 2px 8px #000;
-                margin: 0;
-            }
-
-            .thing-bg{
-                // flex-direction: column;
-                align-items: flex-end;
-                z-index: 1;
-                padding-bottom: 10px;
-
-                span{
-                    font-size: 12px;
-                    margin: 3px;
-                    padding: 1px 8px;
-                    background-color: #ffe881;
-                    border-radius: 3px;
-                }
-            }
-
-            .title{
-                font-size: 20px;
-                color: #fff;
-                border: 0;
-                padding: 0;
-            }
-
-            .info{
-                z-index: 2;
-                transform-style: preserve-3d;
-                transform: translateZ(-100px);
-                opacity: 0;
-                transition: all .4s;
-                color: #ddd;
-
-                .info-body{
-                    position: relative;
-                    color: #fff;
-                    font-size: 14px;
-                    height: 100%;
-
-                    .body-message{
-                        padding: 10px 15px;
-
-                        .claim-btn{
-                            font-size: 14px;
-                            padding: 2px 6px;
-                            margin: 4px 0 0;
-                        }
-
-                        .thing-message{
-                            // word-break: break-all;
-
-                            p{
-                                // 很重要!!!!!!!
-                                // TODO: 控制显示行数失效,有待解决
-                                font-size: 14px;
-                                margin-bottom: 2px;
-                                display: -webkit-box;
-                                line-clamp: 2;
-                                -webkit-line-clamp: 2;
-                                text-overflow: ellipsis;
-                                font-size: 13px;
-                                overflow: hidden;
-                                -webkit-box-orient: vertical;
-                                color: #d6dee4;
-                            }
-
-                            input{
-                                font-family: Microsoft Yahei;
-                                background-color: transparent;
-                                border: 0;
-                                font-size: 12px;
-                                color: #f3f2f2;
-                                height: 16px;
-                                letter-spacing: .5px;
-                                border-radius: 3px;
-                                padding: 0 6px;
-                                margin-left: -6px;
-                                transition: all .2s;
-                                box-sizing: border-box;
-                                border: 1px solid hsla(0, 0%, 100%, 0);
-                            }
-
-                            input:hover{
-                                background-color: hsla(0, 0%, 100%, .2);
-                                border: 1px solid hsla(0, 0%, 100%, .5);
-                            }
-
-                            input:focus{
-                                background-color: #444;
-                            }
-
-                            .content{
-                                margin-bottom: 7px;
-
-                                .item{
-                                    font-size: 14px;
-                                }
-                            }
-
-                            .thing-title{
-                                color: #fff;
-                                font-size: 18px;
-                                text-align: center;
-                                margin-bottom: 6px;
-                                display: inline-block;
-                                height: 22px;
-                                width: 100%;
-                                white-space: nowrap;
-                            }
-                        }
-                    }
-                }
-            }
-
-            .already{
-                visibility: visible;
-                opacity: 1;
-            }
-        }
-
-        .thing-item:hover .info{
-            transform: translateZ(0);
-            opacity: 1;
         }
     }
 
