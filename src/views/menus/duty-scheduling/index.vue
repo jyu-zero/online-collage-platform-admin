@@ -34,9 +34,14 @@
 
         <!-- 查看单双周 -->
         <div id = "btn-single-double">
+            <div>
             <el-button type="primary" icon="el-icon-arrow-left" @click="getSingleWeek">单周</el-button>
             <el-button type="primary"  @click="currentDuty">当前值班</el-button>
             <el-button type="primary"  @click="getDoubleWeek">双周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+            </div>
+            <div class="block">
+                <el-date-picker v-model="value" type="date"  placeholder="请选择开学日期"></el-date-picker>
+            </div>
         </div>
 
         <!-- 这里开始是delon写的 -->
@@ -186,41 +191,20 @@ export default {
                 })
             })
         },
-        // 获取当前周值班安排 TODO:计算当前时间改变单双周
+        // 获取当前周值班安排
         currentDuty() {
-            this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
-                if(!responseHandler(response.data, this)){
-                    Message.error('获取当前值班失败！')
-                }
-                this.message = response.data.data
-                this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
-                this.dutyStaff = this.dutyStaff.slice(0, 40)
-                for(let i = 0; i < this.dutyStaff.length; i++){
-                    let weekday = ''
-                    switch(i % 5){
-                        case 0:
-                            weekday = 'monday'
-                            break
-                        case 1:
-                            weekday = 'tuesday'
-                            break
-                        case 2:
-                            weekday = 'wednesday'
-                            break
-                        case 3:
-                            weekday = 'thursday'
-                            break
-                        case 4:
-                            weekday = 'friday'
-                            break
-                    }
-                    let names = this.dutyStaff[i].name
-                    if(Array.isArray(names)){
-                        names = names.join(',')
-                    }
-                    this.tableData[Math.floor(i / 5)][weekday] = names
-                }
-            })
+            // 开始时间
+            let startTime = this.value
+            // 当前时间
+            let currentTime = new Date()
+            // 第几周
+            let weeks = Math.ceil(((currentTime.getTime() - new Date(startTime).getTime()) / (24 * 3600 * 1000)) / 7)
+            // 判断单双周
+            if(Number.isInteger(weeks / 2) === true){
+                this.getDoubleWeek()
+                return
+            }
+            this.getSingleWeek()
         },
         // TODO:跳转注册链接
         //   goToRegister(){
@@ -231,6 +215,7 @@ export default {
             this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
                 if(!responseHandler(response.data, this)){
                     Message.error('获取当前单周值班失败！')
+                    return
                 }
                 this.message = response.data.data
                 this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
@@ -267,6 +252,7 @@ export default {
             this.$axios.get(prefix.api + dutySchedulingApi.getArrange).then((response) => {
                 if(!responseHandler(response.data, this)){
                     Message.error('获取当前单周值班失败！')
+                    return
                 }
                 this.message = response.data.data
                 this.dutyStaff = this.message.map(item => { return { 'name': item.name } })
@@ -339,7 +325,7 @@ export default {
         checkSelectedOptions(selections) {
             console.log(selections)
         },
-        // TODO
+        // TODO:
         clearFreeStaffList() {
 
         },
@@ -408,6 +394,31 @@ export default {
     },
     data() {
         return {
+            // 返回开学时间
+            pickerOptions: {
+                shortcuts: [{
+                    text: '今天',
+                    onClick(picker) {
+                        picker.$emit('pick', new Date())
+                    }
+                }, {
+                    text: '昨天',
+                    onClick(picker) {
+                        const date = new Date()
+                        date.setTime(date.getTime() - 3600 * 1000 * 24)
+                        picker.$emit('pick', date)
+                    }
+                }, {
+                    text: '一周前',
+                    onClick(picker) {
+                        const date = new Date()
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
+                        picker.$emit('pick', date)
+                    }
+                }]
+            },
+            // 开学的时间
+            value: '',
             // 返回的值班安排数组中的姓名
             dutyStaff: [],
             // 返回的值班安排
@@ -557,6 +568,7 @@ export default {
                 ['36', '37', '38', '39', '40']
             ],
             saveIdArr: [],
+
             id: 0
         }
     }
@@ -567,16 +579,17 @@ export default {
 @width: 100px;
 .duty {
     position: relative;
-    height: 100%;
+    height: 100% auto;
     display: flex;
     flex-direction: column;
+    padding: 20px;
 }
 .button-group{
-    width: 100%;
+    width: 97%;
     margin-top: 2%;
     margin-bottom: 2%;
-    padding-left: 2%;
-    padding-right: 4%;
+    // padding-left: 1%;
+    // padding-right: 4%;
     display: flex;
     justify-content: space-between;
     & button{
@@ -673,6 +686,7 @@ a {
 #btn-single-double{
     text-align: center;
     margin-top: 20px;
+    display: inline-block;
 }
 // .arrange-bts-group,.week-choose-bt{
 //     display: inline-block;
@@ -693,6 +707,7 @@ h3 {
   top:25%;
   left:40%;
   border: 1px solid black;
+  background: white;
 }
 .record-course {
   width: @width*5+7px;
@@ -717,5 +732,10 @@ td {
 }
 .button {
   margin-top: 15px;
+}
+.block{
+    display: inline-block;
+    float: right;
+    margin-right: 3.5%;
 }
 </style>
